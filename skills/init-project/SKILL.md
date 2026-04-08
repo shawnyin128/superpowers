@@ -90,14 +90,15 @@ fact does not affect the next action, omit it.
 
 ## Context Management
 
-Project memory lives in `.claude/mem/`.
+Project memory lives in `.claude/mem/`. memory.md is a structured state
+snapshot (not a log) — always rewrite to reflect current state.
 
 **Core rules:**
-1. Read all memory files before any non-trivial task
-2. Update after every task that changes design or state
-3. Never delete or compress existing entries
+1. Read memory files at session start before any non-trivial task
+2. Update memory.md (especially Current State) after every task that changes design or state
+3. Keep memory.md under ~40 lines — merge and compress, never let it grow into a changelog
 
-- `memory.md` — key decisions, findings, and rationale
+- `memory.md` — current state, key decisions, findings
 - `todo.md` — open problems and deferred tasks
 
 ---
@@ -130,6 +131,13 @@ Create any missing files:
 **`.claude/mem/memory.md`:**
 ```markdown
 # Project Memory
+
+## Current State
+Project just initialized. No work started yet.
+
+## Key Decisions
+
+## Findings
 ```
 
 **`.claude/mem/todo.md`:**
