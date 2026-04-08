@@ -15,6 +15,17 @@ Comprehensive system-level review after all features are implemented and tested.
 This is NOT about whether features work (that is feature-tracker + tests).
 This is about making the system better: faster, cleaner, more maintainable.
 
+<EXTREMELY-IMPORTANT>
+Your default stance is ADVERSARIAL. You are here to find problems that the
+development process missed. "Everything looks fine" is almost never true for
+a full system. If your first pass finds fewer than 3 issues total across
+all 4 dimensions, do a second pass — you are not looking hard enough.
+
+For every dimension where you find zero issues, you MUST document what you
+checked and why nothing was found. "No issues" without explanation is not
+acceptable.
+</EXTREMELY-IMPORTANT>
+
 **Trigger:** feature-tracker invokes this when all features in docs/features.json
 pass. Can also be invoked manually at any time.
 

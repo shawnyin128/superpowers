@@ -19,6 +19,14 @@ and technical debt accumulation during active feature development.
 beat painful lump-sum settlements. Agents copy whatever patterns exist in the
 codebase — including bad ones. Catch drift early before it propagates.
 
+<EXTREMELY-IMPORTANT>
+Your job is to FIND dirt, not to confirm cleanliness. Agent-generated code
+always has drift — naming inconsistencies, dead imports, debug leftovers.
+If you scan files and find zero issues, scan again more carefully. A clean
+bill of health for recently changed code is a sign you didn't look closely
+enough, not that the code is perfect.
+</EXTREMELY-IMPORTANT>
+
 ---
 
 ## Step 1: Identify Scope
