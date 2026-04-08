@@ -21,7 +21,7 @@ Every project goes through this process. A todo list, a single-function utility,
 
 You MUST create a task for each of these items and complete them in order:
 
-1. **Explore project context** — check files, docs, recent commits
+1. **Explore project context** — check files, docs, recent commits. If `PROPOSAL.md` exists, read it first as the primary input for understanding what this project is about.
 2. **Offer visual companion** (if topic will involve visual questions) — this is its own message, not combined with a clarifying question. See the Visual Companion section below.
 3. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
 4. **Propose 2-3 approaches** — with trade-offs and your recommendation
@@ -30,7 +30,8 @@ You MUST create a task for each of these items and complete them in order:
 7. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
 8. **User reviews written spec** — ask user to review the spec file before proceeding
 9. **Update feature list** — extract features from the approved design into `docs/features.json` (see Feature List section below)
-10. **Transition to implementation** — invoke writing-plans skill to create implementation plan
+10. **Update project map** — add the new spec and features.json to CLAUDE.md's Project Map (see Project Map Update section below)
+11. **Transition to implementation** — invoke writing-plans skill to create implementation plan
 
 ## Process Flow
 
@@ -60,10 +61,12 @@ digraph brainstorming {
     "Write design doc" -> "Spec self-review\n(fix inline)";
     "Spec self-review\n(fix inline)" -> "User reviews spec?";
     "Update docs/features.json" [shape=box];
+    "Update CLAUDE.md Project Map" [shape=box];
 
     "User reviews spec?" -> "Write design doc" [label="changes requested"];
     "User reviews spec?" -> "Update docs/features.json" [label="approved"];
-    "Update docs/features.json" -> "Invoke writing-plans skill";
+    "Update docs/features.json" -> "Update CLAUDE.md Project Map";
+    "Update CLAUDE.md Project Map" -> "Invoke writing-plans skill";
 }
 ```
 
@@ -73,7 +76,10 @@ digraph brainstorming {
 
 **Understanding the idea:**
 
-- Check out the current project state first (files, docs, recent commits)
+- If `PROPOSAL.md` exists in the project root, read it first. This is the user's
+  project vision and serves as the primary input for brainstorming. Use it to
+  inform your questions and proposals rather than starting from scratch.
+- Check out the current project state (files, docs, recent commits)
 - Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
 - If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.
 - For appropriately-scoped projects, ask questions one at a time to refine the idea
@@ -170,6 +176,22 @@ Each feature follows this structure:
 - Commit the updated features.json alongside the design doc
 
 **Decomposition guideline:** A feature should be completable in a single session. If a feature feels too large, break it into sub-features.
+
+## Project Map Update
+
+After updating features.json, update the `## Project Map` section in `CLAUDE.md`
+to reference the new artifacts. This keeps the map current so new sessions can
+navigate the project.
+
+**What to update:**
+- Add the new spec file to the Docs index (if not already listed)
+- Add `docs/features.json` to the Docs index (if not already listed)
+- If the spec introduces new directories or components, add them to the Structure section
+
+**Rules:**
+- Do not rewrite the entire Project Map — only add/update entries for new artifacts
+- Keep entries to one line each
+- Commit the CLAUDE.md update together with the spec and features.json
 
 ## Key Principles
 
