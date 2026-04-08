@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+#
+# Pre-push hook: remind to bump version if skills changed since last push.
+#
+# Install: git config core.hooksPath .githooks
+#
+
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+# Get current version from package.json
+current_version=$(jq -r '.version' "$REPO_ROOT/package.json")
+
+# Check if any skill files changed since the last push
+# Compare HEAD against the remote tracking branch
+remote_ref=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "")
+
+if [ -z "$remote_ref" ]; then
+  # No upstream tracking — compare against first commit
+  changed_skills=$(git diff --name-only $(git rev-list --max-parents=0 HEAD) HEAD -- skills/ | head -5)
+else
+  remote_sha=$(git rev-parse "$remote_ref" 2>/dev/null || echo "")
+  if [ -z "$remote_sha" ]; then
+    changed_skills=""
+  else
+    changed_skills=$(git diff --name-only "$remote_sha" HEAD -- skills/ | head -5)
+  fi
+fi
+
+if [ -n "$changed_skills" ]; then
+  # Check if version was bumped in these commits
+  version_changed=$(git diff "$remote_sha" HEAD -- package.json | grep '"version"' || true)
+
+  if [ -z "$version_changed" ]; then
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "⚠️  VERSION BUMP REMINDER"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "Skills changed since last push but version is still $current_version."
+    echo "Changed files:"
+    echo "$changed_skills" | sed 's/^/  /'
+    echo ""
+    echo "Run: scripts/bump-version.sh X.Y.Z"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    # Don't block — just remind
+  fi
+fi
+
+exit 0
