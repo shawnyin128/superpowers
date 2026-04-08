@@ -42,8 +42,9 @@ Extract:
 
 1. **Project name**
 2. **Quick commands**: build, test, lint, dev server (from package.json scripts, Makefile, etc.)
-3. **Docs tree**: list the full directory tree of docs/ — every subdirectory and
-   every file. This IS the project map. The filenames are self-describing.
+3. **Docs tree**: full directory tree of docs/ — every subdirectory and file
+4. **Codebase tree**: top-level directories and key subdirectories with a few
+   words each (e.g., `src/api/ — REST endpoints`). Keep it brief.
 
 If the project is empty or has no recognizable structure, ask the user to describe
 what the project will be. Use their answer for the Project Map section.
@@ -110,9 +111,10 @@ snapshot (not a log) — always rewrite to reflect current state.
 
 <Quick commands — only if detected>
 
+### Design Docs
 docs/
 ├── design-docs/
-│   └── <list actual files found, or (empty) if none>
+│   └── <list actual files, or (empty)>
 ├── plans/
 │   ├── active/
 │   │   └── <list actual files>
@@ -121,14 +123,18 @@ docs/
 ├── features.json
 └── reports/
     └── <list actual files>
+
+### Codebase
+<directory tree with a few words per entry, generated from Step 1>
 ```
 
 **Rules:**
 - Total CLAUDE.md MUST stay under 80 lines.
 - Do not add sections beyond the three above.
 - Quick commands: use `command | command` inline format, not a table.
-- Project Map IS the docs/ directory tree. List every file. No code directories.
-- Update this tree whenever brainstorming or writing-plans creates new docs.
+- Design Docs: list every file in docs/. Update when new docs are created.
+- Codebase: brief directory tree with short descriptions. Not every file —
+  just directories that help a new agent navigate.
 
 ---
 
