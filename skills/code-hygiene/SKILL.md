@@ -103,7 +103,7 @@ Code hygiene found 2 items needing your input:
 
 ---
 
-## Step 4: Commit and Report
+## Step 4: Commit, Report, and Signal Completion
 
 Commit auto-fixes:
 ```
@@ -117,6 +117,21 @@ Code hygiene complete (scanned N files):
   Escalated: Y items (see above)
   Skipped: Z items (minor, not worth fixing now)
 ```
+
+**Write completion signal** to `.claude/agents/hygiene-result.json`:
+
+```json
+{
+  "status": "complete",
+  "auto_fixed": {number},
+  "escalated": {number},
+  "skipped": {number}
+}
+```
+
+Feature-tracker reads this file to confirm hygiene succeeded before
+updating `last_hygiene_at_completed` in features.json. If hygiene
+fails or is interrupted, do NOT write this file.
 
 Update `.claude/mem/memory.md` if any significant patterns were found
 (e.g., "drift toward inconsistent error handling — watch for this").

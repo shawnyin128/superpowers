@@ -98,9 +98,13 @@ Update `.claude/mem/memory.md` Current State to reflect completion.
 
 **Hygiene check:** Read `last_hygiene_at_completed` from docs/features.json
 (default 0 if missing). Count total features with `passes: true`. If
-`completed_count - last_hygiene_at_completed >= 3`, you MUST invoke
-**code-hygiene** skill, then update `last_hygiene_at_completed` to
-current completed_count in features.json. This persists across sessions.
+`completed_count - last_hygiene_at_completed >= 3`:
+1. Invoke **code-hygiene** skill
+2. Read `.claude/agents/hygiene-result.json` — verify `status` is `"complete"`
+3. Only if complete: update `last_hygiene_at_completed` to current
+   completed_count in features.json and delete hygiene-result.json
+4. If file missing or status is not complete: do NOT update counter,
+   warn user that hygiene did not complete successfully
 
 **Check if ALL features pass:**
 - **NO (features remain)** → GO BACK TO STEP 2 NOW. Show progress, pick next feature,
