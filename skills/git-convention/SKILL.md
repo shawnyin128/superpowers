@@ -4,7 +4,7 @@ description: |
   Enforce structured git commit messages before every commit. MUST be invoked
   before any git commit. Uses [module]: description format so git log serves
   as a reliable context source for new sessions recovering project state.
-author: superpowers
+author: sp-harness
 version: 1.0.0
 ---
 

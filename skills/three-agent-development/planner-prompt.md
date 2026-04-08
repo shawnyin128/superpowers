@@ -44,7 +44,7 @@ Agent tool:
 
     ## Phase 2: Write Implementation Plan
 
-    Invoke superpowers:writing-plans to generate the plan. Pass feature
+    Invoke sp-harness:writing-plans to generate the plan. Pass feature
     steps as requirements. writing-plans produces TDD steps, file structure,
     fallback design, no placeholders.
 

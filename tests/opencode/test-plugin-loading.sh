@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Test: Plugin Loading
-# Verifies that the superpowers plugin loads correctly in OpenCode
+# Verifies that the sp-harness plugin loads correctly in OpenCode
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -42,12 +42,12 @@ else
     exit 1
 fi
 
-# Test 3: Check using-superpowers skill exists (critical for bootstrap)
-echo "Test 3: Checking using-superpowers skill (required for bootstrap)..."
-if [ -f "$SUPERPOWERS_SKILLS_DIR/using-superpowers/SKILL.md" ]; then
-    echo "  [PASS] using-superpowers skill exists"
+# Test 3: Check using-sp-harness skill exists (critical for bootstrap)
+echo "Test 3: Checking using-sp-harness skill (required for bootstrap)..."
+if [ -f "$SUPERPOWERS_SKILLS_DIR/using-sp-harness/SKILL.md" ]; then
+    echo "  [PASS] using-sp-harness skill exists"
 else
-    echo "  [FAIL] using-superpowers skill not found (required for bootstrap)"
+    echo "  [FAIL] using-sp-harness skill not found (required for bootstrap)"
     exit 1
 fi
 

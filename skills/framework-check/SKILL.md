@@ -1,17 +1,17 @@
 ---
 name: framework-check
 description: |
-  Health check for the superpowers project framework. Verifies CLAUDE.md
+  Health check for the sp-harness project framework. Verifies CLAUDE.md
   content format (not just section names), memory system, hooks, docs
   structure, features.json, and git conventions. Detects and migrates
   old framework formats. Auto-fixes by rewriting CLAUDE.md from template.
-author: superpowers
+author: sp-harness
 version: 2.0.0
 ---
 
 # framework-check
 
-Verify the current project follows the superpowers framework. Detect old
+Verify the current project follows the sp-harness framework. Detect old
 formats and migrate. Auto-fix anything wrong.
 
 ---

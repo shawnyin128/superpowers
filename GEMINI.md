@@ -1,2 +1,2 @@
-@./skills/using-superpowers/SKILL.md
-@./skills/using-superpowers/references/gemini-tools.md
+@./skills/using-sp-harness/SKILL.md
+@./skills/using-sp-harness/references/gemini-tools.md

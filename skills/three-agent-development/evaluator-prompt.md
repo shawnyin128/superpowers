@@ -27,10 +27,10 @@ Agent tool:
 
     1. Check `method`:
        - `spec-review` → verify implementation matches requirements
-         (approach from superpowers spec-reviewer: read actual code,
+         (approach from sp-harness spec-reviewer: read actual code,
          check missing/extra/misunderstood requirements)
        - `code-review` → verify implementation quality
-         (approach from superpowers code-quality-reviewer: clean code,
+         (approach from sp-harness code-quality-reviewer: clean code,
          proper tests, maintainable structure)
        - `both` → spec-review first, then code-review
 

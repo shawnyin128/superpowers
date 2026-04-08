@@ -3,17 +3,17 @@ name: three-agent-development
 description: |
   Feature-level orchestration with three independent agents: Planner (design),
   Generator (execution), and Evaluator (quality assessment). Each agent
-  delegates to existing superpowers skills internally. Agents communicate
+  delegates to existing sp-harness skills internally. Agents communicate
   through files in .claude/agents/. Explicitly triggered by feature-tracker
   or user.
-author: superpowers
+author: sp-harness
 version: 2.0.0
 ---
 
 # Three-Agent Development
 
 Three independent agents develop a feature through structured cycles.
-Each agent delegates to existing superpowers skills — this skill only
+Each agent delegates to existing sp-harness skills — this skill only
 orchestrates the agent dispatch and iteration loop.
 
 ```
@@ -56,7 +56,7 @@ Dispatch using `./planner-prompt.md`. Use most capable model (e.g. Opus).
 1. **Implicit requirements discovery** — scans feature for gaps, asks user
    questions one-at-a-time until resolved. (Logic in planner-prompt.md.)
 
-2. **Plan production** — invokes `superpowers:writing-plans` to generate
+2. **Plan production** — invokes `sp-harness:writing-plans` to generate
    the implementation plan. Follows all writing-plans conventions (TDD steps,
    file structure, no placeholders, fallback chain design).
 
@@ -96,7 +96,7 @@ Dispatch using `./generator-prompt.md`. Use standard model (e.g. Sonnet).
 
 **Generator does one thing internally:**
 
-Invokes `superpowers:subagent-driven-development` to execute task-plan.json.
+Invokes `sp-harness:subagent-driven-development` to execute task-plan.json.
 This runs the full existing task-level machinery:
 - Fresh implementer subagent per task (using implementer-prompt.md)
 - Spec compliance review after each task (using spec-reviewer-prompt.md)

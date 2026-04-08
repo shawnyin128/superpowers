@@ -5,7 +5,7 @@ description: |
   Maintains a structured state snapshot in memory.md so new sessions can
   recover context quickly. Use when: a design decision was made, an experiment
   produced results, a bug root cause was identified, or a todo item changed.
-author: superpowers
+author: sp-harness
 version: 2.0.0
 ---
 

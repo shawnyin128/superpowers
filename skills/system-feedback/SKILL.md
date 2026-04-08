@@ -5,7 +5,7 @@ description: |
   the entire codebase across four dimensions (performance, user experience,
   code quality, architecture) and produces a file-level optimization report.
   Triggered by feature-tracker when all features pass.
-author: superpowers
+author: sp-harness
 version: 1.0.0
 ---
 

@@ -6,7 +6,7 @@ description: |
   issues directly, escalates large ones to the user. Triggered by feature-tracker
   every N features (default: 3). Like garbage collection — frequent small
   cleanups prevent debt accumulation.
-author: superpowers
+author: sp-harness
 version: 1.0.0
 ---
 

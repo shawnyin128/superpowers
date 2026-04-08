@@ -1,6 +1,6 @@
 # OpenCode Support Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use sp-harness:executing-plans to implement this plan task-by-task.
 
 **Goal:** Add full superpowers support for OpenCode.ai with a native JavaScript plugin that shares core functionality with the existing Codex implementation.
 
@@ -189,20 +189,20 @@ Add before `module.exports`:
 ```javascript
 /**
  * Resolve a skill name to its file path, handling shadowing
- * (personal skills override superpowers skills).
+ * (personal skills override sp-harness skills).
  *
- * @param {string} skillName - Name like "superpowers:brainstorming" or "my-skill"
- * @param {string} superpowersDir - Path to superpowers skills directory
+ * @param {string} skillName - Name like "sp-harness:brainstorming" or "my-skill"
+ * @param {string} superpowersDir - Path to sp-harness skills directory
  * @param {string} personalDir - Path to personal skills directory
  * @returns {{skillFile: string, sourceType: string, skillPath: string} | null}
  */
 function resolveSkillPath(skillName, superpowersDir, personalDir) {
-    // Strip superpowers: prefix if present
-    const forceSuperpowers = skillName.startsWith('superpowers:');
-    const actualSkillName = forceSuperpowers ? skillName.replace(/^superpowers:/, '') : skillName;
+    // Strip sp-harness: prefix if present
+    const forceSP Harness = skillName.startsWith('sp-harness:');
+    const actualSkillName = forceSP Harness ? skillName.replace(/^sp-harness:/, '') : skillName;
 
-    // Try personal skills first (unless explicitly superpowers:)
-    if (!forceSuperpowers && personalDir) {
+    // Try personal skills first (unless explicitly sp-harness:)
+    if (!forceSP Harness && personalDir) {
         const personalPath = path.join(personalDir, actualSkillName);
         const personalSkillFile = path.join(personalPath, 'SKILL.md');
         if (fs.existsSync(personalSkillFile)) {
@@ -214,7 +214,7 @@ function resolveSkillPath(skillName, superpowersDir, personalDir) {
         }
     }
 
-    // Try superpowers skills
+    // Try sp-harness skills
     if (superpowersDir) {
         const superpowersPath = path.join(superpowersDir, actualSkillName);
         const superpowersSkillFile = path.join(superpowersPath, 'SKILL.md');
@@ -457,7 +457,7 @@ Run: `mkdir -p .opencode/plugin`
 #!/usr/bin/env node
 
 /**
- * Superpowers plugin for OpenCode.ai
+ * SP Harness plugin for OpenCode.ai
  *
  * Provides custom tools for loading and discovering skills,
  * with automatic bootstrap on session start.
@@ -475,7 +475,7 @@ const personalSkillsDir = path.join(homeDir, '.config/opencode/skills');
 /**
  * OpenCode plugin entry point
  */
-export const SuperpowersPlugin = async ({ project, client, $, directory, worktree }) => {
+export const SP HarnessPlugin = async ({ project, client, $, directory, worktree }) => {
   return {
     // Custom tools and hooks will go here
   };
@@ -506,7 +506,7 @@ git commit -m "feat: create opencode plugin scaffold"
 Replace the plugin return statement with:
 
 ```javascript
-export const SuperpowersPlugin = async ({ project, client, $, directory, worktree }) => {
+export const SP HarnessPlugin = async ({ project, client, $, directory, worktree }) => {
   // Import zod for schema validation
   const { z } = await import('zod');
 
@@ -516,7 +516,7 @@ export const SuperpowersPlugin = async ({ project, client, $, directory, worktre
         name: 'use_skill',
         description: 'Load and read a specific skill to guide your work. Skills contain proven workflows, mandatory processes, and expert techniques.',
         schema: z.object({
-          skill_name: z.string().describe('Name of the skill to load (e.g., "superpowers:brainstorming" or "my-custom-skill")')
+          skill_name: z.string().describe('Name of the skill to load (e.g., "sp-harness:brainstorming" or "my-custom-skill")')
         }),
         execute: async ({ skill_name }) => {
           // Resolve skill path (handles shadowing: personal > superpowers)
@@ -617,13 +617,13 @@ Add after the use_skill tool definition, before closing the tools array:
           const allSkills = [...personalSkills, ...superpowersSkills];
 
           if (allSkills.length === 0) {
-            return 'No skills found. Install superpowers skills to ~/.config/opencode/superpowers/skills/';
+            return 'No skills found. Install sp-harness skills to ~/.config/opencode/superpowers/skills/';
           }
 
           let output = 'Available skills:\n\n';
 
           for (const skill of allSkills) {
-            const namespace = skill.sourceType === 'personal' ? '' : 'superpowers:';
+            const namespace = skill.sourceType === 'personal' ? '' : 'sp-harness:';
             const skillName = skill.name || path.basename(skill.path);
 
             output += `${namespace}${skillName}\n`;
@@ -663,16 +663,16 @@ After the tools array, add:
 
 ```javascript
     'session.started': async () => {
-      // Read using-superpowers skill content
-      const usingSuperpowersPath = skillsCore.resolveSkillPath(
-        'using-superpowers',
+      // Read using-sp-harness skill content
+      const usingSP HarnessPath = skillsCore.resolveSkillPath(
+        'using-sp-harness',
         superpowersSkillsDir,
         personalSkillsDir
       );
 
-      let usingSuperpowersContent = '';
-      if (usingSuperpowersPath) {
-        const fullContent = fs.readFileSync(usingSuperpowersPath.skillFile, 'utf8');
+      let usingSP HarnessContent = '';
+      if (usingSP HarnessPath) {
+        const fullContent = fs.readFileSync(usingSP HarnessPath.skillFile, 'utf8');
         // Strip frontmatter
         const lines = fullContent.split('\n');
         let inFrontmatter = false;
@@ -694,7 +694,7 @@ After the tools array, add:
           }
         }
 
-        usingSuperpowersContent = contentLines.join('\n').trim();
+        usingSP HarnessContent = contentLines.join('\n').trim();
       }
 
       // Tool mapping instructions
@@ -712,9 +712,9 @@ When skills reference tools you don't have, substitute OpenCode equivalents:
 - Utilities and helpers specific to that skill
 
 **Skills naming:**
-- Superpowers skills: \`superpowers:skill-name\` (from ~/.config/opencode/superpowers/skills/)
+- SP Harness skills: \`sp-harness:skill-name\` (from ~/.config/opencode/superpowers/skills/)
 - Personal skills: \`skill-name\` (from ~/.config/opencode/skills/)
-- Personal skills override superpowers skills when names match
+- Personal skills override sp-harness skills when names match
 `;
 
       // Check for updates (non-blocking)
@@ -731,9 +731,9 @@ When skills reference tools you don't have, substitute OpenCode equivalents:
         context: `<EXTREMELY_IMPORTANT>
 You have superpowers.
 
-**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the 'use_skill' tool:**
+**Below is the full content of your 'sp-harness:using-sp-harness' skill - your introduction to using skills. For all other skills, use the 'use_skill' tool:**
 
-${usingSuperpowersContent}
+${usingSP HarnessContent}
 
 ${toolMapping}${updateNotice}
 </EXTREMELY_IMPORTANT>`
@@ -765,7 +765,7 @@ git commit -m "feat: implement session.started hook for opencode"
 **Step 1: Create installation guide**
 
 ```markdown
-# Installing Superpowers for OpenCode
+# Installing SP Harness for OpenCode
 
 ## Prerequisites
 
@@ -775,10 +775,10 @@ git commit -m "feat: implement session.started hook for opencode"
 
 ## Installation Steps
 
-### 1. Install Superpowers Skills
+### 1. Install SP Harness Skills
 
 ```bash
-# Clone superpowers skills to OpenCode config directory
+# Clone sp-harness skills to OpenCode config directory
 mkdir -p ~/.config/opencode/superpowers
 git clone https://github.com/obra/superpowers.git ~/.config/opencode/superpowers
 ```
@@ -821,7 +821,7 @@ use find_skills tool
 Use the `use_skill` tool to load a specific skill:
 
 ```
-use use_skill tool with skill_name: "superpowers:brainstorming"
+use use_skill tool with skill_name: "sp-harness:brainstorming"
 ```
 
 ### Personal Skills
@@ -845,7 +845,7 @@ description: Use when [condition] - [what it does]
 [Your skill content here]
 ```
 
-Personal skills override superpowers skills with the same name.
+Personal skills override sp-harness skills with the same name.
 
 ## Updating
 
@@ -908,7 +908,7 @@ Find the section about supported platforms (search for "Codex" in the file), and
 ```markdown
 ### OpenCode
 
-Superpowers works with [OpenCode.ai](https://opencode.ai) through a native JavaScript plugin.
+SP Harness works with [OpenCode.ai](https://opencode.ai) through a native JavaScript plugin.
 
 **Installation:** See [.opencode/INSTALL.md](.opencode/INSTALL.md)
 
@@ -991,7 +991,7 @@ Expected: Shows list of skills with names and descriptions
 
 **Step 2: Test use-skill command**
 
-Run: `.codex/superpowers-codex use-skill superpowers:brainstorming | head -20`
+Run: `.codex/superpowers-codex use-skill sp-harness:brainstorming | head -20`
 Expected: Shows brainstorming skill content
 
 **Step 3: Test bootstrap command**

@@ -6,7 +6,7 @@ description: |
   three-agent-development (Planner → Generator → Evaluator). Loops
   automatically: after each feature completes, picks the next one.
   Use when starting or resuming feature development.
-author: superpowers
+author: sp-harness
 version: 2.0.0
 ---
 
@@ -76,7 +76,7 @@ Wait for user confirmation before proceeding.
 
 ## Step 4: Invoke three-agent-development
 
-Invoke `superpowers:three-agent-development` with the selected feature.
+Invoke `sp-harness:three-agent-development` with the selected feature.
 
 This skill will:
 1. Dispatch Planner → produces task-plan.json + eval-plan.json

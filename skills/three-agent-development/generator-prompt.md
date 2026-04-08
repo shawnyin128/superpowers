@@ -17,7 +17,7 @@ Agent tool:
 
     ## Execution
 
-    Invoke superpowers:subagent-driven-development to execute the tasks.
+    Invoke sp-harness:subagent-driven-development to execute the tasks.
 
     For each task in the JSON:
     - Use the `files` field to know what to create/modify/test

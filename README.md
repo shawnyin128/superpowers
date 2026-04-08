@@ -1,6 +1,6 @@
-# Superpowers (Fork)
+# SP Harness
 
-A personalized fork of [obra/superpowers](https://github.com/obra/superpowers) with enhanced project management, structured memory, three-agent development, and systematic quality control.
+A harness engineering skills library forked from [obra/superpowers](https://github.com/obra/superpowers). Enhanced with structured memory, three-agent development, feature tracking, and systematic quality control.
 
 ## What's Different from Upstream
 
@@ -25,10 +25,10 @@ A personalized fork of [obra/superpowers](https://github.com/obra/superpowers) w
 /plugin marketplace add shawnyin128/superpowers
 
 # Install
-/plugin install superpowers@superpowers-dev
+/plugin install sp-harness@sp-harness-dev
 
 # Update (after pushing new changes)
-/plugin install superpowers@superpowers-dev
+/plugin install sp-harness@sp-harness-dev
 ```
 
 ## Workflow
@@ -62,4 +62,4 @@ Other skills available anytime:
 
 ## License
 
-MIT — same as upstream.
+MIT — see LICENSE file. Original work by Jesse Vincent.

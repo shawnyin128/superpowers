@@ -5,7 +5,7 @@ description: |
   structured memory in .claude/mem/, and update-mem hooks. Use when starting
   any new project or onboarding an existing codebase. Scans the repo to
   generate a project map automatically. Safe to re-run: skips completed steps.
-author: superpowers
+author: sp-harness
 version: 1.0.0
 ---
 

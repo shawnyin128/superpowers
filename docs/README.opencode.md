@@ -1,34 +1,34 @@
-# Superpowers for OpenCode
+# SP Harness for OpenCode
 
-Complete guide for using Superpowers with [OpenCode.ai](https://opencode.ai).
+Complete guide for using SP Harness with [OpenCode.ai](https://opencode.ai).
 
 ## Installation
 
-Add superpowers to the `plugin` array in your `opencode.json` (global or project-level):
+Add sp-harness to the `plugin` array in your `opencode.json` (global or project-level):
 
 ```json
 {
-  "plugin": ["superpowers@git+https://github.com/obra/superpowers.git"]
+  "plugin": ["sp-harness@git+https://github.com/obra/sp-harness.git"]
 }
 ```
 
 Restart OpenCode. The plugin auto-installs via Bun and registers all skills automatically.
 
-Verify by asking: "Tell me about your superpowers"
+Verify by asking: "Tell me about your sp-harness"
 
 ### Migrating from the old symlink-based install
 
-If you previously installed superpowers using `git clone` and symlinks, remove the old setup:
+If you previously installed sp-harness using `git clone` and symlinks, remove the old setup:
 
 ```bash
 # Remove old symlinks
-rm -f ~/.config/opencode/plugins/superpowers.js
-rm -rf ~/.config/opencode/skills/superpowers
+rm -f ~/.config/opencode/plugins/sp-harness.js
+rm -rf ~/.config/opencode/skills/sp-harness
 
 # Optionally remove the cloned repo
-rm -rf ~/.config/opencode/superpowers
+rm -rf ~/.config/opencode/sp-harness
 
-# Remove skills.paths from opencode.json if you added one for superpowers
+# Remove skills.paths from opencode.json if you added one for sp-harness
 ```
 
 Then follow the installation steps above.
@@ -46,7 +46,7 @@ use skill tool to list skills
 ### Loading a Skill
 
 ```
-use skill tool to load superpowers/brainstorming
+use skill tool to load sp-harness/brainstorming
 ```
 
 ### Personal Skills
@@ -74,17 +74,17 @@ description: Use when [condition] - [what it does]
 
 Create project-specific skills in `.opencode/skills/` within your project.
 
-**Skill Priority:** Project skills > Personal skills > Superpowers skills
+**Skill Priority:** Project skills > Personal skills > SP Harness skills
 
 ## Updating
 
-Superpowers updates automatically when you restart OpenCode. The plugin is re-installed from the git repository on each launch.
+SP Harness updates automatically when you restart OpenCode. The plugin is re-installed from the git repository on each launch.
 
 To pin a specific version, use a branch or tag:
 
 ```json
 {
-  "plugin": ["superpowers@git+https://github.com/obra/superpowers.git#v5.0.3"]
+  "plugin": ["sp-harness@git+https://github.com/obra/sp-harness.git#v5.0.3"]
 }
 ```
 
@@ -92,8 +92,8 @@ To pin a specific version, use a branch or tag:
 
 The plugin does two things:
 
-1. **Injects bootstrap context** via the `experimental.chat.system.transform` hook, adding superpowers awareness to every conversation.
-2. **Registers the skills directory** via the `config` hook, so OpenCode discovers all superpowers skills without symlinks or manual config.
+1. **Injects bootstrap context** via the `experimental.chat.system.transform` hook, adding sp-harness awareness to every conversation.
+2. **Registers the skills directory** via the `config` hook, so OpenCode discovers all sp-harness skills without symlinks or manual config.
 
 ### Tool Mapping
 
@@ -108,7 +108,7 @@ Skills written for Claude Code are automatically adapted for OpenCode:
 
 ### Plugin not loading
 
-1. Check OpenCode logs: `opencode run --print-logs "hello" 2>&1 | grep -i superpowers`
+1. Check OpenCode logs: `opencode run --print-logs "hello" 2>&1 | grep -i sp-harness`
 2. Verify the plugin line in your `opencode.json` is correct
 3. Make sure you're running a recent version of OpenCode
 
@@ -125,6 +125,6 @@ Skills written for Claude Code are automatically adapted for OpenCode:
 
 ## Getting Help
 
-- Report issues: https://github.com/obra/superpowers/issues
-- Main documentation: https://github.com/obra/superpowers
+- Report issues: https://github.com/obra/sp-harness/issues
+- Main documentation: https://github.com/obra/sp-harness
 - OpenCode docs: https://opencode.ai/docs/
