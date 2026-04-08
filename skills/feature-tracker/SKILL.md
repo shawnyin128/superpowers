@@ -98,7 +98,8 @@ Update `.claude/mem/memory.md` Current State to reflect completion.
 
 **Hygiene check:** Count how many features have completed since the last
 code-hygiene run. If the count reaches 3 (or user-configured interval),
-invoke the **code-hygiene** skill before picking the next feature.
+you MUST invoke **code-hygiene** skill before picking the next feature.
+Do not skip this.
 
 **Check if ALL features pass:**
 - **NO (features remain)** → GO BACK TO STEP 2 NOW. Show progress, pick next feature,

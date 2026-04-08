@@ -58,7 +58,7 @@ Agent tool:
     2. If BLOCKED, report it — do not skip or work around.
     3. If the plan seems wrong, note DONE_WITH_CONCERNS — do not fix
        the plan yourself.
-    4. Do not read eval-plan.json or eval-report.md. You are independent
+    4. Do not read eval-plan.json or eval-report.json. You are independent
        from the Evaluator.
     5. Commit after each task. Use [module]: description format.
 ```
