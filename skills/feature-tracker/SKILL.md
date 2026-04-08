@@ -3,17 +3,22 @@ name: feature-tracker
 description: |
   Incremental feature development orchestrator. Reads docs/features.json,
   picks the highest-priority unfinished feature, and drives it through
-  the brainstorming → writing-plans → executing-plans pipeline. Updates
-  feature status and memory.md after completion. Use when starting a
-  development session or when the current feature is done and you need
-  to pick the next one.
+  three-agent-development (Planner → Generator → Evaluator). Loops
+  automatically: after each feature completes, picks the next one.
+  Use when starting or resuming feature development.
 author: superpowers
-version: 1.0.0
+version: 2.0.0
 ---
 
 # feature-tracker
 
 Orchestrate incremental development by working through features one at a time.
+
+<EXTREMELY-IMPORTANT>
+Every feature follows the SAME path: Step 2 → Step 3 → Step 4 → Step 5 → back to Step 2.
+This is a LOOP. After completing a feature, you MUST return to Step 2 and pick the next one.
+You do NOT stop after one feature unless ALL features pass or the user tells you to stop.
+</EXTREMELY-IMPORTANT>
 
 ---
 
@@ -87,7 +92,7 @@ If REJECT, feature-tracker stops and reports to user.
 
 ---
 
-## Step 5: Update memory, hygiene check, pick next
+## Step 5: Update memory, hygiene check, LOOP BACK
 
 Update `.claude/mem/memory.md` Current State to reflect completion.
 
@@ -95,14 +100,16 @@ Update `.claude/mem/memory.md` Current State to reflect completion.
 code-hygiene run. If the count reaches 3 (or user-configured interval),
 invoke the **code-hygiene** skill before picking the next feature.
 
-Then return to Step 2 to show updated progress and pick the next feature.
-
-If all features pass:
-```
-All features complete. docs/features.json shows X/X passing.
-Invoking system-feedback for optimization review.
-```
-Then invoke the **system-feedback** skill for a comprehensive system-level review.
+**Check if ALL features pass:**
+- **NO (features remain)** → GO BACK TO STEP 2 NOW. Show progress, pick next feature,
+  invoke three-agent-development. This is mandatory — do not stop, do not ask
+  the user if they want to continue. The loop continues until all features pass.
+- **YES (all pass)** →
+  ```
+  All features complete. docs/features.json shows X/X passing.
+  Invoking system-feedback for optimization review.
+  ```
+  Invoke **system-feedback** skill. This is the only exit from the loop.
 
 ---
 
