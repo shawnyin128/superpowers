@@ -29,7 +29,8 @@ You MUST create a task for each of these items and complete them in order:
 6. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` and commit
 7. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
 8. **User reviews written spec** — ask user to review the spec file before proceeding
-9. **Transition to implementation** — invoke writing-plans skill to create implementation plan
+9. **Update feature list** — extract features from the approved design into `docs/features.json` (see Feature List section below)
+10. **Transition to implementation** — invoke writing-plans skill to create implementation plan
 
 ## Process Flow
 
@@ -58,8 +59,11 @@ digraph brainstorming {
     "User approves design?" -> "Write design doc" [label="yes"];
     "Write design doc" -> "Spec self-review\n(fix inline)";
     "Spec self-review\n(fix inline)" -> "User reviews spec?";
+    "Update docs/features.json" [shape=box];
+
     "User reviews spec?" -> "Write design doc" [label="changes requested"];
-    "User reviews spec?" -> "Invoke writing-plans skill" [label="approved"];
+    "User reviews spec?" -> "Update docs/features.json" [label="approved"];
+    "Update docs/features.json" -> "Invoke writing-plans skill";
 }
 ```
 
@@ -134,6 +138,38 @@ Wait for the user's response. If they request changes, make them and re-run the 
 
 - Invoke the writing-plans skill to create a detailed implementation plan
 - Do NOT invoke any other skill. writing-plans is the next step.
+
+## Feature List
+
+After the user approves the spec, extract discrete features into `docs/features.json`.
+
+**If `docs/features.json` does not exist**, create it. **If it exists**, append new features — do not overwrite existing entries.
+
+Each feature follows this structure:
+
+```json
+{
+  "id": "short-kebab-case-id",
+  "category": "functional|ui|infrastructure|testing",
+  "priority": "high|medium|low",
+  "description": "One-line description of what this feature does",
+  "steps": [
+    "Implementation step or verification criterion",
+    "Another step"
+  ],
+  "passes": false
+}
+```
+
+**Rules:**
+- `id` must be unique across the file
+- `steps` serve as both implementation guidance and verification criteria
+- `priority` reflects implementation order: high features should be done first (foundations, core functionality), low features are nice-to-haves
+- Set `passes: false` for all new features — feature-tracker skill handles verification and updating
+- One feature per testable behavior — if a feature has two independent parts, split it
+- Commit the updated features.json alongside the design doc
+
+**Decomposition guideline:** A feature should be completable in a single session. If a feature feels too large, break it into sub-features.
 
 ## Key Principles
 

@@ -97,6 +97,7 @@ snapshot (not a log) — always rewrite to reflect current state.
 1. `.claude/mem/memory.md` — current state, key decisions, findings
 2. `.claude/mem/todo.md` — open problems and deferred tasks
 3. `git log --oneline -20` — recent commits (uses `[module]: description` format)
+4. `docs/features.json` — feature progress (if exists)
 
 **Update rules:**
 - Update memory.md (especially Current State) after every non-trivial task
