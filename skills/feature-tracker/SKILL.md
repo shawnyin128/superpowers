@@ -110,9 +110,19 @@ If REJECT, feature-tracker stops and reports to user.
 
 ---
 
-## Step 5: Update memory, hygiene cleanup, LOOP BACK
+## Step 5: Update memory, commit, hygiene cleanup, LOOP BACK
 
 1. Update `.claude/mem/memory.md` Current State to reflect completion.
+
+<HARD-GATE>
+**2. Commit feature completion — MANDATORY, do NOT skip:**
+```
+git add docs/features.json .claude/mem/memory.md
+git commit -m "[features]: mark {feature-id} as complete"
+```
+This commit is how new sessions know which features are done via `git log`.
+Without it, the session start protocol's git log step is useless.
+</HARD-GATE>
 
 <HARD-GATE>
 **Hygiene cleanup — Step 5 is the ONLY place that triggers code-hygiene.**
