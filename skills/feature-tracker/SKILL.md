@@ -34,6 +34,9 @@ Read these in order:
 If `docs/features.json` does not exist, inform the user and suggest running
 brainstorming first to create one.
 
+If `docs/features.json` exists but has no `last_hygiene_at_completed` field,
+add it now with value `0` and save the file.
+
 ---
 
 ## Step 2: Show progress summary
