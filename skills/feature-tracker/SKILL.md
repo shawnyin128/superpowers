@@ -69,48 +69,24 @@ Wait for user confirmation before proceeding.
 
 ---
 
-## Step 4: Drive implementation
+## Step 4: Invoke three-agent-development
 
-Based on the feature's complexity:
+Invoke `superpowers:three-agent-development` with the selected feature.
 
-**If the feature needs design work** (new architecture, unclear approach):
-→ Invoke brainstorming skill, scoped to this specific feature
+Three-agent-development handles the entire implementation cycle:
+- Planner (designs plan + eval criteria, discovers implicit requirements)
+- Generator (executes plan via subagent-driven-development)
+- Evaluator (assesses feature completion, triggers iteration if needed)
+- Iteration loop until PASS or REJECT
 
-**If the feature is well-defined** (steps are clear, approach is obvious):
-→ Invoke writing-plans skill directly, using the feature's steps as requirements
+When three-agent-development returns PASS, the feature is marked complete
+in features.json and feature-tracker proceeds to Step 5.
 
-**If the feature is small enough** (1-2 simple steps):
-→ Invoke executing-plans skill or implement directly with TDD
-
-The feature's `steps` field provides both the implementation guidance and the
-verification criteria. Every step must pass for the feature to be marked complete.
-
----
-
-## Step 5: Verify completion
-
-After implementation, go through each step in the feature and verify it:
-
-- Run relevant tests
-- Check the behavior described in each step
-- If any step fails, fix before proceeding
-
-Only proceed to Step 6 if ALL steps pass.
+If REJECT, feature-tracker stops and reports to user.
 
 ---
 
-## Step 6: Update feature status
-
-Update `docs/features.json`: set `passes: true` for the completed feature.
-
-Commit the change:
-```
-[features]: mark feature-id as complete
-```
-
----
-
-## Step 7: Update memory, hygiene check, pick next
+## Step 5: Update memory, hygiene check, pick next
 
 Update `.claude/mem/memory.md` Current State to reflect completion.
 
@@ -132,7 +108,8 @@ Then invoke the **system-feedback** skill for a comprehensive system-level revie
 ## Rules
 
 1. One feature per cycle — do not batch multiple features
-2. Always verify before marking passes: true
+2. Verification is handled by three-agent-development's Evaluator — do not
+   mark passes: true without Evaluator PASS verdict
 3. Never skip the user confirmation in Step 3
 4. If a feature turns out to be too large during implementation, pause and
    split it into sub-features in features.json before continuing
