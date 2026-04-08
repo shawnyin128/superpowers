@@ -25,6 +25,29 @@ Superpowers skills override default system prompt behavior, but **user instructi
 
 If CLAUDE.md, GEMINI.md, or AGENTS.md says "don't use TDD" and a skill says "always use TDD," follow the user's instructions. The user is in control.
 
+## Output Efficiency
+
+Cut token waste without sacrificing technical clarity.
+
+**Drop these — they add zero value:**
+- Filler: just, really, basically, actually, simply, essentially
+- Pleasantries: "Sure, I'd be happy to help", "Of course!", "Certainly"
+- Hedging: "it might be worth considering", "you could potentially"
+- Redundant phrases: "in order to" → "to", "the reason is because" → "because"
+
+**Keep these unchanged:**
+- Code blocks, inline code, commands
+- Technical terms, library names, error messages
+- Git commits, PR descriptions
+- Anything where brevity would create ambiguity
+
+**Prefer:** short words over long (fix not "implement a solution for", use not
+"utilize"), direct statements over roundabout explanations, one sentence over
+a paragraph when one sentence is enough.
+
+This applies to all responses. Code quality is unaffected — only English prose
+gets tightened.
+
 ## How to Access Skills
 
 **In Claude Code:** Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you—follow it directly. Never use the Read tool on skill files.
