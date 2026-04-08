@@ -96,10 +96,11 @@ If REJECT, feature-tracker stops and reports to user.
 
 Update `.claude/mem/memory.md` Current State to reflect completion.
 
-**Hygiene check:** Count how many features have completed since the last
-code-hygiene run. If the count reaches 3 (or user-configured interval),
-you MUST invoke **code-hygiene** skill before picking the next feature.
-Do not skip this.
+**Hygiene check:** Read `last_hygiene_at_completed` from docs/features.json
+(default 0 if missing). Count total features with `passes: true`. If
+`completed_count - last_hygiene_at_completed >= 3`, you MUST invoke
+**code-hygiene** skill, then update `last_hygiene_at_completed` to
+current completed_count in features.json. This persists across sessions.
 
 **Check if ALL features pass:**
 - **NO (features remain)** → GO BACK TO STEP 2 NOW. Show progress, pick next feature,

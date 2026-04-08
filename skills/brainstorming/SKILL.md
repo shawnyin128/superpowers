@@ -211,7 +211,16 @@ Wait for the user's response. If they request changes, make them and re-run the 
 
 After the user approves the spec, extract discrete features into `docs/features.json`.
 
-**If `docs/features.json` does not exist**, create it. **If it exists**, append new features — do not overwrite existing entries.
+**If `docs/features.json` does not exist**, create it with this top-level structure:
+
+```json
+{
+  "last_hygiene_at_completed": 0,
+  "features": [...]
+}
+```
+
+**If it exists**, append new features to the `features` array — do not overwrite existing entries or `last_hygiene_at_completed`.
 
 Each feature follows this structure:
 
