@@ -7,7 +7,7 @@ description: |
   automatically: after each feature completes, picks the next one.
   Use when starting or resuming feature development.
 author: sp-harness
-version: 2.1.0
+version: 2.2.0
 ---
 
 # feature-tracker
@@ -15,14 +15,14 @@ version: 2.1.0
 Orchestrate incremental development by working through features one at a time.
 
 <EXTREMELY-IMPORTANT>
-Every feature follows the SAME path: Step 1 → Step 2 → Step 3 → Step 4 → Step 5 → back to Step 1.
+Every feature follows the SAME path: Step 1 → Step 2 → Step 3 → Step 4 → Step 5 → back to Step 2.
 This is a LOOP. After completing a feature, you MUST return to Step 2 and pick the next one.
 You do NOT stop after one feature unless ALL features pass or the user tells you to stop.
 </EXTREMELY-IMPORTANT>
 
 ---
 
-## Step 1: Read context and enforce hygiene counter
+## Step 1: Read context and validate hygiene counter
 
 Read these in order:
 
@@ -35,31 +35,20 @@ If `docs/features.json` does not exist, inform the user and suggest running
 brainstorming first to create one. STOP.
 
 <HARD-GATE>
-**Hygiene counter enforcement — do this IMMEDIATELY after reading features.json:**
+**Hygiene counter validation — do this IMMEDIATELY after reading features.json.
+This step ONLY validates. It does NOT trigger cleanup.**
 
-1. Open `docs/features.json`
-2. Check if the top-level field `last_hygiene_at_completed` exists
-3. **If it does NOT exist:**
-   - Add `"last_hygiene_at_completed": 0` to the top level of the JSON
-   - Write the file back to disk NOW
-   - Report: "Added hygiene counter (was missing)"
-4. **If it exists:** read its value
-
-5. Count how many features have `"passes": true` → this is `completed_count`
-6. Compute `delta = completed_count - last_hygiene_at_completed`
-7. **If delta >= 3:**
-   - Report: "Hygiene threshold reached (delta={delta}). Running code-hygiene before continuing."
-   - Invoke `sp-harness:code-hygiene`
-   - Read `.claude/agents/hygiene-result.json`
-   - **If file exists AND `status` is `"complete"`:**
-     - Set `last_hygiene_at_completed` to `completed_count` in features.json
-     - Write features.json to disk
-     - Delete `.claude/agents/hygiene-result.json`
-     - Report: "Hygiene complete. Counter updated to {completed_count}."
-   - **If file missing OR status is NOT `"complete"`:**
-     - Do NOT update the counter
-     - Warn user: "Hygiene did not complete successfully. Counter not updated."
-8. **If delta < 3:** continue silently
+1. Check if `last_hygiene_at_completed` field exists in features.json
+2. **If it does NOT exist:**
+   - Add `"last_hygiene_at_completed": 0` to the top level
+   - Write features.json to disk NOW
+   - Report: "Added hygiene counter (was missing, set to 0)"
+3. **If it exists:** read its value
+4. Count features with `"passes": true` → `completed_count`
+5. Compute `delta = completed_count - last_hygiene_at_completed`
+6. **Validate:** `delta` MUST be < 3. If `delta >= 3`, something went wrong
+   (Step 5 should have cleaned up). Report warning:
+   "Hygiene counter invalid: delta={delta}, expected < 3. Will clean in Step 5."
 </HARD-GATE>
 
 ---
@@ -121,12 +110,33 @@ If REJECT, feature-tracker stops and reports to user.
 
 ---
 
-## Step 5: Update memory, LOOP BACK
+## Step 5: Update memory, hygiene cleanup, LOOP BACK
 
-Update `.claude/mem/memory.md` Current State to reflect completion.
+1. Update `.claude/mem/memory.md` Current State to reflect completion.
 
-**Check if ALL features pass:**
-   - **NO (features remain)** → GO BACK TO STEP 1 NOW. (Step 1 re-reads context and checks hygiene.)
+<HARD-GATE>
+**Hygiene cleanup — Step 5 is the ONLY place that triggers code-hygiene.**
+
+2. Read `last_hygiene_at_completed` from features.json
+3. Count features with `"passes": true` → `completed_count`
+4. Compute `delta = completed_count - last_hygiene_at_completed`
+5. **If delta >= 3:**
+   a. Report: "Hygiene threshold reached (delta={delta}). Running code-hygiene."
+   b. Invoke `sp-harness:code-hygiene`
+   c. Read `.claude/agents/hygiene-result.json`
+   d. **If file exists AND `status` is `"complete"`:**
+      - Set `last_hygiene_at_completed` to `completed_count` in features.json
+      - Write features.json to disk
+      - Delete `.claude/agents/hygiene-result.json`
+      - Report: "Hygiene complete. Counter updated to {completed_count}."
+   e. **If file missing OR status is NOT `"complete"`:**
+      - Do NOT update the counter
+      - Warn: "Hygiene did not complete. Counter not updated. Will retry next loop."
+6. **If delta < 3:** continue
+</HARD-GATE>
+
+7. **Check if ALL features pass:**
+   - **NO (features remain)** → GO BACK TO STEP 2 NOW.
    - **YES (all pass)** →
      ```
      All features complete. docs/features.json shows X/X passing.
@@ -146,6 +156,6 @@ Update `.claude/mem/memory.md` Current State to reflect completion.
    split it into sub-features in features.json before continuing
 5. If implementation reveals a new feature that is needed, add it to
    features.json with appropriate priority — do not scope-creep the current feature
-6. Hygiene counter is checked ONCE at Step 1 (before any feature work).
-   The loop back to Step 2 goes through Step 1 next iteration, so hygiene
-   is always checked before each feature. Never skip Step 1.
+6. Step 1 VALIDATES the hygiene counter (exists, value is sane).
+   Step 5 TRIGGERS cleanup (invokes code-hygiene, updates counter).
+   Never skip either step.
