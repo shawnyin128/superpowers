@@ -110,11 +110,16 @@ snapshot (not a log) — always rewrite to reflect current state.
 
 <Quick commands — only if detected>
 
-### Structure
+### Architecture
 <Key directories with 1-line descriptions, generated from Step 1>
 
 ### Docs
-<Index of docs/ contents, generated from Step 1>
+- Design docs → docs/design-docs/ (specs from brainstorming)
+- Active plans → docs/plans/active/
+- Completed plans → docs/plans/completed/
+- Feature progress → docs/features.json
+- Reports → docs/reports/
+<Additional docs found during scan, if any>
 ```
 
 **Rules:**
@@ -122,10 +127,33 @@ snapshot (not a log) — always rewrite to reflect current state.
   summarize — list only the most important directories.
 - Do not add sections beyond the three above.
 - Quick commands: use `command | command` inline format, not a table.
+- The Docs subsection must always include the five standard entries above,
+  plus any project-specific docs found during the scan.
 
 ---
 
-## Step 3: Create `.claude/mem/` files
+## Step 3: Create docs directory structure
+
+Create the standard documentation hierarchy if it does not exist:
+
+```
+docs/
+├── design-docs/       ← specs from brainstorming
+├── plans/
+│   ├── active/        ← plans currently being executed
+│   └── completed/     ← finished plans (moved here after completion)
+└── reports/           ← system-feedback and optimization reports
+```
+
+Skip any directories that already exist. Do not overwrite existing content.
+
+If the project already has docs in a different structure (e.g.,
+`docs/superpowers/specs/`), leave them in place — the new structure
+is for new documents going forward.
+
+---
+
+## Step 4: Create `.claude/mem/` files
 
 If `.claude/mem/` already exists with both files (check B), skip this step.
 
@@ -152,7 +180,7 @@ Do not overwrite existing files.
 
 ---
 
-## Step 4: Configure hooks
+## Step 5: Configure hooks
 
 If hooks are already configured (check C), skip this step.
 
@@ -215,12 +243,13 @@ to handle spaces in paths.
 
 ---
 
-## Step 5: Confirm
+## Step 6: Confirm
 
 Report a status line for each action:
 
 ```
 CLAUDE.md                  ✓ created / ✓ updated / ✓ already complete
+docs/                      ✓ directory structure created / ✓ already complete
 .claude/mem/               ✓ initialized / ✓ already complete
 .claude/settings.json      ✓ hooks configured / ✓ already complete
 ```

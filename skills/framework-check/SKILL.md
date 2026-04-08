@@ -28,6 +28,14 @@ Check each item independently. Record PASS or FAIL for each.
 - [ ] Contains `## Project Map` section
 - [ ] Total length is under 80 lines
 
+### Documentation Structure
+
+- [ ] `docs/` directory exists
+- [ ] `docs/design-docs/` directory exists
+- [ ] `docs/plans/active/` directory exists
+- [ ] `docs/plans/completed/` directory exists
+- [ ] `docs/reports/` directory exists
+
 ### Memory System
 
 - [ ] `.claude/mem/` directory exists
@@ -96,7 +104,11 @@ Result: 8/12 checks passed. 4 items need fixing.
 For each FAIL, apply the appropriate fix:
 
 ### CLAUDE.md missing entirely
-→ Invoke `init-project` skill (creates CLAUDE.md + memory + hooks)
+→ Invoke `init-project` skill (creates CLAUDE.md + docs + memory + hooks)
+
+### Documentation structure missing
+→ Create any missing directories:
+`docs/`, `docs/design-docs/`, `docs/plans/active/`, `docs/plans/completed/`, `docs/reports/`
 
 ### CLAUDE.md exists but missing sections
 → Merge missing sections in place:

@@ -118,7 +118,7 @@ misses. For each dimension, answer:
 
 ## Step 4: Produce Report
 
-Write `docs/optimization-report.md` with this structure:
+Write `docs/reports/optimization-report.md` with this structure:
 
 ```markdown
 # System Optimization Report
