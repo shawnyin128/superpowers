@@ -116,10 +116,12 @@ Update `.claude/mem/memory.md` Current State to reflect completion.
 
 Then return to Step 2 to show updated progress and pick the next feature.
 
-If all features pass, report:
+If all features pass:
 ```
 All features complete. docs/features.json shows X/X passing.
+Invoking system-feedback for optimization review.
 ```
+Then invoke the **system-feedback** skill for a comprehensive system-level review.
 
 ---
 
