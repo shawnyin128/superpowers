@@ -20,7 +20,13 @@ Agent tool:
     [Paste CLAUDE.md, memory.md, relevant spec]
 
     ### Previous Evaluation (iteration 2+ only)
-    [Paste eval-report.md if re-planning after ITERATE]
+    Read `.claude/agents/eval-report.json` if re-planning after ITERATE.
+    Key fields to check:
+    - `verdict` — should be "ITERATE" (if "REJECT", do not re-plan)
+    - `iteration_items[]` — the specific issues to address in this iteration
+    - `convergence.status` — if "diverging", consider fundamental redesign
+      rather than incremental fixes
+    - `task_results[].criteria_results[]` — which criteria failed and why
 
     ## Phase 1: Implicit Requirements Discovery
 
@@ -131,8 +137,10 @@ Agent tool:
     2. Criteria must be specific and quantifiable. Not "code is clean" but
        "function X returns Y when given Z".
     3. verify_commands must be runnable commands, not descriptions.
-    4. If re-planning after ITERATE: address each Iteration Item from
-       eval-report.md. Update BOTH JSON files.
+    4. If re-planning after ITERATE: read eval-report.json, address each
+       entry in `iteration_items[]`. Update BOTH plan JSON files. If
+       `convergence.status` is "diverging", consider redesigning rather
+       than patching.
     5. Do not read implementation.md. You are independent from Generator.
     6. Plans must be shown to user before Generator starts.
     7. JSON must be valid. No comments, no trailing commas.

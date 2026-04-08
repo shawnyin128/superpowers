@@ -54,44 +54,63 @@ Agent tool:
 
     ## Output
 
-    Write `.claude/agents/eval-report.md`:
+    Write `.claude/agents/eval-report.json` with this EXACT schema:
 
-    ````markdown
-    # Evaluation Report
+    ```json
+    {
+      "feature": "{feature-id}",
+      "iteration": {number},
+      "verdict": "{PASS | ITERATE | REJECT}",
+      "task_results": [
+        {
+          "task_id": {number},
+          "task_name": "{name}",
+          "method": "{spec-review | code-review | both}",
+          "criteria_results": [
+            {
+              "criterion": "{text from eval-plan.json}",
+              "pass": {true | false},
+              "evidence": "{how verified — only if pass is true}",
+              "reason": "{why failed — only if pass is false}",
+              "location": "{file:line — only if pass is false}"
+            }
+          ],
+          "verify_results": [
+            {
+              "command": "{from eval-plan.json verify_commands}",
+              "output": "{actual output summary}",
+              "pass": {true | false}
+            }
+          ]
+        }
+      ],
+      "feature_level_results": [
+        {
+          "criterion": "{from eval-plan.json feature_level_criteria}",
+          "pass": {true | false},
+          "evidence": "{if pass}",
+          "reason": "{if fail}"
+        }
+      ],
+      "iteration_items": [
+        {
+          "task_id": {number},
+          "location": "{file:line}",
+          "problem": "{specific, observable issue}",
+          "suggestion": "{direction, not code}",
+          "priority": "{must-fix | should-fix}"
+        }
+      ],
+      "criteria_adjustments": "{what changed and why, or 'None'}",
+      "convergence": {
+        "status": "{first_iteration | converging | diverging}",
+        "evidence": "{comparison with previous iteration, or 'First iteration'}"
+      }
+    }
+    ```
 
-    ## Feature: {feature from JSON}
-    ## Iteration: {iteration from JSON}
-    ## Verdict: {PASS | ITERATE | REJECT}
-
-    ## Task Results
-
-    ### Task {id}: {name}
-    **Method:** {method from eval-plan.json}
-    - [x] {criterion} — {evidence}
-    - [ ] {criterion} — FAIL: {reason}
-    **Commands run:** {verify_commands and their output}
-
-    ### Task {id}: {name}
-    ...
-
-    ## Feature-Level Results
-    - [x] {criterion} — {evidence}
-    - [ ] {criterion} — FAIL: {reason}
-
-    ## Iteration Items (ITERATE only)
-    ### Item 1
-    - **Location:** {task id / file}
-    - **Problem:** {specific, observable issue}
-    - **Suggestion:** {direction, not code}
-    - **Priority:** {must-fix | should-fix}
-
-    ## Criteria Adjustments
-    {what changed and why, or "None — eval plan followed as-is"}
-
-    ## Convergence Assessment
-    {iteration 1: "First iteration"
-     iteration 2+: "Converging/Diverging — evidence"}
-    ````
+    **Arrays are variable-length.** Every criterion from eval-plan.json must
+    appear in criteria_results. iteration_items is empty if verdict is PASS.
 
     ## Verdict Rules
 

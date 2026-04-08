@@ -19,7 +19,7 @@ orchestrates the agent dispatch and iteration loop.
 ```
 Planner  → calls writing-plans    → task-plan.json + eval-plan.json
 Generator → calls subagent-driven → implementation.md
-Evaluator → reads code + reports  → eval-report.md
+Evaluator → reads code + reports  → eval-report.json
                   ↕ iteration loop (ITERATE → Planner re-plans)
 ```
 
@@ -34,7 +34,7 @@ All agent communication goes through `.claude/agents/`. Create if missing.
 ├── task-plan.json     ← Planner output: implementation plan (Generator reads)
 ├── eval-plan.json     ← Planner output: evaluation playbook (Evaluator reads)
 ├── implementation.md  ← Generator output: execution report
-└── eval-report.md     ← Evaluator output: assessment + iteration items
+└── eval-report.json   ← Evaluator output: structured assessment (JSON)
 ```
 
 ---
@@ -101,8 +101,10 @@ Dispatch using `./evaluator-prompt.md`. Use most capable model (e.g. Opus).
 - Checks against `acceptance_threshold`
 - Can adjust criteria if needed (must document why)
 
-**Evaluator writes one file to `.claude/agents/`:**
-- `eval-report.md` — verdict + iteration items if needed
+**Evaluator writes one JSON file to `.claude/agents/`:**
+- `eval-report.json` — structured report with per-task `criteria_results[]`,
+  `verify_results[]`, `iteration_items[]`, and `convergence` status.
+  Planner reads this JSON to decide whether and how to iterate.
 
 ---
 
@@ -115,9 +117,10 @@ Dispatch using `./evaluator-prompt.md`. Use most capable model (e.g. Opus).
 4. Return to feature-tracker
 
 ### ITERATE
-1. Read convergence assessment in eval-report.md
-2. **If converging** — dispatch Planner again with eval-report.md as input.
-   Planner reads Iteration Items, revises task-plan.json and eval-plan.json.
+1. Read `eval-report.json`: check `convergence.status`
+2. **If converging** — dispatch Planner. Planner reads `iteration_items[]`
+   and `task_results[].criteria_results[]` to understand what failed.
+   Planner revises both `task-plan.json` and `eval-plan.json`.
 3. **If diverging** — escalate to REJECT
 4. Generator executes revised plan → Evaluator assesses again → loop
 
@@ -141,9 +144,9 @@ All intermediate files preserved for user diagnosis.
 
 ## Agent Independence
 
-1. Planner never sees implementation.md or eval-report.md (except when
-   re-planning after ITERATE — then it reads eval-report.md only)
-2. Generator never sees eval-plan.json or eval-report.md
+1. Planner never sees implementation.md or eval-report.json (except when
+   re-planning after ITERATE — then it reads eval-report.json only)
+2. Generator never sees eval-plan.json or eval-report.json
 3. Evaluator never sees task-plan.json or the Planner's prompt
 4. All communication through `.claude/agents/` files only
 
