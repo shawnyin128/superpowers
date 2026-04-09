@@ -125,14 +125,15 @@ Without it, the session start protocol's git log step is useless.
 </HARD-GATE>
 
 <HARD-GATE>
-**Hygiene cleanup — Step 5 is the ONLY place that triggers code-hygiene.**
+**Hygiene cleanup — AUTOMATIC, do NOT ask the user for permission.**
 
 2. Read `last_hygiene_at_completed` from features.json
 3. Count features with `"passes": true` → `completed_count`
 4. Compute `delta = completed_count - last_hygiene_at_completed`
 5. **If delta >= 3:**
-   a. Report: "Hygiene threshold reached (delta={delta}). Running code-hygiene."
-   b. Invoke `sp-harness:code-hygiene`
+   a. Print: "Hygiene threshold reached (delta={delta}). Running code-hygiene now."
+   b. Invoke `sp-harness:code-hygiene` IMMEDIATELY. Do NOT ask "should I run
+      hygiene?" or "would you like me to clean up?". This is automatic. Just do it.
    c. Read `.claude/agents/hygiene-result.json`
    d. **If file exists AND `status` is `"complete"`:**
       - Set `last_hygiene_at_completed` to `completed_count` in features.json
