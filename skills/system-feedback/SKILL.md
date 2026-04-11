@@ -24,7 +24,7 @@ If you think "minor" or "good enough" — report it anyway.
 
 ## Step 1: Context
 
-Read: `docs/features.json`, `.claude/mem/memory.md`, `CLAUDE.md`, spec docs,
+Read: `.claude/features.json`, `.claude/mem/memory.md`, `CLAUDE.md`, spec docs,
 `git log --oneline -30`. List all changed source files from git.
 
 ---

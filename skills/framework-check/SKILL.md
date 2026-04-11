@@ -57,8 +57,15 @@ formats and migrate. Auto-fix anything wrong.
 
 ### Features (skip if no spec docs exist)
 
-- [ ] `docs/features.json` is valid JSON with `features` array
+- [ ] `.claude/features.json` is valid JSON with `features` array
 - [ ] Each feature has: id, category, priority, description, steps, passes
+
+### Harness Config
+
+- [ ] `.claude/sp-harness.json` exists
+- [ ] Has `dev_mode` field (`"three-agent"` or `"single-agent"`)
+- [ ] Has `last_hygiene_at_completed` field (number)
+- [ ] If `dev_mode` is `"three-agent"`: verify `agents/sp-planner.md`, `agents/sp-generator.md`, `agents/sp-evaluator.md` exist (plugin-level or project-level)
 
 ### Git Conventions
 
@@ -118,6 +125,10 @@ migrate existing content into those three sections.
 
 ### Features.json invalid
 → Report errors. Do not auto-create.
+
+### sp-harness.json missing or incomplete
+→ Create with defaults: `{"dev_mode": "three-agent", "last_hygiene_at_completed": 0}`
+→ If exists but missing fields, add defaults for missing fields only.
 
 ### Git conventions
 → Warn only. Do not rewrite history.

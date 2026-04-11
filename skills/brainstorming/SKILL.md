@@ -30,7 +30,7 @@ You MUST create a task for each of these items and complete them in order:
 7. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
 8. **Divergence risk analysis** — identify all non-deterministic components, build risk matrix and divergence trees, append to spec doc (see Divergence Risk Analysis section below)
 9. **User reviews written spec** — ask user to review the spec file (including divergence analysis) before proceeding
-10. **Update feature list** — extract features from the approved design into `docs/features.json` (see Feature List section below)
+10. **Update feature list** — extract features from the approved design into `.claude/features.json` (see Feature List section below)
 11. **Update project map** — add the new spec and features.json to CLAUDE.md's Project Map (see Project Map Update section below)
 12. **Start implementation** — invoke `sp-harness:feature-tracker` to begin feature development.
 
@@ -61,12 +61,12 @@ digraph brainstorming {
     "User approves design?" -> "Write design doc" [label="yes"];
     "Write design doc" -> "Spec self-review\n(fix inline)";
     "Spec self-review\n(fix inline)" -> "User reviews spec?";
-    "Update docs/features.json" [shape=box];
+    "Update .claude/features.json" [shape=box];
     "Update CLAUDE.md Project Map" [shape=box];
 
     "User reviews spec?" -> "Write design doc" [label="changes requested"];
-    "User reviews spec?" -> "Update docs/features.json" [label="approved"];
-    "Update docs/features.json" -> "Update CLAUDE.md Project Map";
+    "User reviews spec?" -> "Update .claude/features.json" [label="approved"];
+    "Update .claude/features.json" -> "Update CLAUDE.md Project Map";
     "Update CLAUDE.md Project Map" -> "Invoke feature-tracker";
 }
 ```
@@ -255,18 +255,17 @@ Wait for the user's response. If they request changes, make them and re-run the 
 
 ## Feature List
 
-After the user approves the spec, extract discrete features into `docs/features.json`.
+After the user approves the spec, extract discrete features into `.claude/features.json`.
 
-**If `docs/features.json` does not exist**, create it with this top-level structure:
+**If `.claude/features.json` does not exist**, create it with this top-level structure:
 
 ```json
 {
-  "last_hygiene_at_completed": 0,
   "features": [...]
 }
 ```
 
-**If it exists**, append new features to the `features` array — do not overwrite existing entries or `last_hygiene_at_completed`.
+**If it exists**, append new features to the `features` array — do not overwrite existing entries.
 
 Each feature follows this structure:
 
@@ -302,7 +301,7 @@ navigate the project.
 
 **What to update:**
 - Add the new spec file to the Docs index (if not already listed)
-- Add `docs/features.json` to the Docs index (if not already listed)
+- Add `.claude/features.json` to the Docs index (if not already listed)
 - If the spec introduces new directories or components, add them to the Structure section
 
 **Rules:**

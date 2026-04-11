@@ -14,7 +14,7 @@ Agent tool:
     ## Input
 
     ### Feature
-    [Paste feature entry from docs/features.json]
+    [Paste feature entry from .claude/features.json]
 
     ### Context
     [Paste CLAUDE.md, memory.md, relevant spec]

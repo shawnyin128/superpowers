@@ -41,7 +41,7 @@ All agent communication goes through `.claude/agents/state/`. Create if missing.
 
 ## Step 1: Select Feature
 
-Read the feature from `docs/features.json` (passed by feature-tracker,
+Read the feature from `.claude/features.json` (passed by feature-tracker,
 or specified by user). Read context: `.claude/mem/memory.md`, `CLAUDE.md`,
 spec document referenced in CLAUDE.md's Design Docs section (if any).
 
@@ -162,7 +162,7 @@ reason and location. The user needs this to understand what is happening.
 </HARD-GATE>
 
 ### PASS
-1. Update `docs/features.json` — set `passes: true`
+1. Update `.claude/features.json` — set `passes: true`
 2. Update `.claude/mem/memory.md` Current State
 3. Commit: `[features]: mark {feature-id} as complete`
 4. Return to feature-tracker

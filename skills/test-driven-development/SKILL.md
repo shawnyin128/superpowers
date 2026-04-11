@@ -89,7 +89,7 @@ and critical user paths at E2E level.
 
 ### Coverage Awareness
 
-When implementing a feature from docs/features.json, map each `step` in the
+When implementing a feature from .claude/features.json, map each `step` in the
 feature to at least one test:
 
 ```

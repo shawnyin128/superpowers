@@ -18,7 +18,7 @@ You do NOT write code.
 ## Input
 
 ### Feature
-Read the feature entry from `docs/features.json` as specified by the orchestrator.
+Read the feature entry from `.claude/features.json` as specified by the orchestrator.
 
 ### Context
 Read `CLAUDE.md`, `.claude/mem/memory.md`, and the relevant spec document
