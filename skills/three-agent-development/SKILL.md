@@ -208,9 +208,9 @@ All intermediate files preserved for user diagnosis.
 ## Subagent Definitions
 
 Agents are defined as native CC subagent files in `agents/`:
-- `agents/sp-planner.md` — Opus, skills: writing-plans, memory: project
-- `agents/sp-generator.md` — Sonnet, skills: subagent-driven-dev + TDD, isolation: worktree
-- `agents/sp-evaluator.md` — Opus, tools: read-only + Bash, memory: project
+- `agents/sp-planner.md` — model: opus, tools: Read/Grep/Glob/Bash/Write/Edit/Skill, skills: sp-harness:writing-plans, memory: project
+- `agents/sp-generator.md` — model: sonnet, tools: all (inherited), skills: sp-harness:subagent-driven-development + sp-harness:test-driven-development + sp-harness:git-convention, isolation: worktree
+- `agents/sp-evaluator.md` — model: opus, tools: Read/Grep/Glob/Bash, memory: project
 
 Legacy prompt templates (`planner-prompt.md`, `generator-prompt.md`,
 `evaluator-prompt.md`) are kept for reference but no longer used for dispatch.

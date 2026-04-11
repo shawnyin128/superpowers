@@ -243,14 +243,17 @@ Create `.claude/sp-harness.json` if it does not exist.
 Print the default subagent configuration:
 ```
 Default three-agent configuration:
-  sp-planner:   model=opus,   tools=Read/Grep/Glob/Bash/Write/Edit/Skill, memory=project, skills=writing-plans
-  sp-generator: model=sonnet,  tools=all, isolation=worktree, skills=subagent-driven-dev+TDD+git-convention
+  sp-planner:   model=opus,   tools=Read/Grep/Glob/Bash/Write/Edit/Skill, memory=project, skills=sp-harness:writing-plans
+  sp-generator: model=sonnet,  isolation=worktree, skills=sp-harness:subagent-driven-development+test-driven-development+git-convention
   sp-evaluator: model=opus,   tools=Read/Grep/Glob/Bash, memory=project
 ```
 
 **Q2:** "Use this default configuration? (yes/no)"
 
-- If yes: write `.claude/sp-harness.json` with `"dev_mode": "three-agent"`.
+- If yes: write `.claude/sp-harness.json`:
+  ```json
+  {"dev_mode": "three-agent", "last_hygiene_at_completed": 0}
+  ```
   Plugin-level agent definitions in `agents/sp-*.md` will be used as-is.
 
 - If no: for EACH agent (sp-planner, sp-generator, sp-evaluator), ask:
@@ -265,7 +268,10 @@ Default three-agent configuration:
   - `.claude/agents/sp-evaluator.md` — with user-specified frontmatter
 
   These project-level files take priority over the plugin defaults (CC native behavior).
-  Write `.claude/sp-harness.json` with `"dev_mode": "three-agent"`.
+  Write `.claude/sp-harness.json`:
+  ```json
+  {"dev_mode": "three-agent", "last_hygiene_at_completed": 0}
+  ```
 
 **If single-agent:**
 

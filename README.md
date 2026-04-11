@@ -8,7 +8,7 @@ A harness engineering skills library forked from [obra/superpowers](https://gith
 |---------|-----|
 | **init-project** | Bootstraps lean CLAUDE.md (~50 lines) with First-Principles Standards, Context Management, and a docs/ directory tree as project map. Replaces the old fps + init-mem skills. |
 | **Structured memory** (update-mem) | memory.md is a state snapshot (Current State / Key Decisions / Findings), not an append-only log. New sessions recover context in 30 seconds. |
-| **Feature tracker** | Incremental development: picks highest-priority feature from docs/features.json, drives implementation, triggers hygiene and feedback automatically. |
+| **Feature tracker** | Incremental development: picks highest-priority feature from .claude/features.json, drives implementation, triggers hygiene and feedback automatically. |
 | **Three-agent development** | Planner (Opus) → Generator (Sonnet) → Evaluator (Opus) with JSON-based file communication. Planner produces paired task-plan.json + eval-plan.json with per-task evaluation methods. Evaluator outputs structured eval-report.json for iteration. |
 | **Divergence risk analysis** | Brainstorming identifies non-deterministic components, builds risk matrix and divergence trees. Writing-plans designs fallback chains (detection → recovery → safe stop). |
 | **Test strategy selection** | TDD skill enhanced with 3-question thinking path to choose test type (unit/integration/e2e/browser) per feature. Coverage maps feature steps to tests. |
@@ -40,7 +40,7 @@ A harness engineering skills library forked from [obra/superpowers](https://gith
        ↓
 /feature-tracker           Picks feature → loops through development
        ↓
-  ┌─ three-agent-development ──────────────────────┐
+  ┌─ three-agent OR single-agent development ──────┐
   │  Planner  → task-plan.json + eval-plan.json    │
   │  Generator → subagent-driven-dev → impl report │
   │  Evaluator → eval-report.json                  │
@@ -59,6 +59,7 @@ Other skills available anytime:
 - `/framework-check` — verify and fix project framework
 - `/git-convention` — enforce commit format
 - `/update-mem` — update memory files
+- `/switch-dev-mode` — toggle between single-agent and three-agent development
 
 ## License
 

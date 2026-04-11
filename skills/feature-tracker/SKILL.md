@@ -148,10 +148,10 @@ Without it, the session start protocol's git log step is useless.
 <HARD-GATE>
 **Hygiene cleanup — AUTOMATIC, do NOT ask the user for permission.**
 
-2. Read `last_hygiene_at_completed` from `.claude/sp-harness.json`
-3. Count features with `"passes": true` → `completed_count`
-4. Compute `delta = completed_count - last_hygiene_at_completed`
-5. **If delta >= 3:**
+a. Read `last_hygiene_at_completed` from `.claude/sp-harness.json`
+b. Count features with `"passes": true` → `completed_count`
+c. Compute `delta = completed_count - last_hygiene_at_completed`
+d. **If delta >= 3:**
    a. Print: "Hygiene threshold reached (delta={delta}). Running code-hygiene now."
    b. Invoke `sp-harness:code-hygiene` IMMEDIATELY. Do NOT ask "should I run
       hygiene?" or "would you like me to clean up?". This is automatic. Just do it.
@@ -164,10 +164,10 @@ Without it, the session start protocol's git log step is useless.
    e. **If file missing OR status is NOT `"complete"`:**
       - Do NOT update the counter
       - Warn: "Hygiene did not complete. Counter not updated. Will retry next loop."
-6. **If delta < 3:** continue
+e. **If delta < 3:** continue
 </HARD-GATE>
 
-7. **Check if ALL features pass:**
+3. **Check if ALL features pass:**
    - **NO (features remain)** → GO BACK TO STEP 2 NOW.
    - **YES (all pass)** →
      ```
