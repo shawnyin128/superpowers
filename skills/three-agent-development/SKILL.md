@@ -212,5 +212,4 @@ Agents are defined as native CC subagent files in `agents/`:
 - `agents/sp-generator.md` — model: sonnet, tools: all (inherited), skills: sp-harness:subagent-driven-development + sp-harness:test-driven-development + sp-harness:git-convention, isolation: worktree
 - `agents/sp-evaluator.md` — model: opus, tools: Read/Grep/Glob/Bash, memory: project
 
-Legacy prompt templates (`planner-prompt.md`, `generator-prompt.md`,
-`evaluator-prompt.md`) are kept for reference but no longer used for dispatch.
+Project-level overrides: create `.claude/agents/sp-{role}.md` to customize.
