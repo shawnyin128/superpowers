@@ -6,6 +6,7 @@ description: |
   bug root cause found, assumption proven wrong, or todo item changed.
 author: sp-harness
 version: 2.1.0
+user-invocable: false
 ---
 
 # update-mem

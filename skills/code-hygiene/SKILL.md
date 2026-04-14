@@ -6,6 +6,7 @@ description: |
   ambiguous ones. Triggered by feature-tracker every 3 features.
 author: sp-harness
 version: 1.1.0
+user-invocable: false
 ---
 
 # code-hygiene

@@ -5,6 +5,7 @@ description: |
   Module = top-level directory name of primary change area.
 author: sp-harness
 version: 1.1.0
+user-invocable: false
 ---
 
 # git-convention
