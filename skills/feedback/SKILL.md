@@ -6,7 +6,7 @@ description: |
   invoke this to have sp-feedback diagnose and route the fix back into the
   pipeline. Asks clarifying questions before analysis.
 author: sp-harness
-version: 1.0.0
+version: 2.0.0
 ---
 
 # feedback
@@ -39,34 +39,49 @@ Invoke `@agent sp-feedback` with:
 sp-feedback will:
 1. Ask clarifying questions one at a time (what/when/expected/reproducible)
 2. Run scoped checklist review based on the user's complaint
-3. Write `.claude/agents/state/feedback-actions.json`
-4. Present findings grouped by action type
+3. Auto-execute memory operations (no user gate)
+4. Write `.claude/agents/state/feedback-actions.json`
+5. Present findings grouped by action type
 
-## Step 4: Confirmation gate (orchestrator role)
+## Step 4: Review auto-executed memory ops
 
-After sp-feedback returns, read `feedback-actions.json` and print the
-findings to the user. For each action batch:
+sp-feedback has already executed `memory_update` and `memory_compact` actions
+before returning. Read the results from `.claude/agents/state/memory-ops-log.json`
+and print a brief summary:
 
-- "Apply N agent memory updates? (target: {agents})"
-- "Append N new features / N fix features to features.json?"
+```
+Auto-executed memory operations:
+  memory_update: X applied, Y rejected by target agent
+  memory_compact: Z agents compacted (before/after line counts)
+```
+
+This is FYI only — no confirmation needed. Agents decide via structured
+checklists. Details auditable in memory-ops-log.json.
+
+## Step 5: Per-batch confirmation (HARD-GATE for remaining actions)
+
+For actions that DO require user input (new_feature, fix_feature, manual):
+
+- "Append N new features / M fix features to features.json?"
 - "Manual items: {list} — review yourself later"
 
-Wait for per-batch user confirmation.
+Wait for confirmation before applying.
 
-## Step 5: Execute approved actions
+## Step 6: Execute approved actions
 
 For confirmed batches:
-- **memory_update**: dispatch the target agent (`@agent sp-planner` or
-  `@agent sp-evaluator`) with the structured insight from the finding.
-  The target agent decides whether/how to write to its own MEMORY.md.
-- **new_feature / fix_feature**: append to `.claude/features.json`.
-  For new_feature, suggest user run `/brainstorming` to design it.
-  For fix_feature, it will be picked up by feature-tracker next loop.
+- **new_feature**: append to `.claude/features.json` with `passes: false`.
+  Suggest user run `/brainstorming` to flesh out design.
+- **fix_feature**: append to `.claude/features.json`. Will be picked up by
+  feature-tracker on next loop.
 - **manual**: print to user, no automated action.
 
 ## Rules
 
 1. Never skip the clarifying questions phase — user complaints are often vague.
-2. Never apply actions without per-batch confirmation.
-3. Never write directly to another agent's MEMORY.md — always dispatch.
-4. After execution, summarize what was applied vs. deferred.
+2. Memory operations auto-execute before user gates. No confirmation needed.
+3. new_feature / fix_feature / manual require per-batch confirmation.
+4. Never write directly to another agent's MEMORY.md — always dispatch with
+   the Append/Compact Checklist context.
+5. After execution, summarize what was auto-executed, what was confirmed,
+   and what was deferred.

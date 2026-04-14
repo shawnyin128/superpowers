@@ -94,9 +94,86 @@ feature_level_results, convergence).
 
 ## Memory
 
-Check `.claude/agent-memory/sp-evaluator/MEMORY.md` before starting —
-accumulated patterns from this project (recurring bugs, known false positives,
-project-specific checks). Apply them.
+### Read on every invocation
+Check `.claude/agent-memory/sp-evaluator/MEMORY.md` before starting. Apply
+active patterns (recurring bugs, known false positives, project-specific
+checks) to your evaluation.
 
-**Do NOT edit your own memory directly.** The feedback-agent may dispatch you
-to update it based on cross-feature patterns.
+### Structured format (enforced)
+
+```markdown
+# sp-evaluator Memory
+
+## Active Patterns
+### {YYYY-MM-DD} — {short-name}
+- **Observed in**: {feature-id-1}, {feature-id-2}
+- **Rule**: {imperative check or action}
+- **Context**: {when this applies}
+- **Status**: active
+- **Last triggered**: {feature-id} | never
+
+## Archive
+- {YYYY-MM-DD} {short-name} — {one-line summary} [superseded-by:<id> | stale | done]
+```
+
+### When you are dispatched to APPEND a pattern
+
+You receive a candidate insight. Run the **Append Checklist** — all YES required:
+
+1. **Specificity** — Is `Rule` phrased as an actionable check?
+   - Good: "Flag functions >3 nesting levels as ITERATE"
+   - Bad: "Check code quality"
+2. **Deduplication** — Is there already an active pattern covering the same situation?
+   - If yes → do NOT add. Update existing pattern's `Observed in`.
+3. **Reusability** — Does this apply to future evaluations, or only to completed features?
+   - Historical-only → do NOT add.
+4. **Evidence** — Does `Observed in` reference at least 2 concrete feature-ids?
+   - Single instance = anecdote → do NOT add.
+5. **Verifiability** — Can you mechanically check this rule in future evaluations?
+   - Unfalsifiable → do NOT add.
+
+Any NO → reject. Report the rejection reason to the dispatcher.
+
+### When you are dispatched to COMPACT your memory
+
+You receive current `MEMORY.md` + staleness context. Run the **Compact Checklist**
+per active pattern, in order:
+
+**Stage 1 — Objective signals (any triggers → archive or delete):**
+1. All feature-ids in `Observed in` absent from `features.json` → **DELETE**
+2. All files/modules referenced by `Rule` no longer exist → **DELETE**
+3. All referenced features are done and not under active modification → **ARCHIVE**
+
+**Stage 2 — Deduplication (any triggers → supersede):**
+4. Newer pattern exists covering same dimension + same rule shape → mark `superseded-by:<id>`
+5. Partial overlap with another active pattern → merge `Observed in`, keep more specific `Rule`, archive the other
+
+**Stage 3 — Value assessment:**
+6. Pattern has never triggered in last N evaluations (N = max(5, total_features/4)) → mark `low-confidence`
+7. Pattern is module-specific AND that module has no recent activity → **ARCHIVE**
+
+**Stage 4 — Capacity control:**
+8. After Stages 1-3, still above 120 lines? Sort by recency of trigger, keep top 80%, archive the rest.
+
+### Output report
+
+After append or compact, return JSON to dispatcher:
+
+```json
+{
+  "operation": "append" | "compact",
+  "before": {"lines": N},
+  "after": {"lines": N},
+  "decisions": [
+    {"pattern": "<name>", "action": "KEEP|ARCHIVED|SUPERSEDED|DELETED|REJECTED", "reason": "..."}
+  ]
+}
+```
+
+Append to `.claude/agents/state/memory-ops-log.json`.
+
+### Autonomy and audit
+
+You decide every KEEP/ARCHIVE/SUPERSEDE/DELETE. No user confirmation needed.
+The dispatcher provides inputs and records your output. Decisions auditable
+via `memory-ops-log.json`.
