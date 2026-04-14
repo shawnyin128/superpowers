@@ -67,7 +67,12 @@ formats and migrate. Auto-fix anything wrong.
 - [ ] `.claude/sp-harness.json` exists
 - [ ] Has `dev_mode` field (`"three-agent"` or `"single-agent"`)
 - [ ] Has `last_hygiene_at_completed` field (number)
-- [ ] If `dev_mode` is `"three-agent"`: verify `agents/sp-planner.md`, `agents/sp-generator.md`, `agents/sp-evaluator.md` exist (plugin-level or project-level)
+
+### Project-level Agents
+
+- [ ] `.claude/agents/sp-feedback.md` exists (required regardless of dev_mode)
+- [ ] If `dev_mode` is `"three-agent"`: `.claude/agents/sp-planner.md`, `sp-generator.md`, `sp-evaluator.md` all exist
+- [ ] No plugin-level `agents/sp-planner.md`, `sp-generator.md`, `sp-evaluator.md` in plugin source (legacy — all dev agents are project-level now)
 
 ### Git Conventions
 
@@ -131,6 +136,12 @@ migrate existing content into those three sections.
 ### sp-harness.json missing or incomplete
 → Create with defaults: `{"dev_mode": "three-agent", "last_hygiene_at_completed": 0}`
 → If exists but missing fields, add defaults for missing fields only.
+
+### Project-level agents missing
+→ Read templates from `${CLAUDE_PLUGIN_ROOT}/agent-templates/{name}.md`, fill
+  `{PROJECT_NAME}` and `{PROJECT_CONTEXT}`, write to `.claude/agents/{name}.md`.
+→ Always generate `sp-feedback.md`.
+→ If `dev_mode` is three-agent, also generate sp-planner, sp-generator, sp-evaluator.
 
 ### Git conventions
 → Warn only. Do not rewrite history.

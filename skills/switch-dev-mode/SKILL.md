@@ -2,15 +2,18 @@
 name: switch-dev-mode
 description: |
   Switch between single-agent and three-agent development modes.
-  Reads and updates .claude/sp-harness.json. Use when the user wants
-  to change how features are developed.
+  Reads and updates .claude/sp-harness.json. Generates project-level
+  agent files from templates if needed. Use when the user wants to
+  change how features are developed.
 author: sp-harness
-version: 1.0.0
+version: 2.0.0
 ---
 
 # switch-dev-mode
 
 Switch the project's development mode between `single-agent` and `three-agent`.
+Handles agent file generation when switching to three-agent if they don't
+already exist.
 
 ## Steps
 
@@ -25,19 +28,35 @@ Switch the project's development mode between `single-agent` and `three-agent`.
    - `three-agent` → "Switch to single-agent?"
    - `single-agent` → "Switch to three-agent?"
 
-4. If yes:
-   - Update `dev_mode` in `.claude/sp-harness.json`
-   - Write to disk
-   - Print: "Dev mode switched to {new_mode}."
+4. If no: stop.
 
-5. If switching TO `three-agent`:
-   - Check if `agents/sp-planner.md`, `agents/sp-generator.md`, `agents/sp-evaluator.md`
-     exist (plugin-level or project-level)
-   - If project-level overrides exist in `.claude/agents/`, print their config
-   - Ask: "Use current subagent configuration, or reconfigure?"
-   - If reconfigure: for each agent, ask model / tools / memory / isolation
-     and update `.claude/agents/sp-{role}.md`
+5. If yes: update `dev_mode` in `.claude/sp-harness.json` and write to disk.
 
-6. If switching TO `single-agent`:
-   - No subagent configuration needed
-   - Print: "Single-agent mode uses main session for all roles. No subagent config required."
+## When switching TO `three-agent`:
+
+Check if `.claude/agents/sp-planner.md`, `sp-generator.md`, `sp-evaluator.md` exist:
+
+- **All three exist:** print their current configs (model, tools, memory,
+  isolation). Ask: "Use existing configuration, or reconfigure?"
+  - If reconfigure: for each agent, ask model / tools / memory / isolation
+    and rewrite the file using the template + user answers.
+
+- **Missing any:** read template from `${CLAUDE_PLUGIN_ROOT}/agent-templates/{name}.md`,
+  replace `{PROJECT_NAME}` and `{PROJECT_CONTEXT}` from CLAUDE.md, write to
+  `.claude/agents/{name}.md`. Ask if user wants to customize; if yes, run
+  the 4-question flow.
+
+**Note:** `.claude/agents/sp-feedback.md` should already exist from init-project.
+If it's missing, generate it from the template regardless of dev mode.
+
+## When switching TO `single-agent`:
+
+No Planner/Generator/Evaluator subagent configuration needed — main session
+plays those roles. The existing `.claude/agents/sp-*.md` files (if any) are
+left in place but unused.
+
+`.claude/agents/sp-feedback.md` is still used (feedback agent is independent
+of dev mode).
+
+Print: "Single-agent mode. Planner/Generator/Evaluator roles run in main
+session. sp-feedback remains active for system-level review."

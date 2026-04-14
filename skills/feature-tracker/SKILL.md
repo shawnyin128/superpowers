@@ -181,9 +181,18 @@ e. **If delta < 3:** continue
    - **YES (all pass)** →
      ```
      All features complete. .claude/features.json shows X/X passing.
-     Invoking system-feedback for optimization review.
+     Dispatching sp-feedback (Mode A) for system-level review.
      ```
-     Invoke **system-feedback** skill. This is the only exit from the loop.
+     Dispatch `@agent sp-feedback` with `"mode": "A"`. This is the only exit
+     from the loop. sp-feedback runs the structured checklist, writes
+     `.claude/agents/state/feedback-actions.json`, and presents findings
+     grouped by action type. You (orchestrator) then handle per-batch
+     user confirmation and action execution (see sp-feedback's definition
+     for the protocol).
+
+     **If sp-feedback results in new_feature or fix_feature actions** that
+     the user approves → append to features.json and re-enter the loop
+     at Step 2 to develop them.
 
 ---
 

@@ -14,7 +14,7 @@ A harness engineering skills library forked from [obra/superpowers](https://gith
 | **Test strategy selection** | TDD skill enhanced with 3-question thinking path to choose test type (unit/integration/e2e/browser) per feature. Coverage maps feature steps to tests. |
 | **Git convention** | `[module]: description` commit format so git log serves as context source for new sessions. |
 | **Code hygiene** | Lightweight GC-style cleanup every 3 features: removes dead code, fixes naming drift, extracts constants. Auto-fixes small issues, escalates large ones. |
-| **System feedback** | Full 4-dimension review (performance, UX, code quality, architecture) after all features complete. File-level optimization report. |
+| **Feedback agent** | Closes the loop. Mode A runs 6-dimension checklist after all features pass. Mode B is user-triggered (`/feedback`) for observed problems. Findings route into agent memory updates, new/fix features, or manual review — user confirms each batch. |
 | **Framework check** | Health check + auto-migration. Detects old format CLAUDE.md and rewrites from template. Validates memory, hooks, docs structure. |
 | **Output efficiency** | Drops filler, pleasantries, hedging from all responses. Code and technical terms unchanged. |
 
@@ -52,7 +52,11 @@ A harness engineering skills library forked from [obra/superpowers](https://gith
        ↓
   next feature → repeat
        ↓
-  all features done → /system-feedback
+  all features done → @agent sp-feedback (Mode A: self-check)
+                        │
+                        ├─ routes findings to agent memory updates,
+                        │   new/fix features, or manual review
+                        └─ closes the loop
 ```
 
 Other skills available anytime:
@@ -60,6 +64,7 @@ Other skills available anytime:
 - `/git-convention` — enforce commit format
 - `/update-mem` — update memory files
 - `/switch-dev-mode` — toggle between single-agent and three-agent development
+- `/feedback` — user-triggered diagnosis when you observe a problem (Mode B)
 
 ## License
 

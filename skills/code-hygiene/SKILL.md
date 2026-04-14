@@ -99,4 +99,4 @@ Update memory.md if recurring patterns found (signals systemic issue).
 2. Only scan recently changed files. Never refactor out-of-scope code.
 3. Ambiguous fix = escalate, never guess.
 4. Keep runs fast (minutes, not hours).
-5. Same issue appearing across runs → note in memory.md for system-feedback.
+5. Same issue appearing across runs → note in memory.md for sp-feedback (Mode A).

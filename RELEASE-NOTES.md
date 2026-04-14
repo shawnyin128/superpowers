@@ -12,7 +12,7 @@ Initial release. Forked from [obra/superpowers](https://github.com/obra/superpow
 - **three-agent-development** — Planner (Opus) → Generator (Sonnet) → Evaluator (Opus) with JSON file communication (task-plan.json, eval-plan.json, eval-report.json)
 - **git-convention** — enforces `[module]: description` commit format
 - **code-hygiene** — lightweight periodic cleanup every 3 features
-- **system-feedback** — 4-dimension optimization review after all features complete
+- **feedback (skill) + sp-feedback (project-level agent)** — closes the dev loop. Mode A (auto) runs 6-dimension checklist after all features pass. Mode B (`/feedback`) is user-triggered for observed problems. Routes findings into agent memory updates, new/fix features, or manual review with per-batch confirmation. Replaces the earlier system-feedback skill.
 - **framework-check** — health check + auto-migration from old formats
 
 ### Modified Skills

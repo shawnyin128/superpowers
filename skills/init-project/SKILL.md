@@ -25,6 +25,7 @@ Check the following independently. Record results to skip completed steps.
 - **B**: Does `.claude/mem/` exist with `memory.md` and `todo.md`?
 - **C**: Are Stop and UserPromptSubmit hooks configured in `.claude/settings.json`?
 - **D**: Does `.claude/sp-harness.json` exist with `dev_mode`?
+- **E**: Does `.claude/agents/sp-feedback.md` exist? If dev_mode is three-agent, also check sp-planner.md, sp-generator.md, sp-evaluator.md.
 
 If all are done, report "All steps already complete." and stop.
 
@@ -140,7 +141,7 @@ docs/
 ├── plans/
 │   ├── active/        ← plans currently being executed
 │   └── completed/     ← finished plans (moved here after completion)
-└── reports/           ← system-feedback and optimization reports
+└── reports/           ← sp-feedback optimization reports
 ```
 
 Skip any directories that already exist. Do not overwrite existing content.
@@ -231,56 +232,62 @@ to handle spaces in paths.
 
 ---
 
-## Step 6: Configure development mode
+## Step 6: Configure development mode and generate project-level agents
 
-Create `.claude/sp-harness.json` if it does not exist.
+All agent definitions are project-level. Plugin ships templates at
+`${CLAUDE_PLUGIN_ROOT}/agent-templates/sp-*.md`. init-project **always**
+generates project-level copies adapted to this project's context.
 
-**Q1:** Ask the user:
+### Q1: Dev mode
+
 > "Which development mode? (a) Three-agent — Planner, Generator, Evaluator as separate subagents (recommended for complex projects), (b) Single-agent — one agent plays all three roles sequentially (faster, lower token cost)"
 
-**If three-agent:**
+### Step 6a: Generate sp-feedback (always, regardless of dev mode)
 
-Print the default subagent configuration:
+Read `${CLAUDE_PLUGIN_ROOT}/agent-templates/sp-feedback.md`. Replace:
+- `{PROJECT_NAME}` → project name from CLAUDE.md
+- `{PROJECT_CONTEXT}` → 2-4 lines summarizing: stack, key modules, critical
+  invariants identified during Step 1 scan
+
+Write to `.claude/agents/sp-feedback.md`.
+
+### Step 6b: If three-agent, generate sp-planner / sp-generator / sp-evaluator
+
+Print defaults from templates:
 ```
-Default three-agent configuration:
-  sp-planner:   model=opus,   tools=Read/Grep/Glob/Bash/Write/Edit/Skill, memory=project, skills=sp-harness:writing-plans
-  sp-generator: model=sonnet,  isolation=worktree, skills=sp-harness:subagent-driven-development+test-driven-development+git-convention
-  sp-evaluator: model=opus,   tools=Read/Grep/Glob/Bash, memory=project
+Default three-agent configuration (from agent-templates/):
+  sp-planner:   opus, tools=Read/Grep/Glob/Bash/Write/Edit/Skill, memory=project, skills=sp-harness:writing-plans
+  sp-generator: sonnet, isolation=worktree, skills=subagent-driven-dev+TDD+git-convention
+  sp-evaluator: opus, tools=Read/Grep/Glob/Bash, memory=project
 ```
 
-**Q2:** "Use this default configuration? (yes/no)"
+**Q2:** "Use these defaults? (yes/no)"
 
-- If yes: write `.claude/sp-harness.json`:
-  ```json
-  {"dev_mode": "three-agent", "last_hygiene_at_completed": 0}
-  ```
-  Plugin-level agent definitions in `agents/sp-*.md` will be used as-is.
+- **If yes:** For each of sp-planner, sp-generator, sp-evaluator:
+  Read template from `${CLAUDE_PLUGIN_ROOT}/agent-templates/{name}.md`.
+  Replace `{PROJECT_NAME}` and `{PROJECT_CONTEXT}` with project-specific values.
+  Write to `.claude/agents/{name}.md`.
 
-- If no: for EACH agent (sp-planner, sp-generator, sp-evaluator), ask:
+- **If no:** For each agent, ask:
   1. "Model?" (opus / sonnet / haiku / inherit)
-  2. "Tools?" (read-only / all / custom list)
+  2. "Tools?" (default / read-only / custom list)
   3. "Cross-session memory?" (none / project / user / local)
   4. "Isolated worktree?" (yes / no)
 
-  Then create project-level overrides in `.claude/agents/`:
-  - `.claude/agents/sp-planner.md` — with user-specified frontmatter
-  - `.claude/agents/sp-generator.md` — with user-specified frontmatter
-  - `.claude/agents/sp-evaluator.md` — with user-specified frontmatter
+  Read template, override frontmatter fields with user answers, fill context,
+  write to `.claude/agents/{name}.md`.
 
-  These project-level files take priority over the plugin defaults (CC native behavior).
-  Write `.claude/sp-harness.json`:
-  ```json
-  {"dev_mode": "three-agent", "last_hygiene_at_completed": 0}
-  ```
+### Step 6c: Write config
 
-**If single-agent:**
-
-Write `.claude/sp-harness.json`:
 ```json
-{"dev_mode": "single-agent", "last_hygiene_at_completed": 0}
+{"dev_mode": "three-agent" | "single-agent", "last_hygiene_at_completed": 0}
 ```
 
-No subagent configuration needed.
+to `.claude/sp-harness.json`.
+
+**Single-agent mode note:** only `sp-feedback.md` is generated as a subagent.
+Planner/Generator/Evaluator roles are played by main session — no subagent
+definitions needed for them.
 
 ---
 
@@ -294,6 +301,7 @@ docs/                      ✓ directory structure created / ✓ already complet
 .claude/mem/               ✓ initialized / ✓ already complete
 .claude/settings.json      ✓ hooks configured / ✓ already complete
 .claude/sp-harness.json    ✓ dev_mode={mode} / ✓ already complete
+.claude/agents/            ✓ sp-feedback.md + {3 dev agents if three-agent}
 ```
 
 ---
