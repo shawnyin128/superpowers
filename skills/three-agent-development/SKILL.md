@@ -27,23 +27,36 @@ Evaluator → reads code + reports  → eval-report.json
 
 ## File Structure
 
-All agent communication goes through `.claude/agents/state/`. Create if missing.
+Agent communication goes through `.claude/agents/state/`. Active work lives
+in `active/`; completed features archive to `archive/<feature-id>/`.
 
 ```
 .claude/agents/state/
-├── task-plan.json     ← Planner output: implementation plan (Generator reads)
-├── eval-plan.json     ← Planner output: evaluation playbook (Evaluator reads)
-├── implementation.md  ← Generator output: execution report
-└── eval-report.json   ← Evaluator output: structured assessment (JSON)
+├── active/                            ← current feature's work-in-progress
+│   ├── task-plan.json                 ← Planner output
+│   ├── eval-plan.json                 ← Planner output
+│   ├── implementation.md              ← Generator output
+│   └── eval-report.json               ← Evaluator output
+└── archive/
+    └── <feature-id>/
+        ├── iter-1-task-plan.json
+        ├── iter-1-eval-plan.json
+        ├── iter-1-implementation.md
+        ├── iter-1-eval-report.json
+        ├── iter-2-* (if multi-iteration)
+        └── final-eval-report.json     ← last iteration's report (sp-feedback reads these)
 ```
+
+Create these directories if missing.
 
 ---
 
 ## Step 1: Select Feature
 
 Read the feature from `.claude/features.json` (passed by feature-tracker,
-or specified by user). Read context: `.claude/mem/memory.md`, `CLAUDE.md`,
-spec document referenced in CLAUDE.md's Design Docs section (if any).
+or specified by user). Read context: `CLAUDE.md`, spec document referenced
+in CLAUDE.md's Design Docs section (if any). Check `active/` for any
+in-progress state from a prior interrupted session.
 
 ---
 
@@ -70,7 +83,7 @@ with writing-plans pre-loaded and project memory enabled.
 MUST do the following before dispatching Generator:
 
 <HARD-GATE>
-1. Read `.claude/agents/state/task-plan.json` and `.claude/agents/state/eval-plan.json`
+1. Read `.claude/agents/state/active/task-plan.json` and `.claude/agents/state/active/eval-plan.json`
 2. Print a merged summary table to the user:
 
 ```
@@ -135,7 +148,7 @@ Opus with read-only + Bash tools and project memory enabled.
 
 **MUST: Before handling the verdict, print the evaluation summary to the user.**
 
-Read `.claude/agents/state/eval-report.json` and print:
+Read `.claude/agents/state/active/eval-report.json` and print:
 
 ```
 Evaluation Results (iteration {N}): {VERDICT}
@@ -161,24 +174,30 @@ reason and location. The user needs this to understand what is happening.
 
 ### PASS
 1. Update `.claude/features.json` — set `passes: true`
-2. Update `.claude/mem/memory.md` Current State
-3. Commit: `[features]: mark {feature-id} as complete`
+2. **Archive state files:**
+   - Create `.claude/agents/state/archive/<feature-id>/` if missing
+   - Move `active/task-plan.json` → `archive/<feature-id>/iter-<N>-task-plan.json`
+   - Move `active/eval-plan.json` → `archive/<feature-id>/iter-<N>-eval-plan.json`
+   - Move `active/implementation.md` → `archive/<feature-id>/iter-<N>-implementation.md`
+   - Move `active/eval-report.json` → `archive/<feature-id>/iter-<N>-eval-report.json`
+   - Copy final iteration's eval-report to `archive/<feature-id>/final-eval-report.json`
+   - `active/` directory ends empty
+3. Commit: `[features]: mark {feature-id} as complete` (include features.json + archive/)
 4. Return to feature-tracker
 
 ### ITERATE
 1. Check `convergence.status` from the printed results
 2. **If diverging** — escalate to REJECT
-3. **If converging** — GO BACK TO STEP 2. The only difference from the
-   first run is that Planner now also reads eval-report.json as input.
-   Everything else is identical: Planner produces plans → orchestrator
-   prints table → user confirms → Generator executes → Evaluator
-   assesses → orchestrator prints results → handle verdict.
+3. **If converging:**
+   a. Archive the current iteration's files to `archive/<feature-id>/iter-<N>-*`
+      (Planner will produce iter N+1 files fresh in `active/`)
+   b. GO BACK TO STEP 2. Planner reads eval-report.json from `archive/<feature-id>/iter-<N>-eval-report.json` to inform re-planning.
    **ITERATE is not a shortcut. It is a full cycle through Steps 2-5.**
 
 ### REJECT
-1. Stop. Preserve all files in `.claude/agents/state/`
-2. Update `.claude/mem/memory.md` — note rejection and reason
-3. Report to user: what was attempted, why it failed, full evaluator assessment
+1. Stop. Preserve all files in `.claude/agents/state/active/` and any archived iterations.
+2. Report to user: what was attempted, why it failed, full evaluator assessment.
+   Main session may add a todo.md entry for follow-up investigation.
 
 ---
 

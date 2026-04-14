@@ -1,31 +1,53 @@
 # SP Harness Release Notes
 
-## v1.0.0 (2026-04-08)
+## v0.3.0 (2026-04-14)
 
-Initial release. Forked from [obra/superpowers](https://github.com/obra/superpowers) v5.0.7.
+**BREAKING**: Removed `memory.md` and `update-mem` skill. State sources restructured.
 
-### New Skills
+### Rationale
 
-- **init-project** — bootstraps lean CLAUDE.md (~50 lines) with strict template, docs/ directory structure, structured memory, and update-mem hooks
-- **update-mem** — maintains memory.md as a state snapshot (Current State / Key Decisions / Findings), not an append-only log
-- **feature-tracker** — incremental development orchestrator: picks features from .claude/features.json, loops through three-agent-development, triggers hygiene and feedback
-- **three-agent-development** — Planner (Opus) → Generator (Sonnet) → Evaluator (Opus) with JSON file communication (task-plan.json, eval-plan.json, eval-report.json)
-- **git-convention** — enforces `[module]: description` commit format
-- **code-hygiene** — lightweight periodic cleanup every 3 features
-- **feedback (skill) + sp-feedback (project-level agent)** — closes the dev loop. Mode A (auto) runs 6-dimension checklist after all features pass. Mode B (`/feedback`) is user-triggered for observed problems. Routes findings into agent memory updates, new/fix features, or manual review with per-batch confirmation. Replaces the earlier system-feedback skill.
-- **framework-check** — health check + auto-migration from old formats
+memory.md had three sections (Current State / Key Decisions / Findings) that
+duplicated information already available from authoritative sources:
+- Current State → derivable from `features.json` + `git log` + `git status`
+- Key Decisions → project-level in `docs/design-docs/`; session-level in commit messages
+- Findings → recurring patterns in `agent-memory/*`; open problems in `todo.md`
 
-### Modified Skills
+Keeping memory.md violated the "one authoritative source per concern" principle
+and caused drift between memory.md and the actual state.
 
-- **brainstorming** — reads PROPOSAL.md as input, generates .claude/features.json, updates CLAUDE.md Project Map, divergence risk analysis (risk matrix + divergence trees)
-- **writing-plans** — saves to docs/plans/active/, fallback chain design section
-- **test-driven-development** — test strategy selection (unit/integration/e2e/browser), coverage awareness mapping feature steps to tests
-- **using-sp-harness** — output efficiency rules (drop filler/pleasantries/hedging)
+### Changes
 
-### Architecture
+- **Removed** `.claude/mem/memory.md` (init-project no longer creates it)
+- **Removed** `skills/update-mem/`
+- **New structured context sources per role**: each subagent reads only what it
+  needs (sp-planner: CLAUDE.md + feature entry + spec + own memory; sp-evaluator:
+  eval-plan + implementation + code + own memory; etc.)
+- **Removed** `{PROJECT_CONTEXT}` slot from agent templates — agents dynamically
+  read CLAUDE.md on every invocation instead of having frozen project info
+- **State file archival**: `.claude/agents/state/` now split into `active/`
+  (current feature) and `archive/<feature-id>/` (completed features). sp-feedback
+  reads archive for cross-feature analysis.
+- **Hook renamed**: `update-mem-reminder.sh` → `update-todo-reminder.sh`
+- **Session-start protocol**: CLAUDE.md → features.json → sp-harness.json → todo.md
+  → git log → git status
 
-- Structured memory: `.claude/mem/memory.md` (state snapshot) + `todo.md`
-- Session start protocol: memory → todo → git log → features.json
-- Three-agent file communication: `.claude/agents/state/` with JSON schemas
-- Docs hierarchy: `docs/design-docs/`, `docs/plans/active|completed/`, `docs/reports/`
-- Feature-driven incremental development with automated hygiene and feedback loops
+### Migration for existing projects
+
+- Run `/framework-check` — it will detect legacy memory.md and suggest migration
+- Manually review memory.md content and distribute: decisions → docs/, open
+  problems → todo.md, patterns accumulate to agent-memory naturally
+- Delete memory.md after migration
+
+## Earlier releases (0.0.12 – 0.2.4)
+
+Forked from [obra/superpowers](https://github.com/obra/superpowers) v5.0.7.
+
+Highlights across these iterations:
+- **init-project** + CLAUDE.md + docs/ hierarchy
+- **feature-tracker** with topological + priority-based feature selection
+- **three-agent-development** and **single-agent-development** modes
+- **sp-feedback** closed-loop system review (Mode A auto + Mode B user-triggered)
+- **Structured Append/Compact Checklists** for agent memory with Gate 1 (structural) + Gate 2 (value)
+- **Hybrid architecture gate** in brainstorming, **Codebase Understanding** step
+- **feature dependencies** (`depends_on` with topological ordering)
+- **Skill visibility split**: 8 user-facing core skills, 16 internal

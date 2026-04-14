@@ -40,13 +40,13 @@ sp-feedback will:
 1. Ask clarifying questions one at a time (what/when/expected/reproducible)
 2. Run scoped checklist review based on the user's complaint
 3. Auto-execute memory operations (no user gate)
-4. Write `.claude/agents/state/feedback-actions.json`
+4. Write `.claude/agents/state/active/feedback-actions.json`
 5. Present findings grouped by action type
 
 ## Step 4: Review auto-executed memory ops
 
 sp-feedback has already executed `memory_update` and `memory_compact` actions
-before returning. Read the results from `.claude/agents/state/memory-ops-log.json`
+before returning. Read the results from `.claude/agents/state/active/memory-ops-log.json`
 and print a brief summary:
 
 ```

@@ -26,11 +26,11 @@ You do NOT stop after one feature unless ALL features pass or the user tells you
 
 Read these in order:
 
-1. `.claude/mem/memory.md` — current state, what was last worked on
-2. `.claude/mem/todo.md` — open problems
-3. `git log --oneline -20` — recent commits
-4. `.claude/features.json` — the feature list
-5. `.claude/sp-harness.json` — harness configuration
+1. `.claude/features.json` — the feature list and status
+2. `.claude/sp-harness.json` — harness configuration (dev_mode, hygiene counter)
+3. `.claude/mem/todo.md` — open problems / next actions
+4. `git log --oneline -20` — recent commits
+5. `git status` — uncommitted work (if any, someone was in the middle of something)
 
 If `.claude/features.json` does not exist, inform the user and suggest running
 brainstorming first to create one. STOP.
@@ -136,17 +136,21 @@ If REJECT, feature-tracker stops and reports to user.
 
 ---
 
-## Step 5: Update memory, commit, hygiene cleanup, LOOP BACK
+## Step 5: Commit, hygiene cleanup, LOOP BACK
 
-1. Update `.claude/mem/memory.md` Current State to reflect completion.
+The dev skill (three-agent or single-agent) already archived state files
+to `.claude/agents/state/archive/<feature-id>/` on PASS.
 
 **MUST: Commit feature completion — do NOT skip:**
 ```
-git add .claude/features.json .claude/mem/memory.md .claude/sp-harness.json
+git add .claude/features.json .claude/sp-harness.json .claude/agents/state/archive/
 git commit -m "[features]: mark {feature-id} as complete"
 ```
 This commit is how new sessions know which features are done via `git log`.
 Without it, the session start protocol's git log step is useless.
+
+If there's a next-action or follow-up note worth preserving, the main session
+may append to `.claude/mem/todo.md` before committing (include it in the add).
 
 **MUST: Hygiene cleanup — AUTOMATIC, do NOT ask the user for permission.**
 
@@ -157,11 +161,11 @@ d. **If delta >= 3:**
    a. Print: "Hygiene threshold reached (delta={delta}). Running code-hygiene now."
    b. Invoke `sp-harness:code-hygiene` IMMEDIATELY. Do NOT ask "should I run
       hygiene?" or "would you like me to clean up?". This is automatic. Just do it.
-   c. Read `.claude/agents/state/hygiene-result.json`
+   c. Read `.claude/agents/state/active/hygiene-result.json`
    d. **If file exists AND `status` is `"complete"`:**
       - Set `last_hygiene_at_completed` to `completed_count` in `.claude/sp-harness.json`
       - Write sp-harness.json to disk
-      - Delete `.claude/agents/state/hygiene-result.json`
+      - Delete `.claude/agents/state/active/hygiene-result.json`
       - Report: "Hygiene complete. Counter updated to {completed_count}."
    e. **If file missing OR status is NOT `"complete"`:**
       - Do NOT update the counter
@@ -177,7 +181,7 @@ e. **If delta < 3:** continue
      ```
      Dispatch `@agent sp-feedback` with `"mode": "A"`. This is the only exit
      from the loop. sp-feedback runs the structured checklist, writes
-     `.claude/agents/state/feedback-actions.json`, and presents findings
+     `.claude/agents/state/active/feedback-actions.json`, and presents findings
      grouped by action type. You (orchestrator) then handle per-batch
      user confirmation and action execution (see sp-feedback's definition
      for the protocol).

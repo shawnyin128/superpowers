@@ -27,14 +27,20 @@ no subagent dispatch, everything runs in the main session context.
 
 ## File Structure
 
-Same as three-agent-development. All communication goes through `.claude/agents/state/`.
+Same as three-agent-development. Active work in `active/`, completed
+features archived to `archive/<feature-id>/`.
 
 ```
 .claude/agents/state/
-├── task-plan.json     ← Planner output
-├── eval-plan.json     ← Planner output
-├── implementation.md  ← Generator output
-└── eval-report.json   ← Evaluator output
+├── active/            ← current work
+│   ├── task-plan.json
+│   ├── eval-plan.json
+│   ├── implementation.md
+│   └── eval-report.json
+└── archive/
+    └── <feature-id>/
+        ├── iter-<N>-*.*
+        └── final-eval-report.json
 ```
 
 ---
@@ -42,8 +48,9 @@ Same as three-agent-development. All communication goes through `.claude/agents/
 ## Step 1: Select Feature
 
 Read the feature from `.claude/features.json` (passed by feature-tracker,
-or specified by user). Read context: `.claude/mem/memory.md`, `CLAUDE.md`,
-spec document referenced in CLAUDE.md's Design Docs section (if any).
+or specified by user). Read context: `CLAUDE.md`, spec document referenced
+in CLAUDE.md's Design Docs section (if any). Check `active/` for in-progress
+state from a prior interrupted session.
 
 ---
 
@@ -63,12 +70,12 @@ Then: scan the feature for gaps. Ask user one question at a time until resolved.
 
 **Phase 2: Write implementation plan.**
 Follow sp-harness:writing-plans conventions (TDD steps, file structure,
-no placeholders, fallback chain design). Save as `.claude/agents/state/task-plan.json`
+no placeholders, fallback chain design). Save as `.claude/agents/state/active/task-plan.json`
 using the same schema as three-agent-development.
 
 **Phase 3: Write evaluation plan.**
 For each task, specify method (spec-review / code-review / both), criteria,
-and verify_commands. Save as `.claude/agents/state/eval-plan.json`
+and verify_commands. Save as `.claude/agents/state/active/eval-plan.json`
 using the same schema as three-agent-development.
 
 **After completing both files**, print the merged summary table:
@@ -100,12 +107,12 @@ Follow the plan EXACTLY. Do not redesign. If the plan seems wrong,
 note DONE_WITH_CONCERNS in your report — do not fix the plan yourself.
 </EXTREMELY-IMPORTANT>
 
-Read `.claude/agents/state/task-plan.json`. For each task:
+Read `.claude/agents/state/active/task-plan.json`. For each task:
 - Follow the `steps` array in order
 - TDD cycle: test first, verify fail, implement, verify pass
 - Commit after each task using [module]: description convention
 
-After all tasks, write `.claude/agents/state/implementation.md` using the
+After all tasks, write `.claude/agents/state/active/implementation.md` using the
 same schema as three-agent-development.
 
 ---
@@ -144,34 +151,39 @@ Your brain wants to believe it's correct. RESIST THIS.
    - Missing input validation
    - Race conditions
 
-Read `.claude/agents/state/eval-plan.json` and `.claude/agents/state/implementation.md`.
+Read `.claude/agents/state/active/eval-plan.json` and `.claude/agents/state/active/implementation.md`.
 Run every verify_command. Read every file listed. Write
-`.claude/agents/state/eval-report.json` using the same schema as three-agent-development.
+`.claude/agents/state/active/eval-report.json` using the same schema as three-agent-development.
 
 ---
 
 ## Step 5: Print Evaluation Results and Handle Verdict
 
-**MUST:** Read `.claude/agents/state/eval-report.json` and print the full
+**MUST:** Read `.claude/agents/state/active/eval-report.json` and print the full
 evaluation summary (same format as three-agent-development). Do NOT summarize
 or skip.
 
 ### PASS
 1. Update `.claude/features.json` — set `passes: true`
-2. Update `.claude/mem/memory.md` Current State
+2. **Archive state files:**
+   - Create `.claude/agents/state/archive/<feature-id>/` if missing
+   - Move `active/*` files → `archive/<feature-id>/iter-<N>-*`
+   - Copy final iteration's eval-report to `archive/<feature-id>/final-eval-report.json`
+   - `active/` ends empty
 3. Commit: `[features]: mark {feature-id} as complete`
 4. Return to feature-tracker
 
 ### ITERATE
 1. Check `convergence.status`
 2. **If diverging** — escalate to REJECT
-3. **If converging** — GO BACK TO STEP 2.
+3. **If converging:**
+   a. Archive current iter's files to `archive/<feature-id>/iter-<N>-*`
+   b. GO BACK TO STEP 2 (Planner role reads iter-N eval-report from archive).
    **ITERATE is not a shortcut. It is a full cycle through Steps 2-5.**
 
 ### REJECT
-1. Stop. Preserve all files in `.claude/agents/state/`
-2. Update `.claude/mem/memory.md` — note rejection and reason
-3. Report to user
+1. Stop. Preserve all files in `active/` and archived iterations.
+2. Report to user. Main session may add todo.md entry for follow-up.
 
 ---
 

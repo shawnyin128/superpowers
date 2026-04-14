@@ -2,7 +2,7 @@
 name: init-project
 description: |
   Bootstrap a new project with a lean, map-style CLAUDE.md (~50 lines),
-  structured memory in .claude/mem/, and update-mem hooks. Use when starting
+  structured state in .claude/, and todo-reminder hooks. Use when starting
   any new project or onboarding an existing codebase. Scans the repo to
   generate a project map automatically. Safe to re-run: skips completed steps.
 author: sp-harness
@@ -22,7 +22,7 @@ Check the following independently. Record results to skip completed steps.
 
 - **A**: Does `CLAUDE.md` exist with all three required sections?
   Look for: `First-Principles`, `Context Management`, `Project Map`.
-- **B**: Does `.claude/mem/` exist with `memory.md` and `todo.md`?
+- **B**: Does `.claude/mem/todo.md` exist? (memory.md is deprecated in v0.3.0 — should NOT exist in new projects)
 - **C**: Are Stop and UserPromptSubmit hooks configured in `.claude/settings.json`?
 - **D**: Does `.claude/sp-harness.json` exist with `dev_mode`?
 - **E**: Does `.claude/agents/sp-feedback.md` exist? If dev_mode is three-agent, also check sp-planner.md, sp-generator.md, sp-evaluator.md.
@@ -93,16 +93,19 @@ Skip preamble, summaries, and obvious observations.
 
 ## Context Management
 
-Memory lives in `.claude/mem/`. memory.md is a state snapshot, not a log.
+State lives in structured files — each concern has one authoritative source.
 
 **Session start — read in order:**
-1. `.claude/mem/memory.md` — current state, decisions, findings
-2. `.claude/mem/todo.md` — open problems
-3. `git log --oneline -20` — recent commits
-4. `.claude/features.json` — feature progress (if exists)
+1. `CLAUDE.md` — this file (map + principles)
+2. `.claude/features.json` — feature list and status
+3. `.claude/sp-harness.json` — dev mode + hygiene counter (if exists)
+4. `.claude/mem/todo.md` — open problems and next actions
+5. `git log --oneline -20` — recent activity
+6. `git status` — uncommitted work (where you physically left off)
 
-**Rules:** update memory.md after every non-trivial task. Keep under ~40 lines.
-Commits use `[module]: description` format.
+**Rules:** commits use `[module]: description` format. Keep todo.md under
+~50 lines — project-level todos go in `.claude/features.json` as features,
+not todos. Design rationale goes in `docs/design-docs/`, not todo.md.
 
 ---
 
@@ -152,30 +155,34 @@ is for new documents going forward.
 
 ---
 
-## Step 4: Create `.claude/mem/` files
+## Step 4: Create `.claude/mem/todo.md`
 
-If `.claude/mem/` already exists with both files (check B), skip this step.
+If `.claude/mem/todo.md` already exists (check B), skip this step.
 
-Create any missing files:
+Create `.claude/mem/todo.md`:
 
-**`.claude/mem/memory.md`:**
-```markdown
-# Project Memory
-
-## Current State
-Project just initialized. No work started yet.
-
-## Key Decisions
-
-## Findings
-```
-
-**`.claude/mem/todo.md`:**
 ```markdown
 # Todo
+
+Open problems and next actions for the main session. Project-level features
+belong in `.claude/features.json`, not here. Design rationale belongs in
+`docs/design-docs/`, not here.
+
+## Format
+
+- [ ] Short imperative title
+- [x] Completed — one-line resolution
+
+Keep under ~50 lines. Remove completed items beyond the last 10 unless
+they have reference value.
 ```
 
 Do not overwrite existing files.
+
+**If `.claude/mem/memory.md` exists (legacy from pre-0.3.0):** do NOT delete.
+Report to user: "Legacy memory.md detected. Review contents and migrate:
+design decisions → docs/, open problems → todo.md, patterns → agent-memory
+will accumulate naturally. Delete memory.md when migration done."
 
 ---
 
@@ -183,19 +190,19 @@ Do not overwrite existing files.
 
 If hooks are already configured (check C), skip this step.
 
-Create `.claude/hooks/update-mem-reminder.sh`:
+Create `.claude/hooks/update-todo-reminder.sh`:
 
 ```bash
 #!/bin/bash
 cat <<'EOF'
-MEMORY CHECK: Update .claude/mem/memory.md (decisions, findings) and
-todo.md (new/resolved problems) if this was a non-trivial task.
+TODO CHECK: If this was a non-trivial task and produced a new open problem
+or a natural next action, update .claude/mem/todo.md before proceeding.
 EOF
 ```
 
-Make executable: `chmod +x .claude/hooks/update-mem-reminder.sh`
+Make executable: `chmod +x .claude/hooks/update-todo-reminder.sh`
 
-Get absolute path with `pwd`: `$(pwd)/.claude/hooks/update-mem-reminder.sh`
+Get absolute path with `pwd`: `$(pwd)/.claude/hooks/update-todo-reminder.sh`
 
 Configure `.claude/settings.json` with both `Stop` and `UserPromptSubmit` hooks.
 If settings.json already exists, **merge** — do not overwrite existing hooks.
@@ -308,5 +315,5 @@ docs/                      ✓ directory structure created / ✓ already complet
 
 ## Notes
 
-- Stop hook: terminal display only. UserPromptSubmit hook: injected into agent context (this is what actually triggers memory checks).
+- Stop hook: terminal display only. UserPromptSubmit hook: injected into agent context (this is what actually triggers todo checks).
 - After init, project is ready for brainstorming.

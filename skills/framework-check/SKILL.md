@@ -28,8 +28,9 @@ formats and migrate. Auto-fix anything wrong.
 ### CLAUDE.md — Content Format
 
 - [ ] First-Principles Standards has exactly 4 numbered rules (Clarify, Shortest path, Root causes, Output)
-- [ ] Context Management mentions `.claude/mem/` (NOT `.claude/mem/checklist.md`)
-- [ ] Context Management has "Session start protocol" with 4 steps (memory.md, todo.md, git log, features.json)
+- [ ] Context Management mentions `.claude/mem/todo.md`
+- [ ] Context Management has "Session start protocol" listing: CLAUDE.md, .claude/features.json, .claude/sp-harness.json, .claude/mem/todo.md, git log, git status
+- [ ] Context Management does NOT mention `memory.md` (deprecated in v0.3.0)
 - [ ] Context Management mentions `[module]: description` commit convention
 - [ ] Project Map has `### Design Docs` subsection with docs/ tree
 - [ ] Project Map has `### Codebase` subsection with directory tree
@@ -45,14 +46,18 @@ formats and migrate. Auto-fix anything wrong.
 
 ### Memory System
 
-- [ ] `.claude/mem/memory.md` exists with `## Current State`, `## Key Decisions`, `## Findings`
-- [ ] `.claude/mem/memory.md` does NOT mention checklist.md
 - [ ] `.claude/mem/todo.md` exists
-- [ ] `.claude/mem/checklist.md` does NOT exist (old format — remove if found)
+- [ ] `.claude/mem/memory.md` does NOT exist (deprecated in v0.3.0; warn if found, suggest migration)
+- [ ] `.claude/mem/checklist.md` does NOT exist (old format)
+
+### Agent State
+
+- [ ] `.claude/agents/state/active/` directory exists (may be empty)
+- [ ] `.claude/agents/state/archive/` directory exists (may be empty)
 
 ### Hooks
 
-- [ ] `.claude/hooks/update-mem-reminder.sh` exists and is executable
+- [ ] `.claude/hooks/update-todo-reminder.sh` exists and is executable
 - [ ] `.claude/settings.json` has Stop + UserPromptSubmit hooks
 
 ### Features (skip if no spec docs exist)
@@ -122,9 +127,13 @@ wrong structure, and wrong content. A clean rewrite is the only reliable fix.
 ### Documentation structure missing
 → Create missing directories.
 
-### Memory wrong format
-→ If memory.md lacks Current State / Key Decisions / Findings structure,
-migrate existing content into those three sections.
+### Legacy memory.md present
+→ memory.md was deprecated in v0.3.0. Do NOT auto-migrate or delete —
+its content may have value. Print the file to the user and suggest:
+- Design decisions → move to appropriate `docs/design-docs/` file
+- Open problems / next actions → move to `.claude/mem/todo.md`
+- Recurring patterns → agent will accumulate into agent-memory naturally
+→ After user migrates content, they can delete memory.md manually.
 → If checklist.md exists, delete it (old format).
 
 ### Hooks missing
@@ -156,9 +165,7 @@ If any still fail, report and stop.
 
 ---
 
-## Step 5: Update Memory + Commit
-
-Update `.claude/mem/memory.md` Current State.
+## Step 5: Commit
 
 Commit:
 ```

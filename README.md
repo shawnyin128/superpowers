@@ -1,13 +1,13 @@
 # SP Harness
 
-A harness engineering skills library forked from [obra/superpowers](https://github.com/obra/superpowers). Enhanced with structured memory, three-agent development, feature tracking, and systematic quality control.
+A harness engineering skills library forked from [obra/superpowers](https://github.com/obra/superpowers). Enhanced with three-agent development, feature tracking, structured state sources, and systematic quality control.
 
 ## What's Different from Upstream
 
 | Feature | Why |
 |---------|-----|
 | **init-project** | Bootstraps lean CLAUDE.md (~50 lines) with First-Principles Standards, Context Management, and a docs/ directory tree as project map. Replaces the old fps + init-mem skills. |
-| **Structured memory** (update-mem) | memory.md is a state snapshot (Current State / Key Decisions / Findings), not an append-only log. New sessions recover context in 30 seconds. |
+| **Structured state sources** | Each concern has one authoritative source: `CLAUDE.md` (map + principles), `features.json` (what to build), `git log` (what happened), `todo.md` (open problems), `agent-memory/*` (agent patterns), `agents/state/archive/` (per-feature history). No overlapping stores. |
 | **Feature tracker** | Incremental development: picks highest-priority feature from .claude/features.json, drives implementation, triggers hygiene and feedback automatically. |
 | **Three-agent development** | Planner (Opus) → Generator (Sonnet) → Evaluator (Opus) with JSON-based file communication. Planner produces paired task-plan.json + eval-plan.json with per-task evaluation methods. Evaluator outputs structured eval-report.json for iteration. |
 | **Divergence risk analysis** | Brainstorming identifies non-deterministic components, builds risk matrix and divergence trees. Writing-plans designs fallback chains (detection → recovery → safe stop). |
@@ -15,7 +15,7 @@ A harness engineering skills library forked from [obra/superpowers](https://gith
 | **Git convention** | `[module]: description` commit format so git log serves as context source for new sessions. |
 | **Code hygiene** | Lightweight GC-style cleanup every 3 features: removes dead code, fixes naming drift, extracts constants. Auto-fixes small issues, escalates large ones. |
 | **Feedback agent** | Closes the loop. Mode A runs 6-dimension checklist after all features pass. Mode B is user-triggered (`/feedback`) for observed problems. Findings route into agent memory updates, new/fix features, or manual review — user confirms each batch. |
-| **Framework check** | Health check + auto-migration. Detects old format CLAUDE.md and rewrites from template. Validates memory, hooks, docs structure. |
+| **Framework check** | Health check + auto-migration. Detects old format CLAUDE.md and rewrites from template. Validates state sources, hooks, docs structure. |
 | **Output efficiency** | Drops filler, pleasantries, hedging from all responses. Code and technical terms unchanged. |
 
 ## Install
@@ -34,7 +34,7 @@ A harness engineering skills library forked from [obra/superpowers](https://gith
 ## Workflow
 
 ```
-/init-project              Bootstrap CLAUDE.md + docs/ + memory + hooks
+/init-project              Bootstrap CLAUDE.md + docs/ + state files + hooks
        ↓
 /brainstorming             Design → spec + features.json
        ↓
@@ -62,7 +62,6 @@ A harness engineering skills library forked from [obra/superpowers](https://gith
 Other skills available anytime:
 - `/framework-check` — verify and fix project framework
 - `/git-convention` — enforce commit format
-- `/update-mem` — update memory files
 - `/switch-dev-mode` — toggle between single-agent and three-agent development
 - `/feedback` — user-triggered diagnosis when you observe a problem (Mode B)
 

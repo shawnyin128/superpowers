@@ -83,14 +83,15 @@ Report:
 Hygiene complete (N files): auto-fixed X, escalated Y, skipped Z
 ```
 
-Write `.claude/agents/state/hygiene-result.json`:
+Write `.claude/agents/state/active/hygiene-result.json`:
 ```json
 {"status": "complete", "auto_fixed": N, "escalated": N, "skipped": N}
 ```
 
 Do NOT write this file if hygiene fails or is interrupted.
 
-Update memory.md if recurring patterns found (signals systemic issue).
+Recurring patterns are not your concern — leave them for sp-feedback (Mode A)
+to detect from archived eval-reports and your hygiene-result.json history.
 
 ---
 
@@ -100,4 +101,4 @@ Update memory.md if recurring patterns found (signals systemic issue).
 2. Only scan recently changed files. Never refactor out-of-scope code.
 3. Ambiguous fix = escalate, never guess.
 4. Keep runs fast (minutes, not hours).
-5. Same issue appearing across runs → note in memory.md for sp-feedback (Mode A).
+5. Same issue appearing across runs → sp-feedback (Mode A) detects this pattern from history; you don't need to track it.
