@@ -152,10 +152,9 @@ Run every verify_command. Read every file listed. Write
 
 ## Step 5: Print Evaluation Results and Handle Verdict
 
-<HARD-GATE>
-Read `.claude/agents/state/eval-report.json` and print the full evaluation
-summary (same format as three-agent-development). Do NOT summarize or skip.
-</HARD-GATE>
+**MUST:** Read `.claude/agents/state/eval-report.json` and print the full
+evaluation summary (same format as three-agent-development). Do NOT summarize
+or skip.
 
 ### PASS
 1. Update `.claude/features.json` — set `passes: true`

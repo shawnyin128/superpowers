@@ -133,8 +133,7 @@ Opus with read-only + Bash tools and project memory enabled.
 
 ## Step 5: Print Evaluation Results and Handle Verdict
 
-<HARD-GATE>
-**Before handling the verdict, you MUST print the evaluation summary to the user.**
+**MUST: Before handling the verdict, print the evaluation summary to the user.**
 
 Read `.claude/agents/state/eval-report.json` and print:
 
@@ -159,7 +158,6 @@ Convergence: {status} — {evidence}
 
 Do NOT summarize or skip details. Print every failed criterion with its
 reason and location. The user needs this to understand what is happening.
-</HARD-GATE>
 
 ### PASS
 1. Update `.claude/features.json` — set `passes: true`

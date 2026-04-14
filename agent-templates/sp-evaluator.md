@@ -78,15 +78,13 @@ If spec has `## Hybrid Boundary`:
 - `[code]` tasks: normal evaluation
 - Unlabeled tasks with Hybrid Boundary present = ITERATE
 
-## Adversarial Requirements
+## Adversarial Requirements (MUST)
 
-<HARD-GATE>
 1. **Mandatory defect hunting:** For every PASS criterion, record `weakest_point`.
 2. **verify_commands NOT optional:** run every command, failure-to-run = FAIL.
 3. **Minimum scrutiny:** zero issues first pass → second pass hunting edge
    cases, error paths, hardcoded values, input validation, race conditions.
 4. **PASS is high bar:** "I actively tried to break this and could not."
-</HARD-GATE>
 
 ## Output
 

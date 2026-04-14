@@ -35,8 +35,7 @@ Read these in order:
 If `.claude/features.json` does not exist, inform the user and suggest running
 brainstorming first to create one. STOP.
 
-<HARD-GATE>
-**Config validation — do this IMMEDIATELY after reading files.**
+**MUST: Config validation — do this IMMEDIATELY after reading files.**
 
 1. **If `.claude/sp-harness.json` does not exist:**
    - Create it with default values:
@@ -47,10 +46,8 @@ brainstorming first to create one. STOP.
 2. **If it exists:** read `dev_mode` and `last_hygiene_at_completed`
 3. **If `dev_mode` is missing:** set to `"three-agent"`, write to disk
 4. **If `last_hygiene_at_completed` is missing:** set to `0`, write to disk
-</HARD-GATE>
 
-<HARD-GATE>
-**Hygiene counter validation — ONLY validates. Does NOT trigger cleanup.**
+**MUST: Hygiene counter validation — ONLY validates. Does NOT trigger cleanup.**
 
 1. Read `last_hygiene_at_completed` from `.claude/sp-harness.json`
 2. Count features with `"passes": true` → `completed_count`
@@ -58,7 +55,6 @@ brainstorming first to create one. STOP.
 4. **Validate:** `delta` MUST be < 3. If `delta >= 3`, something went wrong
    (Step 5 should have cleaned up). Report warning:
    "Hygiene counter invalid: delta={delta}, expected < 3. Will clean in Step 5."
-</HARD-GATE>
 
 ---
 
@@ -144,18 +140,15 @@ If REJECT, feature-tracker stops and reports to user.
 
 1. Update `.claude/mem/memory.md` Current State to reflect completion.
 
-<HARD-GATE>
-**2. Commit feature completion — MANDATORY, do NOT skip:**
+**MUST: Commit feature completion — do NOT skip:**
 ```
 git add .claude/features.json .claude/mem/memory.md .claude/sp-harness.json
 git commit -m "[features]: mark {feature-id} as complete"
 ```
 This commit is how new sessions know which features are done via `git log`.
 Without it, the session start protocol's git log step is useless.
-</HARD-GATE>
 
-<HARD-GATE>
-**Hygiene cleanup — AUTOMATIC, do NOT ask the user for permission.**
+**MUST: Hygiene cleanup — AUTOMATIC, do NOT ask the user for permission.**
 
 a. Read `last_hygiene_at_completed` from `.claude/sp-harness.json`
 b. Count features with `"passes": true` → `completed_count`
@@ -174,7 +167,6 @@ d. **If delta >= 3:**
       - Do NOT update the counter
       - Warn: "Hygiene did not complete. Counter not updated. Will retry next loop."
 e. **If delta < 3:** continue
-</HARD-GATE>
 
 3. **Check if ALL features pass:**
    - **NO (features remain)** → GO BACK TO STEP 2 NOW.
