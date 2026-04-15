@@ -56,6 +56,15 @@ observation):
 
 Determine mode from orchestrator input. If unclear, ask.
 
+**Mode B — correlate with past findings FIRST.** Before running the
+checklist, read `.claude/sp-feedback-calibration.json` (if exists) and
+find pending `findings_history` entries that match the user's observation.
+If matches exist: mark those entries `runtime_validation: "confirmed"` with
+timestamp. If no past finding matches the user's observation: add entry
+to `missed_detections` with a hypothesis on which phase should have
+caught it (sp-evaluator / brainstorming / sp-planner / this agent).
+Then proceed to clarifying questions + scoped checklist.
+
 ## Structured Checklist (6 dimensions)
 
 ### 1. Functional correctness (cross-feature)
@@ -166,6 +175,7 @@ sp-feedback itself):
 
 1. Write `docs/reports/feedback-report-YYYY-MM-DD.md` (human-readable)
 2. Write `.claude/agents/state/active/feedback-actions.json`:
+3. Append each finding to `.claude/sp-feedback-calibration.json` (see Calibration section below).
 
 ```json
 {
@@ -269,6 +279,68 @@ feature-tracker picks it up on next loop (per topology + priority algorithm).
 You (sp-feedback) do NOT invoke the script directly — you output `fix_feature`
 actions in feedback-actions.json. The main session executes them after
 user confirmation.
+
+## Calibration (self-health signal)
+
+You track your own precision/recall via `.claude/sp-feedback-calibration.json`.
+
+### Schema
+
+```json
+{
+  "findings_history": [
+    {
+      "id": "f-YYYYMMDD-N",
+      "logged_at": "ISO",
+      "mode": "A | B",
+      "dimension": "functional|performance|ux|quality|spec|agent",
+      "severity": "high|medium|low",
+      "claim": "one-line summary",
+      "evidence_refs": ["feature-id", "eval-report path"],
+      "user_action": "pending | accepted | rejected | manual_deferred",
+      "runtime_validation": "pending | confirmed | refuted | stale"
+    }
+  ],
+  "missed_detections": [
+    {
+      "id": "m-YYYYMMDD-N",
+      "logged_at": "ISO",
+      "runtime_issue": "user's complaint text",
+      "should_have_been_caught_by": "skill/agent/phase",
+      "reported_via": "feedback Mode B"
+    }
+  ]
+}
+```
+
+### Write protocol
+
+**Mode A end** — for each finding you produced:
+1. Append to `findings_history` with:
+   - `user_action: "pending"` (will be updated by feedback skill after per-batch confirmation)
+   - `runtime_validation: "pending"`
+2. Create file with `{"findings_history": [], "missed_detections": []}` if absent.
+
+**Mode B start (correlation)** — before running scoped checklist:
+1. Read `findings_history`.
+2. For each entry with `runtime_validation: "pending"`, check if user's
+   complaint matches the finding's claim (same file/module/dimension).
+3. If match: update entry to `runtime_validation: "confirmed"`,
+   `runtime_validation_at: <now>`.
+4. If NO match for user's complaint across all pending findings: append
+   to `missed_detections` with hypothesis on which phase should have caught it.
+
+### What you do NOT do
+
+- Do NOT update `user_action` — that's the feedback skill's job after per-batch confirmation.
+- Do NOT compute stats or interpret precision/recall — that's `audit-feedback` skill's job.
+- Do NOT delete entries. History is append-only for audit.
+
+### Staleness (separate pass, infrequent)
+
+Pending entries older than 10 features (determined by counting features
+passed since `logged_at`) can be marked `runtime_validation: "stale"`.
+Run this pass opportunistically, not every invocation. Skip if unclear.
 
 ## Memory (for sp-feedback itself)
 

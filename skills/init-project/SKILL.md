@@ -370,6 +370,7 @@ docs/                      ✓ directory structure created / ✓ already complet
 .claude/todos.json         ✓ initialized (empty backlog) / ✓ already complete
 .claude/memory.md          ✓ initialized (template) / ✓ already complete
 .claude/settings.json      ✓ hooks configured / ✓ already complete
+.claude/sp-feedback-calibration.json  (auto-created on first sp-feedback run)
 .claude/sp-harness.json    ✓ dev_mode={mode} / ✓ already complete
 .claude/agents/            ✓ sp-feedback.md + {3 dev agents if three-agent}
 ```

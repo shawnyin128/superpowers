@@ -84,6 +84,18 @@ For confirmed batches:
   Will be picked up by feature-tracker on next loop.
 - **manual**: print to user, no automated action.
 
+## Step 7: Update calibration log
+
+For each finding in feedback-actions.json, update the matching entry in
+`.claude/sp-feedback-calibration.json` `findings_history`:
+
+- User accepted the action → `user_action: "accepted"`
+- User rejected → `user_action: "rejected"`
+- Manual items → `user_action: "manual_deferred"`
+
+Do NOT touch `runtime_validation` — that's set by sp-feedback itself
+on Mode B or by staleness pass.
+
 ## Rules
 
 1. Never skip the clarifying questions phase — user complaints are often vague.
