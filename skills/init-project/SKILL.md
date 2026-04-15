@@ -22,7 +22,8 @@ Check the following independently. Record results to skip completed steps.
 
 - **A**: Does `CLAUDE.md` exist with all three required sections?
   Look for: `First-Principles`, `Context Management`, `Project Map`.
-- **B**: Does `.claude/todos.json` exist? (replaces `.claude/mem/todo.md` from v0.4.0 — old markdown todo file is deprecated)
+- **B**: Does `.claude/todos.json` exist? (replaces `.claude/mem/todo.md` from v0.4.0)
+- **B2**: Does `.claude/memory.md` exist? (short-term session memory, reintroduced in v0.4.3 with tightened scope)
 - **C**: Are Stop and UserPromptSubmit hooks configured in `.claude/settings.json`?
 - **D**: Does `.claude/sp-harness.json` exist with `dev_mode`?
 - **E**: Does `.claude/agents/sp-feedback.md` exist? If dev_mode is three-agent, also check sp-planner.md, sp-generator.md, sp-evaluator.md.
@@ -99,14 +100,20 @@ State lives in structured files — each concern has one authoritative source.
 1. `CLAUDE.md` — this file (map + principles)
 2. `.claude/features.json` — feature list and status
 3. `.claude/sp-harness.json` — dev mode + hygiene counter (if exists)
-4. `.claude/todos.json` — idea backlog (high-level ideas awaiting brainstorming)
-5. `git log --oneline -20` — recent activity
-6. `git status` — uncommitted work (where you physically left off)
+4. `.claude/todos.json` — idea backlog
+5. `.claude/memory.md` — short-term session memory (undecided observations)
+6. `git log --oneline -20` — recent activity
+7. `git status` — uncommitted work (where you physically left off)
 
-**Rules:** commits use `[module]: description` format. Ideas and directional
-thoughts go in `.claude/todos.json` via `sp-harness:manage-todos` — they are
-seeds for brainstorming. Decided requirements go in `.claude/features.json`.
-Design rationale goes in `docs/design-docs/`.
+**Rules:**
+- commits use `[module]: description` format
+- Decided ideas → `.claude/todos.json` (manage-todos)
+- Decided requirements → `.claude/features.json` (manage-features)
+- Undecided observations → `.claude/memory.md`
+- Design rationale → `docs/design-docs/`
+- Reusable patterns → raise via sp-feedback (agent-memory)
+
+Each concern has ONE home. Never duplicate across sources.
 
 ---
 
@@ -156,12 +163,13 @@ is for new documents going forward.
 
 ---
 
-## Step 4: Create `.claude/todos.json`
+## Step 4: Create state files
 
-If `.claude/todos.json` already exists (check B), skip this step.
+### 4a. `.claude/todos.json` (idea backlog)
 
-Create `.claude/todos.json` with empty backlog:
+If already exists (check B), skip.
 
+Create with empty backlog:
 ```json
 {
   "todos": []
@@ -169,20 +177,68 @@ Create `.claude/todos.json` with empty backlog:
 ```
 
 `todos.json` holds high-level ideas/directions that need brainstorming to
-scope into concrete features. Schema and operations are defined by
-`sp-harness:manage-todos` — don't hand-edit this file in ways that break
-the schema.
+scope into concrete features. Operations via `sp-harness:manage-todos` —
+don't hand-edit in ways that break the schema.
 
-**Legacy cleanup (pre-0.4.0 projects):**
+### 4b. `.claude/memory.md` (short-term session memory)
 
-- If `.claude/mem/todo.md` exists: do NOT delete. Report to user:
-  "Legacy todo.md detected. Its content may be ideas worth tracking.
-  Review and transfer worthwhile items to `.claude/todos.json` via
-  `sp-harness:manage-todos` (main session will invoke it for you)."
-- If `.claude/mem/memory.md` exists: report as before —
-  "Legacy memory.md detected. Migrate: design decisions → docs/,
-  ideas → todos.json, patterns accumulate to agent-memory naturally."
-- If `.claude/mem/` becomes empty after user migrates, they can remove it.
+If already exists (check B2), skip.
+
+Create with this EXACT content (template + scope comment):
+
+````markdown
+# Session Memory (short-term, pre-triage)
+
+<!--
+SCOPE: Observations not yet decided how to handle. Cleared as triaged.
+
+WHAT GOES HERE:
+  - bug: observed, not yet verified or decided to fix
+  - hypothesis: theory under investigation
+  - concern: raised but undecided
+  - note: mid-investigation progress
+
+WHAT DOES NOT GO HERE (already decided → SKIP memory, go direct):
+  - Ideas to pursue → sp-harness:manage-todos add
+  - Bugs to fix → sp-harness:manage-features add (fix_feature)
+  - Reusable patterns → raise via sp-feedback (routes to agent-memory)
+  - Design decisions → docs/design-docs/
+  - Project architecture → CLAUDE.md + docs/
+
+BEFORE ADDING (mandatory triage of existing entries):
+  For each existing entry, run these checks in order:
+    1. `git log --since="<entry timestamp>" -- <referenced-file>` — resolved?
+    2. grep todos.json / features.json for entry's key terms — now tracked?
+    3. Still undecided? Keep. Otherwise remove.
+  Then add the new entry.
+
+HARD RULE: NEVER duplicate with todos.json / features.json / agent-memory.
+Keep under 30 lines. If bloated, triage before adding more.
+-->
+
+## Observations
+
+<!-- Format: - [YYYY-MM-DD] [bug|hypothesis|concern|note] description — refs: <file:line, feature-id, commit-sha, ...> -->
+
+## In-flight
+
+<!-- One block, replaced (not appended) as investigation progresses.
+- Investigating: ...
+- Checked: ...
+- Next: ...
+-->
+````
+
+### 4c. Legacy cleanup (pre-0.4.x projects)
+
+- If `.claude/mem/todo.md` exists: do NOT delete. Report:
+  "Legacy todo.md detected. Transfer ideas to `.claude/todos.json` via manage-todos."
+- If `.claude/mem/memory.md` exists: do NOT delete. Report:
+  "Legacy memory.md detected (old scope). The new memory.md has a tighter
+  scope (short-term pre-triage observations only). Review old content:
+  design decisions → docs/, decided ideas → todos.json, decided fixes →
+  features.json. After migration, delete the old file."
+- `.claude/mem/` directory may become empty after user migrates; they can remove it.
 
 ---
 
@@ -190,20 +246,25 @@ the schema.
 
 If hooks are already configured (check C), skip this step.
 
-Create `.claude/hooks/update-todo-reminder.sh`:
+Create `.claude/hooks/update-context-reminder.sh`:
 
 ```bash
 #!/bin/bash
 cat <<'EOF'
-TODO CHECK: If this task surfaced a new idea, direction, or out-of-scope
-item worth exploring later, invoke sp-harness:manage-todos to add it to
-.claude/todos.json before proceeding.
+CONTEXT CHECK: If this task surfaced anything worth remembering, route it:
+  - Decided idea/direction → sp-harness:manage-todos add (.claude/todos.json)
+  - Decided bug to fix → sp-harness:manage-features add with fix_feature
+  - Undecided observation (bug/hypothesis/concern/in-flight) → append to
+    .claude/memory.md (before adding, triage existing entries against git log
+    and other state sources — remove any already-resolved or already-tracked)
+
+Each concern has ONE home. Never duplicate across sources.
 EOF
 ```
 
-Make executable: `chmod +x .claude/hooks/update-todo-reminder.sh`
+Make executable: `chmod +x .claude/hooks/update-context-reminder.sh`
 
-Get absolute path with `pwd`: `$(pwd)/.claude/hooks/update-todo-reminder.sh`
+Get absolute path with `pwd`: `$(pwd)/.claude/hooks/update-context-reminder.sh`
 
 Configure `.claude/settings.json` with both `Stop` and `UserPromptSubmit` hooks.
 If settings.json already exists, **merge** — do not overwrite existing hooks.
@@ -307,6 +368,7 @@ Report a status line for each action:
 CLAUDE.md                  ✓ created / ✓ updated / ✓ already complete
 docs/                      ✓ directory structure created / ✓ already complete
 .claude/todos.json         ✓ initialized (empty backlog) / ✓ already complete
+.claude/memory.md          ✓ initialized (template) / ✓ already complete
 .claude/settings.json      ✓ hooks configured / ✓ already complete
 .claude/sp-harness.json    ✓ dev_mode={mode} / ✓ already complete
 .claude/agents/            ✓ sp-feedback.md + {3 dev agents if three-agent}
@@ -316,5 +378,5 @@ docs/                      ✓ directory structure created / ✓ already complet
 
 ## Notes
 
-- Stop hook: terminal display only. UserPromptSubmit hook: injected into agent context (this is what actually triggers todo checks).
+- Stop hook: terminal display only. UserPromptSubmit hook: injected into agent context (triggers context-routing checks for todos/memory/features).
 - After init, project is ready for brainstorming.

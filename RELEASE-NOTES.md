@@ -1,5 +1,69 @@
 # SP Harness Release Notes
 
+## v0.4.3 (2026-04-14)
+
+Short-term memory reintroduced with tightened scope. Pre-triage
+observations now have a home without duplicating other state sources.
+
+### Rationale
+
+Between state-source updates, there's a gap: observations made during
+work (bugs noticed, hypotheses, user concerns) that are not yet decided.
+If session ends before they're processed, they're lost — agent has to
+rediscover. `memory.md` with a tight, boundary-enforced scope fills
+this gap without reintroducing the v0.2.x overlap problems.
+
+### What's new
+
+- **`.claude/memory.md`** (top-level, markdown) — short-term observations
+- Template includes explicit scope comment + triage protocol
+- HARD RULE: never duplicate with todos.json / features.json / agent-memory
+- Agent must triage existing entries (git correlation + grep other sources)
+  before adding new ones
+
+### Boundary definition
+
+- **memory.md** = "still undecided" (bugs unverified, hypotheses, concerns,
+  in-flight investigation progress)
+- **todos.json** = "decided to track, needs design"
+- **features.json** = "decided to build (specific)"
+- **agent-memory** = "reusable patterns"
+- **docs/** = "design rationale"
+- **git log** = "historical events"
+
+Triage from memory routes to the appropriate permanent home, then the
+memory entry is removed.
+
+### Changes
+
+- init-project creates `.claude/memory.md` with scope template
+- CLAUDE.md session-start protocol reads memory.md (step 5)
+- Hook renamed: `update-todo-reminder.sh` → `update-context-reminder.sh`;
+  text expanded to cover ideas (todos), decided bugs (features), and
+  undecided observations (memory)
+- framework-check validates memory.md exists, scope sections present,
+  and scans for overlap with other sources (warns on duplicates)
+
+### Intentionally NOT done
+
+- No Python helper script for memory (keep it simple — agent uses Edit/Write)
+- No JSON schema for memory (markdown preserved for low friction)
+- No PostToolUse / SessionStart triage hooks (existing UserPromptSubmit
+  reminder + agent self-triage rules in template comment are enough)
+- No auto-deletion (triage requires agent judgment + user oversight via
+  framework-check overlap warnings)
+
+## v0.4.2 (2026-04-14)
+
+Scripted manage-features. Selection algorithm (topological + priority)
+now lives in `scripts/query.py next` — deterministic, tested.
+Same pattern as v0.4.1 (manage-todos).
+
+## v0.4.1 (2026-04-14)
+
+Scripted manage-todos. Bundled Python scripts handle todos.json CRUD;
+agents never read the full file. Token savings + divergence control.
+
 ## v0.4.0 (2026-04-14)
 
 **BREAKING**: `.claude/mem/todo.md` replaced by structured `.claude/todos.json`.

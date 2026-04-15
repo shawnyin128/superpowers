@@ -52,10 +52,25 @@ formats and migrate. Auto-fix anything wrong.
 - [ ] `.claude/features.json` entries with `from_todo` reference existing todo ids
 - [ ] No duplicate todo ids
 
+### Short-term Memory (v0.4.3+)
+
+- [ ] `.claude/memory.md` exists
+- [ ] memory.md has `## Observations` and `## In-flight` sections
+- [ ] memory.md is under 30 lines (warn if bloated — user should triage)
+
+### Source overlap check (HARD RULE: each concern has one home)
+
+For each entry in `.claude/memory.md` Observations:
+- [ ] Does the entry's referenced file/module also appear in a pending `.claude/todos.json` entry? → warn: duplicate, triage
+- [ ] Does it match a `.claude/features.json` fix_feature? → warn: duplicate, triage
+- [ ] Does recent git log show the referenced file resolved? → warn: stale, triage
+
+Report overlaps but do NOT auto-delete. Agent/user must triage.
+
 ### Legacy files (warn, do not auto-delete)
 
-- [ ] `.claude/mem/memory.md` does NOT exist (deprecated in v0.3.0)
-- [ ] `.claude/todos.json` does NOT exist (deprecated in v0.4.0; replaced by `.claude/todos.json`)
+- [ ] `.claude/mem/memory.md` does NOT exist (old scope deprecated in v0.3.0, tightened scope reintroduced at root in v0.4.3)
+- [ ] `.claude/mem/todo.md` does NOT exist (deprecated in v0.4.0; replaced by `.claude/todos.json`)
 - [ ] `.claude/mem/checklist.md` does NOT exist (old format)
 - [ ] If `.claude/mem/` exists but is empty, suggest removing it
 
@@ -141,24 +156,30 @@ wrong structure, and wrong content. A clean rewrite is the only reliable fix.
 ### Documentation structure missing
 → Create missing directories.
 
-### Legacy memory.md present
-→ memory.md was deprecated in v0.3.0. Do NOT auto-migrate or delete.
-Print the file and suggest:
-- Design decisions → move to appropriate `docs/design-docs/` file
-- Ideas / directional thoughts → add to `.claude/todos.json` via manage-todos
-- Recurring patterns → agent-memory accumulates naturally
-→ User deletes memory.md after migration.
+### Legacy .claude/mem/memory.md (old scope) present
+→ Old memory.md had Current State / Key Decisions / Findings (deprecated v0.3.0).
+The new memory.md (v0.4.3+) lives at `.claude/memory.md` with tighter scope
+(short-term pre-triage observations only). Print old content, suggest:
+- Design decisions → `docs/design-docs/`
+- Decided ideas → `.claude/todos.json` via manage-todos
+- Decided fixes → `.claude/features.json` via manage-features (fix_feature)
+- Recurring patterns → agent-memory accumulates via sp-feedback routing
+→ User deletes old file after migration. Old location is `.claude/mem/`.
 
-### Legacy todo.md present
-→ todo.md was replaced by `.claude/todos.json` in v0.4.0. Do NOT auto-migrate.
-Print the file and suggest:
-- Markdown todos that represent ideas → add as new todos via manage-todos
-- Markdown todos that represent session-level notes → inspect git status;
-  if stale, discard
-→ User deletes todo.md after migration.
+### Legacy .claude/mem/todo.md present
+→ Replaced by `.claude/todos.json` in v0.4.0. Print and suggest migrating
+ideas via manage-todos. User deletes after migration.
 
 ### Missing .claude/todos.json
 → Create with `{"todos": []}` (empty backlog).
+
+### Missing .claude/memory.md (v0.4.3+)
+→ Create with the init-project template (scope comment + empty sections).
+
+### Source overlap detected
+→ Entry in memory.md duplicates content in todos.json or features.json.
+Print overlapping pair. Ask user to decide which is authoritative and
+remove the other.
 
 ### Legacy checklist.md present
 → Delete it (old format, no migration needed).
