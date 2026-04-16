@@ -128,6 +128,26 @@ When multiple skills could apply, use this order:
 "Let's build X" → brainstorming first, then implementation skills.
 "Fix this bug" → debugging first, then domain-specific skills.
 
+## Feedback / adjustment classification
+
+When the user reports an observed issue OR proposes a change to existing
+work, classify before acting:
+
+- Runtime issue / quality concern / something-is-wrong → invoke `/feedback`
+  (sp-feedback Mode B analyzes and routes through the pipeline, preserving
+  calibration and traceability).
+- Design-level rethink / new direction / major scope change → invoke
+  `/brainstorming` (re-opens design; may produce new todos or features).
+- Trivial fix / clearly scoped one-off edit → proceed directly.
+
+If the classification is ambiguous, ask the user which path they want
+before implementing. Do not default to "just implement it" — that
+bypasses the pipeline and loses feedback calibration.
+
+This rule only applies to user-reported issues / adjustments. It does
+NOT affect normal development flow (brainstorming → feature-tracker →
+dev skills) — that flow proceeds through its own skill triggers.
+
 ## Skill Types
 
 **Rigid** (TDD, debugging): Follow exactly. Don't adapt away discipline.
