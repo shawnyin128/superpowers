@@ -130,23 +130,39 @@ When multiple skills could apply, use this order:
 
 ## Feedback / adjustment classification
 
-When the user reports an observed issue OR proposes a change to existing
-work, classify before acting:
+Before acting on a user message, classify by **what the message explicitly
+asks for** (not by guessing intent):
 
-- Runtime issue / quality concern / something-is-wrong → invoke `/feedback`
-  (sp-feedback Mode B analyzes and routes through the pipeline, preserving
-  calibration and traceability).
-- Design-level rethink / new direction / major scope change → invoke
-  `/brainstorming` (re-opens design; may produce new todos or features).
-- Trivial fix / clearly scoped one-off edit → proceed directly.
+1. **Observed-behavior report** — user describes what the system IS doing,
+   especially if it contradicts expected behavior.
+   Signals: past-tense behavior statements, "I noticed / saw / ran into",
+   "X happens when Y", bug-like descriptions without a specified fix.
+   → invoke `/feedback` (Mode B: diagnose + route)
 
-If the classification is ambiguous, ask the user which path they want
-before implementing. Do not default to "just implement it" — that
-bypasses the pipeline and loses feedback calibration.
+2. **New creation** — user asks for a capability / feature / module that
+   doesn't exist yet, OR wants to rethink an existing part significantly.
+   Signals: "let's add / build / create / design", proposes a new direction.
+   → invoke `/brainstorming` (even if user suggests the approach)
 
-This rule only applies to user-reported issues / adjustments. It does
-NOT affect normal development flow (brainstorming → feature-tracker →
-dev skills) — that flow proceeds through its own skill triggers.
+3. **Explicit scoped edit** — user specifies WHAT to change and WHERE,
+   with no ambiguity. No diagnosis needed, no design decision.
+   Signals: "change MAX_RETRIES from 3 to 5 in config.yaml", "rename X to Y",
+   "fix the typo on line N".
+   → proceed directly
+
+**Self-check (objective test):** "Can I make this change without any
+investigation or design decision?"
+- Yes → proceed directly (category 3)
+- No, need to find root cause → /feedback (category 1)
+- No, need to design the approach → /brainstorming (category 2)
+
+**If the message is mixed or ambiguous** (e.g., contains both observation
+and a proposed fix, or multiple intents), ASK the user which path they
+want before acting. Do not guess and implement.
+
+This rule only applies to user-reported issues / adjustments. Normal
+development flow (brainstorming → feature-tracker → dev skills) proceeds
+through its own skill triggers, unaffected.
 
 ## Skill Types
 
