@@ -79,14 +79,11 @@ Report overlaps but do NOT auto-delete. Agent/user must triage.
 - [ ] `.claude/agents/state/active/` directory exists (may be empty)
 - [ ] `.claude/agents/state/archive/` directory exists (may be empty)
 
-### Archive Integrity
+### Archive Consistency
 
-- [ ] `.claude/archive-index.json` (if exists) is valid JSON with `entries[]`
-- [ ] Each entry has: archived_at, trigger, source, destination, reason
-- [ ] Each `destination` path exists on disk (archived file is there)
-- [ ] `docs/plans/completed/` matches completed features (no active plan
-      for a feature that already passes:true)
-- [ ] `docs/design-docs/archived/` only contains specs for superseded features
+- [ ] `docs/plans/completed/` contains plans for features with passes:true
+      (no active plan for a completed feature — should have moved on PASS)
+- [ ] `docs/plans/active/` does not contain plans for completed features
 
 ### Hooks
 

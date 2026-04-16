@@ -142,24 +142,10 @@ If REJECT, feature-tracker stops and reports to user.
 The dev skill (three-agent or single-agent) already archived state files
 to `.claude/agents/state/archive/<feature-id>/` on PASS.
 
-**MUST: Archive related artifacts.**
+**MUST: Archive completed plan.**
 
-1. **Plan:** if `docs/plans/active/` contains the plan for this feature,
-   move it to `docs/plans/completed/`.
-2. **Superseded specs:** if the feature has `supersedes` non-empty, for
-   each superseded feature find its original spec in `docs/design-docs/`
-   and move to `docs/design-docs/archived/`. Create `archived/` dir if missing.
-3. **Log to archive-index:** for each file moved, append an entry to
-   `.claude/archive-index.json` (create with `{"entries":[]}` if absent):
-   ```json
-   {
-     "archived_at": "<now>",
-     "trigger": "feature-pass:<feature-id>",
-     "source": "<original path>",
-     "destination": "<archive path>",
-     "reason": "<why>"
-   }
-   ```
+If `docs/plans/active/` contains the plan for this feature, move it to
+`docs/plans/completed/`. No index file needed — git tracks the move.
 
 **MUST: Check originating todo completion.**
 
@@ -186,7 +172,7 @@ action needed.
 ```
 git add .claude/features.json .claude/sp-harness.json \
         .claude/agents/state/archive/ .claude/todos.json \
-        .claude/archive-index.json docs/plans/ docs/design-docs/
+        docs/plans/
 git commit -m "[features]: mark {feature-id} as complete"
 ```
 This commit is how new sessions know which features are done via `git log`.
