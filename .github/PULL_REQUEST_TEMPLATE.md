@@ -10,6 +10,6 @@
 
 <!-- How was this tested? -->
 
-- [ ] Tested on at least one harness (Claude Code / Cursor / etc.)
+- [ ] Tested on Claude Code
 - [ ] Existing skills still work
 - [ ] New session starts correctly with sp-harness bootstrap

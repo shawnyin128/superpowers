@@ -9,7 +9,7 @@ labels: bug
 | Item | Value |
 |------|-------|
 | SP Harness version | |
-| Platform | Claude Code / Cursor / Codex / OpenCode |
+| Platform | Claude Code |
 | OS | |
 
 ## What happened
