@@ -79,6 +79,15 @@ Report overlaps but do NOT auto-delete. Agent/user must triage.
 - [ ] `.claude/agents/state/active/` directory exists (may be empty)
 - [ ] `.claude/agents/state/archive/` directory exists (may be empty)
 
+### Archive Integrity
+
+- [ ] `.claude/archive-index.json` (if exists) is valid JSON with `entries[]`
+- [ ] Each entry has: archived_at, trigger, source, destination, reason
+- [ ] Each `destination` path exists on disk (archived file is there)
+- [ ] `docs/plans/completed/` matches completed features (no active plan
+      for a feature that already passes:true)
+- [ ] `docs/design-docs/archived/` only contains specs for superseded features
+
 ### Hooks
 
 - [ ] `.claude/hooks/update-todo-reminder.sh` exists and is executable

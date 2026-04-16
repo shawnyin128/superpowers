@@ -413,6 +413,7 @@ docs/                      ✓ directory structure created / ✓ already complet
 .claude/memory.md          ✓ initialized (template) / ✓ already complete
 .claude/settings.json      ✓ hooks configured / ✓ already complete
 .claude/sp-feedback-calibration.json  (auto-created on first sp-feedback run)
+.claude/archive-index.json            (auto-created on first feature PASS)
 .claude/sp-harness.json    ✓ dev_mode={mode}, external_codebase={true|false}
 .claude/codebase-context.md  ✓ generated (only if external_codebase=true) / — skipped
 .claude/agents/            ✓ sp-feedback.md + {3 dev agents if three-agent}

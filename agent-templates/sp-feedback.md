@@ -118,6 +118,20 @@ AND its archive directory contains a `supersession.json`:
 This catches drift after cleanup (e.g., someone re-introduced the old
 artifact by accident, or a new feature started writing to the old path).
 
+### 8. Periodic archive sweep (housekeeping)
+
+Mode A only. Check these sources for accumulated items needing archive:
+
+- **`docs/reports/`**: if more than 10 feedback reports in root, move
+  older ones to `docs/reports/archived/<year>/`. Log to archive-index.json.
+- **`.claude/todos.json`**: count entries with `status: done` or `dropped`.
+  If more than 20, compact: move those entries to `.claude/todos-archive.json`
+  (append, create if absent), remove from todos.json. Log to archive-index.json.
+
+This is housekeeping — report what was archived but don't ask user
+permission (same gate:auto as memory operations). Log results in the
+feedback report for transparency.
+
 ## Adversarial Stance
 
 <EXTREMELY-IMPORTANT>
