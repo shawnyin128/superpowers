@@ -6,95 +6,84 @@ description: |
   but without subagent dispatch — all phases run in the main session.
   Use when subagent overhead is unnecessary or for simpler projects.
 author: sp-harness
-version: 1.0.0
+version: 2.0.0
 ---
 
 # Single-Agent Development
 
 One agent develops a feature by switching between three roles sequentially.
-The pipeline is IDENTICAL to three-agent-development — same file structure,
-same JSON schemas, same evaluation standards. The only difference is execution:
-no subagent dispatch, everything runs in the main session context.
+The pipeline is IDENTICAL to three-agent-development — same shared YAML
+plan file, same schemas, same terminal output conventions. The only
+difference: roles switch in one session instead of dispatching three
+subagents.
 
 ```
-[Planner role]  → task-plan.json + eval-plan.json
-[Generator role] → implementation.md
-[Evaluator role] → eval-report.json
-                ↕ iteration loop (ITERATE → Planner role re-plans)
+[Planner role]   → writes <feature-id>.plan.yaml (problem, steps, decisions)
+                   → terminal: condensed summary + ask low-confidence decisions
+[Generator role] → reads plan.yaml, implements, appends execution sections
+                   → NO terminal output
+[Evaluator role] → reads plan.yaml, runs tests, appends eval.rounds[]
+                   → terminal: closure + tests + blockers-or-optimization
+                   → iterate (loop back to Generator) or merge
 ```
 
 ---
 
 ## File Structure
 
-Same as three-agent-development. Active work in `active/`, completed
-features archived to `archive/<feature-id>/`.
+Single shared YAML per feature: `.claude/agents/state/active/<feature-id>.plan.yaml`.
+Schema defined in `docs/plan-file-schema.md`.
 
 ```
 .claude/agents/state/
-├── active/            ← current work
-│   ├── task-plan.json
-│   ├── eval-plan.json
-│   ├── implementation.md
-│   └── eval-report.json
+├── active/
+│   └── <feature-id>.plan.yaml
 └── archive/
     └── <feature-id>/
-        ├── iter-<N>-*.*
-        └── final-eval-report.json
+        ├── <feature-id>.plan.yaml
+        ├── <feature-id>.iter-<N>.plan.yaml  (if replanned)
+        └── supersession.json                 (if feature has supersedes)
 ```
+
+Permanent tests at `tests/<feature-id>/` — written by Evaluator role,
+survive merge as regression guards.
 
 ---
 
 ## Step 1: Select Feature
 
-Read the feature from `.claude/features.json` (passed by feature-tracker,
-or specified by user). Read context: `CLAUDE.md`, spec document referenced
-in CLAUDE.md's Design Docs section (if any). Check `active/` for in-progress
-state from a prior interrupted session.
+Read the feature from `.claude/features.json`. Read context: `CLAUDE.md`,
+spec document referenced in CLAUDE.md. Check `active/` for interrupted state.
 
 ---
 
 ## Step 2: Planner Role
 
 <EXTREMELY-IMPORTANT>
-Switch to Planner mindset. You are designing, NOT implementing.
-Do not write any code. Do not make implementation decisions that belong
-to the Generator role. Produce plans only.
+Switch to Planner mindset. You are designing, NOT implementing. Do not
+write any code. Produce plans only.
 </EXTREMELY-IMPORTANT>
 
 **Phase 1: Implicit requirements discovery.**
-First: if the spec has a `## Codebase Context` section, use it as ground truth.
-If no Codebase Context but existing code exists, check the modules this feature
-touches for variants (v1/v2, old/new). If found, ask user which to use FIRST.
-Then: scan the feature for gaps. Ask user one question at a time until resolved.
+If spec has `## Codebase Context`, use as ground truth. Scan feature for
+gaps — surface them as `decisions[]` rather than interrupting with
+questions.
 
-**Phase 2: Write implementation plan.**
-Follow sp-harness:writing-plans conventions (TDD steps, file structure,
-no placeholders, fallback chain design). Save as `.claude/agents/state/active/task-plan.json`
-using the same schema as three-agent-development.
+**Phase 2: Write plan YAML.**
+Write `<feature-id>.plan.yaml` per `docs/plan-file-schema.md`. Include
+`problem`, `steps[]` (with `test_plan` and `coverage_min` each), and
+`decisions[]` (with `confidence` and `ask_user`).
 
-**Phase 3: Write evaluation plan.**
-For each task, specify method (spec-review / code-review / both), criteria,
-and verify_commands. Save as `.claude/agents/state/active/eval-plan.json`
-using the same schema as three-agent-development.
-
-**After completing both files**, print the merged summary table:
+**Phase 3: Print terminal summary.**
 
 <HARD-GATE>
-```
-Feature: {feature-id} (iteration {N})
+Print a condensed terminal summary (≤ 30 lines). See sp-planner template
+for exact format. End with multi-choice ask for any `ask_user: true`
+decisions, or a confirmation prompt if all decisions are high-confidence.
 
-| Task | Description | Eval Method | Criteria |
-|------|-------------|-------------|----------|
-| 1. {name} | {desc} | {method} | {criteria} |
-| 2. {name} | {desc} | {method} | {criteria} |
-
-Feature-level: {feature_level_criteria}
-Threshold: {acceptance_threshold}
-```
-
-Ask: "Plans ready. Review and confirm before I start implementation?"
-WAIT for user confirmation. Do NOT proceed until user says yes.
+WAIT for user response. For each `ask_user: true` decision, fill
+`decisions[].user_decision` in the YAML file with the user's choice.
+Do NOT proceed to Step 3 until all user_decision fields are populated.
 </HARD-GATE>
 
 ---
@@ -102,18 +91,23 @@ WAIT for user confirmation. Do NOT proceed until user says yes.
 ## Step 3: Generator Role
 
 <EXTREMELY-IMPORTANT>
-Switch to Generator mindset. You are implementing, NOT designing.
-Follow the plan EXACTLY. Do not redesign. If the plan seems wrong,
-note DONE_WITH_CONCERNS in your report — do not fix the plan yourself.
+Switch to Generator mindset. You are implementing, NOT designing. Follow
+the plan. Do not redesign. If the plan seems wrong, mark the step
+BLOCKED — do not fix the plan yourself.
 </EXTREMELY-IMPORTANT>
 
-Read `.claude/agents/state/active/task-plan.json`. For each task:
-- Follow the `steps` array in order
+Read `<feature-id>.plan.yaml` (Planner section + user_decisions). For
+each step:
+- Follow `approach` as guidance
 - TDD cycle: test first, verify fail, implement, verify pass
-- Commit after each task using [module]: description convention
+- Commit after each step using `[module]: description`
 
-After all tasks, write `.claude/agents/state/active/implementation.md` using the
-same schema as three-agent-development.
+Append to the same YAML file:
+- `execution` — status/confidence/notes/commits per step
+- `unplanned_changes` — any code change not mapped to a step
+- `flags_for_eval` — concerns for Evaluator to focus on
+
+**No terminal output from Generator role.** Proceed directly to Step 4.
 
 ---
 
@@ -121,76 +115,100 @@ same schema as three-agent-development.
 
 <EXTREMELY-IMPORTANT>
 Switch to Evaluator mindset. You are a RED TEAM. Your job is to FIND
-PROBLEMS in the code YOU JUST WROTE. This is the hardest part of
-single-agent mode — you must actively fight the urge to approve your
-own work.
+PROBLEMS in code YOU JUST WROTE. This is the hardest part — you must
+actively fight the urge to approve your own work.
 
-**Self-persuasion is your enemy.** You wrote this code minutes ago.
-Your brain wants to believe it's correct. RESIST THIS.
+**Self-persuasion is your enemy.** RESIST.
 </EXTREMELY-IMPORTANT>
 
 **Mandatory adversarial protocol for single-agent mode:**
 
-1. Before starting evaluation, re-read the Self-Persuasion Traps:
-   - "Minor issue, not worth flagging" → flag it
-   - "Works for the common case" → untested edge cases = failure
-   - "Tests pass so it's fine" → tests only cover what was thought of
-   - "Probably fine in practice" → "probably" = unverified = FAIL
-   - "Good enough" → your job is finding flaws
-   - "Would be caught later" → there is no later
+1. Re-read Self-Persuasion Traps (in sp-evaluator template).
+2. **Cool-down:** Re-read spec and plan YAML from scratch. Do NOT rely
+   on memory of what you implemented.
+3. **Zero-issue rule:** Zero issues first pass → mandatory second pass
+   hunting edge cases, error paths, hardcoded values, race conditions.
 
-2. **Mandatory cool-down:** Before evaluating, re-read the spec document
-   and eval-plan.json from scratch. Do NOT rely on your memory of what
-   you implemented — read the actual files.
+**Round determination:** Check `eval.rounds[]` in the plan file. If
+absent, this is Round 1. Otherwise Round N+1. Max rounds = 5.
 
-3. **Zero-issue rule:** If you find zero issues on first pass, you MUST
-   do a second pass specifically hunting for:
-   - Edge cases not tested
-   - Error paths not covered
-   - Hardcoded values
-   - Missing input validation
-   - Race conditions
+**Round 1 — Initial evaluation:**
+- Closure check (user_decisions honored, missing items, confidence mismatches,
+  unplanned_changes review)
+- Test design + execution: per step, design tests from `test_plan`,
+  write to `tests/<feature-id>/`, run, record coverage
+- Verdict: PASS iff all clean; ITERATE otherwise with concrete blockers
 
-Read `.claude/agents/state/active/eval-plan.json` and `.claude/agents/state/active/implementation.md`.
-Run every verify_command. Read every file listed. Write
-`.claude/agents/state/active/eval-report.json` using the same schema as three-agent-development.
+**Round 2+ — Replay and regression:**
+- Replay prior-round failing tests
+- Full rerun to detect regressions
+- Verdict: PASS iff clean and no regressions; ITERATE otherwise
+
+**After PASS — Optimization pass:**
+- Append `eval.optimization` with non-blocking suggestions
+
+Append `eval.rounds[N]` (and optionally `eval.optimization`) to the YAML.
+
+**Print terminal summary** per sp-evaluator template:
+
+For ITERATE:
+```
+→ 你拍:
+  (a) 打回 Generator 修 (<N> 个 blocker)
+  (b) 强制放行
+  (c) 重新 plan
+```
+
+For PASS + optimization:
+```
+→ 你拍:
+  (a) 接受，merge
+  (b) 先做优化再 merge
+```
 
 ---
 
-## Step 5: Print Evaluation Results and Handle Verdict
+## Step 5: Handle Verdict
 
-**MUST:** Read `.claude/agents/state/active/eval-report.json` and print the full
-evaluation summary (same format as three-agent-development). Do NOT summarize
-or skip.
+### (a) on ITERATE — fix and re-eval
+Switch back to Generator role (Step 3). Address blockers. After Generator
+re-runs, switch to Evaluator role (Step 4, Round N+1).
 
-### PASS
-1. Mark feature passing via script:
+### (b) on ITERATE — force-merge
+Skip remaining rounds, go to MERGE path below.
+
+### (c) on ITERATE — replan
+Archive current plan file to `archive/<feature-id>/<feature-id>.iter-<N>.plan.yaml`.
+Return to Step 2 with `iteration: N+1`.
+
+### (a) on PASS — merge
+1. Mark feature passing:
    ```bash
    python3 "${CLAUDE_PLUGIN_ROOT}/skills/manage-features/scripts/mutate.py" \
      mark-passing <feature-id>
    ```
-   Do NOT edit features.json directly.
-2. **Archive state files:**
-   - Create `.claude/agents/state/archive/<feature-id>/` if missing
-   - Move `active/*` files → `archive/<feature-id>/iter-<N>-*`
-   - Copy final iteration's eval-report to `archive/<feature-id>/final-eval-report.json`
-   - `active/` ends empty
-3. **If feature has `supersedes` non-empty**, save spec's Supersession Plan
-   to `archive/<feature-id>/supersession.json` (same structure as three-agent-development's PASS handler).
-4. Commit: `[features]: mark {feature-id} as complete`
+2. Move `active/<feature-id>.plan.yaml` → `archive/<feature-id>/<feature-id>.plan.yaml`
+3. If `supersedes` non-empty: extract spec's Supersession Plan, save to
+   `archive/<feature-id>/supersession.json`
+4. Commit: `[features]: mark <feature-id> as complete`
 5. Return to feature-tracker
 
-### ITERATE
-1. Check `convergence.status`
-2. **If diverging** — escalate to REJECT
-3. **If converging:**
-   a. Archive current iter's files to `archive/<feature-id>/iter-<N>-*`
-   b. GO BACK TO STEP 2 (Planner role reads iter-N eval-report from archive).
-   **ITERATE is not a shortcut. It is a full cycle through Steps 2-5.**
+### (b) on PASS — optimize
+Switch back to Generator role, apply optimization suggestions. Then back
+to Evaluator (Round N+1 for verification).
 
-### REJECT
-1. Stop. Preserve all files in `active/` and archived iterations.
-2. Report to user. Main session may add todo.md entry for follow-up.
+### Max Rounds Escalation
+
+If Round 6 would trigger, write blocker "Max rounds exceeded", ITERATE
+verdict, and print:
+
+```
+⚠️ 5 轮仍未清 bug。继续修可能是 plan 有问题。
+→ 你拍:
+  (a) 继续修 (Round 6)
+  (b) 重新 plan
+  (c) 强制放行
+```
 
 ---
 
@@ -199,12 +217,12 @@ or skip.
 | Factor | Single-Agent | Three-Agent |
 |--------|-------------|-------------|
 | Project complexity | Simple to moderate | Complex |
-| Context sharing | Roles share context (pro: continuity; con: self-persuasion) | Isolated contexts (pro: independence; con: context loss) |
+| Context sharing | Roles share context (pro: continuity; con: self-persuasion) | Isolated (pro: independence; con: context loss) |
 | Token cost | Lower (one session) | Higher (3 subagents) |
 | Evaluation rigor | Weaker (self-assessment bias) | Stronger (independent evaluator) |
 | Speed | Faster (no dispatch overhead) | Slower (subagent startup) |
 
-**Default recommendation:** three-agent for new projects, single-agent for
-quick fixes, prototypes, or when token budget is constrained.
+**Default recommendation:** three-agent for new projects; single-agent
+for quick fixes, prototypes, or constrained token budget.
 
-To switch modes: use `sp-harness:switch-dev-mode`.
+To switch: use `sp-harness:switch-dev-mode`.
