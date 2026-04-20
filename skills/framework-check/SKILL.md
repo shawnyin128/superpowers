@@ -134,6 +134,7 @@ Check each deployed agent file for **old-format markers** (pre-0.7.0):
 - [ ] `.claude/agents/sp-planner.md` does NOT contain `task-plan.json` or `eval-plan.json`
 - [ ] `.claude/agents/sp-generator.md` does NOT contain `implementation.md` (as output filename)
 - [ ] `.claude/agents/sp-evaluator.md` does NOT contain `eval-report.json`
+- [ ] `.claude/agents/sp-feedback.md` does NOT contain `final-eval-report.json` or `iter-N-eval-report.json`
 
 Any old-format marker → agent is stale. Report to user and offer to
 regenerate via `sp-harness:switch-dev-mode` (force-regenerate mode).
@@ -143,6 +144,7 @@ Check for **new-format markers** (present on current templates):
 - [ ] `.claude/agents/sp-planner.md` contains `<feature-id>.plan.yaml`
 - [ ] `.claude/agents/sp-generator.md` contains `<feature-id>.plan.yaml`
 - [ ] `.claude/agents/sp-evaluator.md` contains `eval.rounds[]` or `<feature-id>.plan.yaml`
+- [ ] `.claude/agents/sp-feedback.md` contains `<feature-id>.plan.yaml`
 
 Missing new-format marker → stale regardless of whether old markers are
 absent (agent may have been hand-edited to a partial state).

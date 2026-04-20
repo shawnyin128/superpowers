@@ -57,6 +57,7 @@ For each existing agent file, check these markers to detect stale copies:
 | `sp-planner.md` | `task-plan.json` or `eval-plan.json` | `<feature-id>.plan.yaml` |
 | `sp-generator.md` | `implementation.md` | `<feature-id>.plan.yaml` |
 | `sp-evaluator.md` | `eval-report.json` | `eval.rounds[]` or `<feature-id>.plan.yaml` |
+| `sp-feedback.md` | `final-eval-report.json` or `iter-N-eval-report.json` | `<feature-id>.plan.yaml` |
 
 If ANY agent has an old marker OR lacks its new marker → **stale**.
 
@@ -84,6 +85,10 @@ Then ask: `Regenerate from current templates? (yes / no / diff)`
 **Note:** `.claude/agents/sp-feedback.md` should already exist from init-project.
 If it's missing, generate it from the template regardless of dev mode.
 
+Also run the drift check for `sp-feedback.md` even when switching TO
+single-agent (it's active in both modes). If stale, offer regenerate
+using the same yes/no/diff flow.
+
 ## When switching TO `single-agent`:
 
 No Planner/Generator/Evaluator subagent configuration needed — main session
@@ -91,7 +96,7 @@ plays those roles. The existing `.claude/agents/sp-*.md` files (if any) are
 left in place but unused.
 
 `.claude/agents/sp-feedback.md` is still used (feedback agent is independent
-of dev mode).
+of dev mode). Run drift check on it; offer regenerate if stale.
 
 Print: "Single-agent mode. Planner/Generator/Evaluator roles run in main
 session. sp-feedback remains active for system-level review."
