@@ -203,7 +203,7 @@ Fixability: <A> auto-fixable · <N> need-confirm · <M> manual
 
 Example:
 ```
-🔍 Framework Check (v0.7.3)
+🔍 Framework Check (v<CURRENT>)
 
 [1/7] CLAUDE.md
     ✅ pass
