@@ -244,11 +244,11 @@ Fixability: 2 auto-fixable · 3 need-confirm · 3 manual
 After the report, print exactly:
 
 ```
-→ 你拍:
-  (a) 全部 auto-fix (🟡auto 自动修，🔴needs-confirm 每个单独问，manual 跳过并列出)
-  (b) 只做 auto-fix (不处理 needs-confirm 和 manual，列出跳过项)
-  (c) 逐项决策 (每个 issue 单独问)
-  (d) 只报告不修 (不做任何修改)
+→ Your call:
+  (a) Auto-fix all (🟡auto applied directly, 🔴needs-confirm asked one by one, manual listed as skipped)
+  (b) Auto-fix only (skip needs-confirm and manual, list them)
+  (c) Per-item decision (ask for each issue)
+  (d) Report only, no changes
 ```
 
 Wait for user response.
@@ -257,25 +257,25 @@ Wait for user response.
 
 ## Step 4: Execute chosen path
 
-### (a) 全部 auto-fix
+### (a) Auto-fix all
 1. Apply all `auto` fixes in order.
 2. For each `needs-confirm`, ask: `Fix <desc>? (yes / no / diff)` where
    `diff` shows what would change before re-asking yes/no.
 3. List `manual` items at end as "still todo for you".
 
-### (b) 只做 auto-fix
+### (b) Auto-fix only
 1. Apply all `auto` fixes.
 2. Print skipped items (needs-confirm + manual) with a note that
    they remain unfixed.
 
-### (c) 逐项决策
+### (c) Per-item decision
 For each issue in order (by category, then severity), ask:
 `Fix <category><severity> <desc>? (yes / no / skip-category)`
 - `yes`: apply the fix (if auto) or do the needs-confirm flow
 - `no`: leave it
 - `skip-category`: jump past remaining issues in this category
 
-### (d) 只报告不修
+### (d) Report only, no changes
 Exit without changes.
 
 ---

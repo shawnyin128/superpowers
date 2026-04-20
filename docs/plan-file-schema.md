@@ -38,7 +38,7 @@ steps:
       create: [<path>, ...]
       modify: [<path>, ...]
       test:   [<path>, ...]
-    test_plan:                        # high-level test strategy (Evaluator細化)
+    test_plan:                        # high-level test strategy (Evaluator elaborates)
       - <scenario 1>
       - <scenario 2>
     coverage_min: <0-100>             # per-step minimum % for Eval to accept

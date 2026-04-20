@@ -229,28 +229,28 @@ After writing the YAML, print this to terminal:
 ```
 🔍 Eval: <feature-id> (Round <N>)
 
-[1] 闭环校验:
+[1] Closure check:
   <condensed list of closure check results, ≤ 5 lines>
 
 [2] Unit tests:
   S1 (<desc>): <pass>/<total> pass · coverage <%> <✅|❌>
   S2 (<desc>): ...
-  (失败详情已存 tests/<feature-id>/)
+  (failure details saved in tests/<feature-id>/)
 
 [3] Blockers:
-  残留 (前轮未修完):              # only if Round 2+
+  Carry-over (unresolved from prior round):   # only if Round 2+
     - <blocker>
-  回归 (本轮新引入):              # only if Round 2+
+  Regressions (newly introduced this round):  # only if Round 2+
     - <regression>
-  新发现 (本轮):
+  New (this round):
     - <blocker>
 
-  (无优化建议 — 先修 bug)
+  (No optimization suggestions — fix bugs first)
 
-→ 你拍:
-  (a) 打回 Generator 修 (<count> 个 blocker)
-  (b) 强制放行（你担责）
-  (c) 重新 plan
+→ Your call:
+  (a) Send back to Generator to fix (<count> blockers)
+  (b) Force-merge (you own the risk)
+  (c) Replan
 ```
 
 ### For PASS verdict + optimization
@@ -258,18 +258,18 @@ After writing the YAML, print this to terminal:
 ```
 🔍 Eval: <feature-id> (Round <N> · Optimization)
 
-[1] 最终状态:
-  ✅ 所有 blocker 已清 (历经 <N> 轮)
-  ✅ 全量测试通过
-  ✅ Coverage 全达阈值
+[1] Final state:
+  ✅ All blockers cleared (across <N> rounds)
+  ✅ Full test suite passes
+  ✅ Coverage meets threshold on every step
 
-[2] 优化建议 (FYI, 非阻塞):
+[2] Optimization suggestions (FYI, non-blocking):
   - <suggestion 1>
   - <suggestion 2>
 
-→ 你拍:
-  (a) 接受，merge
-  (b) 先做优化再 merge
+→ Your call:
+  (a) Accept, merge
+  (b) Apply optimizations first, then merge
 ```
 
 ### Keep terminal output under 30 lines

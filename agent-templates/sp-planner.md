@@ -110,7 +110,7 @@ decisions:
 
 - Each step must be independently testable
 - `test_plan` is high-level scenarios, NOT specific unit tests (Evaluator
-  will细化 into actual test code)
+  will elaborate into actual test code)
 - `coverage_min` default 90. Raise for critical logic (core algorithm,
   data transforms). Lower only for trivial glue code with written
   justification in `approach`.
@@ -143,25 +143,25 @@ After writing the YAML, print this to terminal. This is what the user sees.
 Problem:
   <your problem field, in prose>
 
-Plan (<N> 步):
+Plan (<N> steps):
   S1 · <desc>
-    目标: <goal derived from approach>
-    做法: <high-level approach>
+    Goal: <goal derived from approach>
+    Approach: <high-level approach>
   
   S2 · <desc>
     ...
 
-关键决策:
+Key decisions:
   ⚠️ D1 · <question>
-    场景: <when this matters>
-    要解决: <what it addresses>
-    我的意见: <planner_view> (<confidence>% 把握) — 需要你拍
+    Situation: <when this matters>
+    Resolves: <what it addresses>
+    My pick: <planner_view> (<confidence>% confidence) — needs your call
   
   D2 · <question> → <planner_view> (<confidence>%)
   (only ⚠️ for ask_user: true; others one-line FYI)
 
-→ 拍 D1 (and any other ask_user decisions):
-  (a) <planner_view>  OK
+→ Your call on D1 (and any other ask_user decisions):
+  (a) <planner_view> OK
   (b) <alternative 1>
   (c) <alternative 2>
 ```
@@ -169,7 +169,7 @@ Plan (<N> 步):
 If no `ask_user: true` decisions, replace the final block with:
 
 ```
-→ 全部决策高置信，确认执行？ (yes / no / 调整决策)
+→ All decisions high-confidence. Proceed? (yes / no / adjust)
 ```
 
 Keep the terminal output under 30 lines. Do NOT print the YAML file.

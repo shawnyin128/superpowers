@@ -153,17 +153,17 @@ Append `eval.rounds[N]` (and optionally `eval.optimization`) to the YAML.
 
 For ITERATE:
 ```
-→ 你拍:
-  (a) 打回 Generator 修 (<N> 个 blocker)
-  (b) 强制放行
-  (c) 重新 plan
+→ Your call:
+  (a) Send back to Generator role to fix (<N> blockers)
+  (b) Force-merge
+  (c) Replan
 ```
 
 For PASS + optimization:
 ```
-→ 你拍:
-  (a) 接受，merge
-  (b) 先做优化再 merge
+→ Your call:
+  (a) Accept, merge
+  (b) Apply optimizations first, then merge
 ```
 
 ---
@@ -203,11 +203,11 @@ If Round 6 would trigger, write blocker "Max rounds exceeded", ITERATE
 verdict, and print:
 
 ```
-⚠️ 5 轮仍未清 bug。继续修可能是 plan 有问题。
-→ 你拍:
-  (a) 继续修 (Round 6)
-  (b) 重新 plan
-  (c) 强制放行
+⚠️ 5 rounds and blockers still present. Plan may be fundamentally wrong.
+→ Your call:
+  (a) Keep iterating (Round 6)
+  (b) Replan
+  (c) Force-merge
 ```
 
 ---

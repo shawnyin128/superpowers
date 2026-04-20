@@ -133,17 +133,17 @@ Evaluator's terminal output ends with one of:
 
 **If verdict == ITERATE:**
 ```
-→ 你拍:
-  (a) 打回 Generator 修 (<N> 个 blocker)
-  (b) 强制放行（你担责）
-  (c) 重新 plan
+→ Your call:
+  (a) Send back to Generator to fix (<N> blockers)
+  (b) Force-merge (you own the risk)
+  (c) Replan
 ```
 
 **If verdict == PASS (optimization):**
 ```
-→ 你拍:
-  (a) 接受，merge
-  (b) 先做优化再 merge
+→ Your call:
+  (a) Accept, merge
+  (b) Apply optimizations first, then merge
 ```
 
 Orchestrator waits for user choice, then routes:
@@ -164,11 +164,11 @@ Evaluator writes a blocker "Max rounds exceeded" and forces ITERATE.
 Orchestrator escalates to user explicitly:
 
 ```
-⚠️ 5 轮仍未清 bug。继续修可能是 plan 有问题。
-→ 你拍:
-  (a) 继续修 (Round 6)
-  (b) 重新 plan
-  (c) 强制放行
+⚠️ 5 rounds and blockers still present. Plan may be fundamentally wrong.
+→ Your call:
+  (a) Keep iterating (Round 6)
+  (b) Replan
+  (c) Force-merge
 ```
 
 ---
