@@ -130,6 +130,21 @@ concerns, minor perf wins, missing docs. Do NOT introduce new blockers
 at this stage — if something is genuinely blocking, it should have been
 found in earlier rounds.
 
+**MUST: respect prior user decisions.**
+
+Before adding any suggestion, check `decisions[]` in the plan file. If a
+suggestion would reopen a decision the user already made (via
+`user_decision`), DROP the suggestion. Example: if the user decided
+`D1: threshold = 14 days` with `alternatives` containing
+`configurable (rejected because YAGNI)`, do NOT suggest "make threshold
+configurable" — the user chose not to. Only add suggestions that are
+**orthogonal** to already-settled decisions.
+
+This rule also applies to suggestions Planner documented as rejected in
+`decisions[].alternatives[].rejected_because`. Treat rejected alternatives
+as settled even when the user didn't explicitly approve (the rationale
+was the Planner's and the user accepted the plan as-is).
+
 ## Self-Persuasion Traps (FAIL if you think any of these)
 
 - "Minor issue, not worth flagging" → flag it
