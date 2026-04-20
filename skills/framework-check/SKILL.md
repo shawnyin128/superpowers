@@ -1,290 +1,336 @@
 ---
 name: framework-check
 description: |
-  Health check for the sp-harness project framework. Verifies CLAUDE.md
-  content format (not just section names), memory system, hooks, docs
-  structure, features.json, and git conventions. Detects and migrates
-  old framework formats. Auto-fixes by rewriting CLAUDE.md from template.
+  Health check for the sp-harness project framework. Runs 7 check categories,
+  classifies each issue by severity (🔴 blocks runtime / 🟡 needs attention /
+  ✅ pass) and fixability (auto / needs-confirm / manual), prints a structured
+  report, and asks the user which fix path to take.
 author: sp-harness
-version: 2.0.0
+version: 3.0.0
 ---
 
 # framework-check
 
-Verify the current project follows the sp-harness framework. Detect old
-formats and migrate. Auto-fix anything wrong.
+Verify the current project follows the sp-harness framework. Produce a
+**structured report** (same format every run) and let the user choose how
+to fix issues.
 
 ---
 
-## Step 1: Run Checks
+## Check Categories (7)
 
-### CLAUDE.md — Existence and Sections
+Each category groups related checks. Every issue found is tagged with:
 
-- [ ] `CLAUDE.md` exists
-- [ ] Has EXACTLY three sections: `First-Principles Standards`, `Context Management`, `Project Map`
-- [ ] Does NOT have old-format sections: `Language`, `Problem`, `Motivation`, `Method`, `Example`, `Architecture`, `Memory, Todo and Checklist`
-- [ ] Total length under 80 lines
+- **Severity**: 🔴 blocks runtime · 🟡 degraded · ✅ pass
+- **Fixability**: `auto` (safe, no user input) · `needs-confirm` (destructive
+  or side-effects) · `manual` (human judgment required)
 
-### CLAUDE.md — Content Format
+### 1. CLAUDE.md
 
-- [ ] First-Principles Standards has exactly 4 numbered rules (Clarify, Shortest path, Root causes, Output)
-- [ ] Context Management mentions `.claude/todos.json`
-- [ ] Context Management has "Session start protocol" listing: CLAUDE.md, .claude/features.json, .claude/sp-harness.json, .claude/todos.json, git log, git status
-- [ ] Context Management does NOT mention `memory.md` (deprecated in v0.3.0)
-- [ ] Context Management mentions `[module]: description` commit convention
-- [ ] Project Map has `### Design Docs` subsection with docs/ tree
-- [ ] Project Map has `### Codebase` subsection with directory tree
-- [ ] Project Map does NOT use tables (no `|` table syntax)
-- [ ] No extra sections beyond the three standard ones
+Severity: 🔴 if missing or old format; 🟡 if content drift.
 
-### Documentation Structure
+Checks:
+- [ ] File exists
+- [ ] Exactly 3 sections: `First-Principles Standards`, `Context Management`, `Project Map`
+- [ ] No old-format sections: `Language`, `Problem`, `Motivation`, `Method`, `Example`, `Architecture`, `Memory, Todo and Checklist`
+- [ ] Under 80 lines
+- [ ] First-Principles has 4 numbered rules (Clarify, Shortest path, Root causes, Output)
+- [ ] Context Management mentions `.claude/todos.json` + Session start protocol listing 6 items + `[module]: description` convention
+- [ ] Context Management does NOT mention `memory.md` (deprecated v0.3.0)
+- [ ] Project Map has `### Design Docs` and `### Codebase` subsections (no tables)
+- [ ] No extra sections
 
+Fixability:
+- File missing → `needs-confirm` (full rewrite via init-project template)
+- Old-format sections present → `needs-confirm` (full rewrite)
+- Content drift (minor) → `manual` (user must decide what to keep)
+
+### 2. Docs structure
+
+Severity: 🟡. Fixability: `auto`.
+
+Checks:
 - [ ] `docs/design-docs/` exists
 - [ ] `docs/plans/active/` exists
 - [ ] `docs/plans/completed/` exists
 - [ ] `docs/reports/` exists
 
-### State Sources
+Fix: mkdir missing directories.
 
-- [ ] `.claude/todos.json` exists with valid schema (`{"todos": [...]}`)
-- [ ] Every todo has required fields: id, description, category, status, created_at, linked_feature_ids, archived_feature_paths
-- [ ] All `linked_feature_ids` reference existing entries in `.claude/features.json`
-- [ ] `.claude/features.json` entries with `from_todo` reference existing todo ids
-- [ ] No duplicate todo ids
+### 3. State sources
 
-### Short-term Memory (v0.4.3+)
+Severity: mixed per check. Fixability: mixed.
 
-- [ ] `.claude/memory.md` exists
-- [ ] memory.md has `## Observations` and `## In-flight` sections
-- [ ] memory.md is under 30 lines (warn if bloated — user should triage)
+Checks:
+- [ ] `.claude/todos.json` exists with valid schema (🟡, `auto`: create `{"todos":[]}`)
+- [ ] Every todo has required fields: id, description, category, status, created_at, linked_feature_ids, archived_feature_paths (🟡, `manual`)
+- [ ] All `linked_feature_ids` reference existing features (🟡, `manual`)
+- [ ] No duplicate todo ids (🔴, `manual`)
+- [ ] `.claude/memory.md` exists (🟡, `auto`: create from template)
+- [ ] memory.md has `## Observations` + `## In-flight` sections (🟡, `manual`)
+- [ ] memory.md under 30 lines (🟡, `manual`: triage bloated entries)
+- [ ] `.claude/features.json` entries with `from_todo` reference existing todo ids (🔴, `manual`)
 
-### Source overlap check (HARD RULE: each concern has one home)
+Source overlap (HARD RULE): for each memory.md observation entry, check
+if the referenced file also appears in pending todos, features.json, or
+recent git log. Overlap → warn `manual` (user triages which is authoritative).
 
-For each entry in `.claude/memory.md` Observations:
-- [ ] Does the entry's referenced file/module also appear in a pending `.claude/todos.json` entry? → warn: duplicate, triage
-- [ ] Does it match a `.claude/features.json` fix_feature? → warn: duplicate, triage
-- [ ] Does recent git log show the referenced file resolved? → warn: stale, triage
+Legacy files (🟡, `needs-confirm`: delete after printing content):
+- [ ] `.claude/mem/memory.md` absent (old scope pre-0.4.3)
+- [ ] `.claude/mem/todo.md` absent (replaced by todos.json in 0.4.0)
+- [ ] `.claude/mem/checklist.md` absent (old format)
 
-Report overlaps but do NOT auto-delete. Agent/user must triage.
+### 4. Agent templates
 
-### Legacy files (warn, do not auto-delete)
+Severity: 🔴 if drift or missing (runtime will break). Fixability: `needs-confirm`.
 
-- [ ] `.claude/mem/memory.md` does NOT exist (old scope deprecated in v0.3.0, tightened scope reintroduced at root in v0.4.3)
-- [ ] `.claude/mem/todo.md` does NOT exist (deprecated in v0.4.0; replaced by `.claude/todos.json`)
-- [ ] `.claude/mem/checklist.md` does NOT exist (old format)
-- [ ] If `.claude/mem/` exists but is empty, suggest removing it
+Existence:
+- [ ] `.claude/agents/sp-feedback.md` exists (required regardless of dev_mode)
+- [ ] If `dev_mode` is `three-agent`: sp-planner.md, sp-generator.md, sp-evaluator.md all exist
+- [ ] No plugin-level `agents/sp-planner.md` / `sp-generator.md` / `sp-evaluator.md` in plugin source (legacy)
 
-### Agent State
+Template drift (v0.7.0+) — deployed copies may be stale:
 
-- [ ] `.claude/agents/state/active/` directory exists (may be empty)
-- [ ] `.claude/agents/state/archive/` directory exists (may be empty)
+Old-format markers (presence = BAD):
+- [ ] sp-planner.md does NOT contain `task-plan.json` or `eval-plan.json`
+- [ ] sp-generator.md does NOT contain `implementation.md` (as output filename)
+- [ ] sp-evaluator.md does NOT contain `eval-report.json`
+- [ ] sp-feedback.md does NOT contain `final-eval-report.json` or `iter-N-eval-report.json`
 
-### Archive Consistency
+New-format markers (absence = BAD):
+- [ ] sp-planner.md contains `<feature-id>.plan.yaml`
+- [ ] sp-generator.md contains `<feature-id>.plan.yaml`
+- [ ] sp-evaluator.md contains `eval.rounds[]` or `<feature-id>.plan.yaml`
+- [ ] sp-feedback.md contains `<feature-id>.plan.yaml`
 
-- [ ] `docs/plans/completed/` contains plans for features with passes:true
-      (no active plan for a completed feature — should have moved on PASS)
-- [ ] `docs/plans/active/` does not contain plans for completed features
+Fix: regenerate from `${CLAUDE_PLUGIN_ROOT}/agent-templates/{name}.md`
+(fills {PROJECT_NAME}, {PROJECT_CONTEXT} from CLAUDE.md, overwrites).
+`needs-confirm` because any hand customization is lost.
 
-### Hooks
+### 5. Agent state
 
-- [ ] `.claude/hooks/update-todo-reminder.sh` exists and is executable
-- [ ] `.claude/settings.json` has Stop + UserPromptSubmit hooks
+Severity: 🟡. Fixability: `auto`.
 
-### Features (skip if no spec docs exist)
+Checks:
+- [ ] `.claude/agents/state/active/` exists (may be empty)
+- [ ] `.claude/agents/state/archive/` exists (may be empty)
+- [ ] `docs/plans/completed/` has plans for features with `passes:true`
+- [ ] `docs/plans/active/` does NOT have plans for completed features
+- [ ] For each feature with `supersedes` non-empty and `passes:true`,
+      `.claude/agents/state/archive/<feature-id>/supersession.json` exists and is valid JSON
 
-Run the validator script:
+Fix: create missing state directories (`auto`). Supersession mismatch → warn `manual`.
 
+### 6. Hooks & config
+
+Severity: mixed. Fixability: `auto` unless noted.
+
+Checks:
+- [ ] `.claude/hooks/update-todo-reminder.sh` exists and executable (🟡, `auto`)
+- [ ] `.claude/settings.json` has Stop + UserPromptSubmit hooks (🟡, `auto`)
+- [ ] `.claude/sp-harness.json` exists with `dev_mode`, `last_hygiene_at_completed`, `external_codebase` (🔴 if missing, `auto`)
+- [ ] If `external_codebase: true`, `.claude/codebase-context.md` exists (🟡, `manual`: re-run init-project)
+- [ ] If `external_codebase: false` (or absent), `.claude/codebase-context.md` should NOT exist (🟡, `manual`: decide which side is correct)
+
+### 7. Git conventions
+
+Severity: 🟡. Fixability: `manual`.
+
+Checks:
+- [ ] Last 10 commits match `[module]: description` format (warn only; never rewrite history)
+
+### Features validator (runs independently)
+
+Run:
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/skills/manage-features/scripts/query.py" validate
 ```
 
-The script checks: valid JSON, unique ids, required fields, dangling
-depends_on refs, circular dependencies, dangling supersedes refs, no
-self-supersession. Exit 1 with errors listed in JSON output if any found.
+Script checks: valid JSON, unique ids, required fields, dangling depends_on /
+supersedes refs, cycles, self-supersession. Exit 1 on errors.
 
-**Supersession archive integrity:**
-- [ ] For each feature with non-empty `supersedes` and `passes=true`,
-      `.claude/agents/state/archive/<feature-id>/supersession.json` exists
-      and is valid JSON. Missing → warn, the feature completed without
-      cleanup audit trail.
-
-### Harness Config
-
-- [ ] `.claude/sp-harness.json` exists
-- [ ] Has `dev_mode` field (`"three-agent"` or `"single-agent"`)
-- [ ] Has `last_hygiene_at_completed` field (number)
-- [ ] Has `external_codebase` field (boolean)
-- [ ] If `external_codebase: true`, `.claude/codebase-context.md` exists
-- [ ] If `external_codebase: false` (or absent), `.claude/codebase-context.md` should NOT exist (warn if found — flag mismatch)
-
-### Project-level Agents
-
-- [ ] `.claude/agents/sp-feedback.md` exists (required regardless of dev_mode)
-- [ ] If `dev_mode` is `"three-agent"`: `.claude/agents/sp-planner.md`, `sp-generator.md`, `sp-evaluator.md` all exist
-- [ ] No plugin-level `agents/sp-planner.md`, `sp-generator.md`, `sp-evaluator.md` in plugin source (legacy — all dev agents are project-level now)
-
-### Agent Template Drift (v0.7.0+)
-
-Deployed agent files in `.claude/agents/sp-*.md` are copies made at init
-time. When the plugin updates its `agent-templates/`, deployed copies
-become stale and may reference formats the orchestrator no longer produces.
-
-Check each deployed agent file for **old-format markers** (pre-0.7.0):
-
-- [ ] `.claude/agents/sp-planner.md` does NOT contain `task-plan.json` or `eval-plan.json`
-- [ ] `.claude/agents/sp-generator.md` does NOT contain `implementation.md` (as output filename)
-- [ ] `.claude/agents/sp-evaluator.md` does NOT contain `eval-report.json`
-- [ ] `.claude/agents/sp-feedback.md` does NOT contain `final-eval-report.json` or `iter-N-eval-report.json`
-
-Any old-format marker → agent is stale. Report to user and offer to
-regenerate via `sp-harness:switch-dev-mode` (force-regenerate mode).
-
-Check for **new-format markers** (present on current templates):
-
-- [ ] `.claude/agents/sp-planner.md` contains `<feature-id>.plan.yaml`
-- [ ] `.claude/agents/sp-generator.md` contains `<feature-id>.plan.yaml`
-- [ ] `.claude/agents/sp-evaluator.md` contains `eval.rounds[]` or `<feature-id>.plan.yaml`
-- [ ] `.claude/agents/sp-feedback.md` contains `<feature-id>.plan.yaml`
-
-Missing new-format marker → stale regardless of whether old markers are
-absent (agent may have been hand-edited to a partial state).
-
-### Git Conventions
-
-- [ ] Last 10 commits follow `[module]: description` format (warn only)
+Any failure → 🔴, `manual` (do NOT auto-create features.json; that is
+brainstorming's job).
 
 ---
 
-## Step 2: Report
+## Step 1: Run all checks
+
+Execute every check above. Record each finding with:
+- category (1–7)
+- description (short)
+- severity (🔴 / 🟡 / ✅)
+- fixability (auto / needs-confirm / manual)
+- fix action (one-line description of what would happen)
+
+---
+
+## Step 2: Print structured report (fixed format)
+
+Always use this exact format. Same every run.
 
 ```
-Framework Health Check
-======================
+🔍 Framework Check (v<plugin version>)
 
-CLAUDE.md Structure
-  ✓/✗ each check above
+[1/7] CLAUDE.md
+    <status line: ✅ pass | ⚠️ N warn | ❌ M fail>
+    <for each issue:>
+    - <description>  (<severity><fixability>: <one-line fix>)
 
-CLAUDE.md Content
-  ✓/✗ each check above
+[2/7] Docs structure
+    ...
 
-Documentation / Memory / Hooks / Features / Git
-  ✓/✗ each check above
+[3/7] State sources
+    ...
 
-Result: X/Y passed. Z items need fixing.
+[4/7] Agent templates
+    ...
+
+[5/7] Agent state
+    ...
+
+[6/7] Hooks & config
+    ...
+
+[7/7] Git conventions
+    ...
+
+---
+Summary: 7 categories · <P> pass · <W> warn · <F> fail
+Severity: 🔴 <C> critical · 🟡 <D> degraded
+Fixability: <A> auto-fixable · <N> need-confirm · <M> manual
+```
+
+Example:
+```
+🔍 Framework Check (v0.7.3)
+
+[1/7] CLAUDE.md
+    ✅ pass
+
+[2/7] Docs structure
+    ⚠️ 1 warn (auto-fixable)
+    - docs/reports/ missing (🟡auto: mkdir)
+
+[3/7] State sources
+    ✅ pass
+
+[4/7] Agent templates
+    ❌ 3 fail (🔴 blocks runtime)
+    - sp-planner.md contains task-plan.json (🔴needs-confirm: regenerate from template)
+    - sp-generator.md contains implementation.md (🔴needs-confirm: regenerate)
+    - sp-evaluator.md missing plan.yaml marker (🔴needs-confirm: regenerate)
+
+[5/7] Agent state
+    ✅ pass
+
+[6/7] Hooks & config
+    ⚠️ 1 warn
+    - settings.json missing Stop hook (🟡auto: add hook config)
+
+[7/7] Git conventions
+    ⚠️ 2/10 commits off-format (🟡manual: review recent commits)
+
+---
+Summary: 7 categories · 3 pass · 2 warn · 2 fail
+Severity: 🔴 3 critical · 🟡 3 degraded
+Fixability: 2 auto-fixable · 3 need-confirm · 3 manual
 ```
 
 ---
 
-## Step 3: Auto-Fix
+## Step 3: Ask user which fix path
 
-### CLAUDE.md missing entirely
-→ Invoke `init-project` skill.
+After the report, print exactly:
 
-### CLAUDE.md has old format (Language/Problem/Architecture/table-style map)
-→ **Rewrite CLAUDE.md from scratch using init-project template.**
+```
+→ 你拍:
+  (a) 全部 auto-fix (🟡auto 自动修，🔴needs-confirm 每个单独问，manual 跳过并列出)
+  (b) 只做 auto-fix (不处理 needs-confirm 和 manual，列出跳过项)
+  (c) 逐项决策 (每个 issue 单独问)
+  (d) 只报告不修 (不做任何修改)
+```
 
-This is the critical fix. Do NOT try to patch the old format. Instead:
-1. Read the old CLAUDE.md to extract project name only
-2. Run init-project's scan logic (Step 1) to get docs tree and codebase tree
-3. Generate a new CLAUDE.md using the EXACT init-project template
-4. Write the new CLAUDE.md, replacing the old one entirely
-5. Do NOT carry over Language preferences, Problem/Motivation sections,
-   or any other old-format content. Only the project name transfers.
+Wait for user response.
 
-The old format cannot be incrementally fixed — it has wrong sections,
-wrong structure, and wrong content. A clean rewrite is the only reliable fix.
+---
 
-### Documentation structure missing
-→ Create missing directories.
+## Step 4: Execute chosen path
 
-### Legacy .claude/mem/memory.md (old scope) present
-→ Old memory.md had Current State / Key Decisions / Findings (deprecated v0.3.0).
-The new memory.md (v0.4.3+) lives at `.claude/memory.md` with tighter scope
-(short-term pre-triage observations only). Print old content, suggest:
-- Design decisions → `docs/design-docs/`
-- Decided ideas → `.claude/todos.json` via manage-todos
-- Decided fixes → `.claude/features.json` via manage-features (fix_feature)
-- Recurring patterns → agent-memory accumulates via sp-feedback routing
-→ User deletes old file after migration. Old location is `.claude/mem/`.
+### (a) 全部 auto-fix
+1. Apply all `auto` fixes in order.
+2. For each `needs-confirm`, ask: `Fix <desc>? (yes / no / diff)` where
+   `diff` shows what would change before re-asking yes/no.
+3. List `manual` items at end as "still todo for you".
 
-### Legacy .claude/mem/todo.md present
-→ Replaced by `.claude/todos.json` in v0.4.0. Print and suggest migrating
-ideas via manage-todos. User deletes after migration.
+### (b) 只做 auto-fix
+1. Apply all `auto` fixes.
+2. Print skipped items (needs-confirm + manual) with a note that
+   they remain unfixed.
 
-### Missing .claude/todos.json
-→ Create with `{"todos": []}` (empty backlog).
+### (c) 逐项决策
+For each issue in order (by category, then severity), ask:
+`Fix <category><severity> <desc>? (yes / no / skip-category)`
+- `yes`: apply the fix (if auto) or do the needs-confirm flow
+- `no`: leave it
+- `skip-category`: jump past remaining issues in this category
 
-### Missing .claude/memory.md (v0.4.3+)
-→ Create with the init-project template (scope comment + empty sections).
+### (d) 只报告不修
+Exit without changes.
 
-### Source overlap detected
-→ Entry in memory.md duplicates content in todos.json or features.json.
-Print overlapping pair. Ask user to decide which is authoritative and
-remove the other.
+---
 
-### Legacy checklist.md present
-→ Delete it (old format, no migration needed).
+## Step 5: Re-check and commit
 
-### Hooks missing
-→ Create hook script + configure settings.json (same as init-project).
+After any path that applied fixes:
+
+1. Re-run all checks. Produce a second report with same format.
+2. If the second report has fewer issues than the first, commit:
+   ```
+   [framework]: auto-fix N issues (category breakdown)
+   ```
+   Commit message lists which categories had fixes.
+3. If any 🔴 issues remain, warn the user explicitly — feature development
+   may fail at runtime until they're resolved.
+
+---
+
+## Critical fix paths (reference)
+
+### CLAUDE.md missing → invoke `init-project` skill
+
+### CLAUDE.md old format (Language/Problem/Architecture/tables)
+**Rewrite from scratch** using init-project template. Do NOT patch. Only
+the project name transfers. Design decisions go to docs/design-docs/;
+decided ideas go to manage-todos; decided fixes go to manage-features;
+recurring patterns go to agent memory via sp-feedback.
+
+### Agent template drift
+Read `${CLAUDE_PLUGIN_ROOT}/agent-templates/{name}.md`, fill
+`{PROJECT_NAME}` and `{PROJECT_CONTEXT}` from CLAUDE.md, overwrite
+deployed file. Warn about lost customization. Alternative: user invokes
+`sp-harness:switch-dev-mode` directly.
+
+### Legacy `.claude/mem/*.md` files
+Print content, suggest migration targets, then delete after user consent.
 
 ### Features.json invalid
-→ Report errors. Do not auto-create.
+Report errors. Do NOT auto-create — brainstorming's job.
 
 ### sp-harness.json missing or incomplete
-→ Create with defaults: `{"dev_mode": "three-agent", "last_hygiene_at_completed": 0, "external_codebase": false}`
-→ If exists but missing fields, add defaults for missing fields only.
-→ If `external_codebase: true` but `codebase-context.md` missing, suggest re-running init-project to scan and save it.
-
-### Project-level agents missing
-→ Read templates from `${CLAUDE_PLUGIN_ROOT}/agent-templates/{name}.md`, fill
-  `{PROJECT_NAME}` and `{PROJECT_CONTEXT}`, write to `.claude/agents/{name}.md`.
-→ Always generate `sp-feedback.md`.
-→ If `dev_mode` is three-agent, also generate sp-planner, sp-generator, sp-evaluator.
-
-### Agent template drift detected (stale copies)
-→ An agent file exists but contains old-format markers (pre-0.7.0) or
-  lacks new-format markers. The orchestrator expects the new format;
-  running with stale agents will fail at runtime.
-→ Print which agent(s) are stale and which markers triggered the detection.
-→ Ask user: "Regenerate from current templates? This overwrites the
-  deployed file. (yes / no / diff)"
-  - `yes`: read `${CLAUDE_PLUGIN_ROOT}/agent-templates/{name}.md`, fill
-    `{PROJECT_NAME}` and `{PROJECT_CONTEXT}` from CLAUDE.md, overwrite
-    `.claude/agents/{name}.md`. Any user customization is lost — warn
-    before doing it.
-  - `no`: keep stale. Warn that feature development will likely fail
-    until regenerated.
-  - `diff`: show the diff between deployed file and current template,
-    then re-ask.
-→ Alternative: user may invoke `sp-harness:switch-dev-mode` with
-  force-regenerate option directly (same effect).
+Create with defaults: `{"dev_mode": "three-agent", "last_hygiene_at_completed": 0, "external_codebase": false}`.
+Missing fields only, don't overwrite existing values.
 
 ### Git conventions
-→ Warn only. Do not rewrite history.
-
----
-
-## Step 4: Re-check
-
-Re-run ALL checks after fixes. Report final result.
-
-If any still fail, report and stop.
-
----
-
-## Step 5: Commit
-
-Commit:
-```
-[framework]: migrate to new framework format
-```
+Warn only. Never rewrite history.
 
 ---
 
 ## Rules
 
-1. Old-format CLAUDE.md = full rewrite. Only project name transfers.
-2. Delete checklist.md if found (old format)
-3. Do not create features.json — that is brainstorming's job
-4. Idempotent — running twice produces no changes if already correct
+1. **Structured report is mandatory** — same format every run, no prose
+   improvisation.
+2. **User chooses the fix path** — no default "just fix it all".
+3. Old-format CLAUDE.md = full rewrite, not patch.
+4. Do not auto-create features.json.
+5. Idempotent — a second run after all fixes should show all ✅.
