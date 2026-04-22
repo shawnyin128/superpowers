@@ -36,7 +36,8 @@ Checks:
 - [ ] Under 80 lines
 - [ ] First-Principles has 4 numbered rules (Clarify, Shortest path, Root causes, Output)
 - [ ] Context Management mentions `.claude/todos.json` + Session start protocol listing 6 items + `[module]: description` convention
-- [ ] Context Management does NOT mention `memory.md` (deprecated v0.3.0)
+- [ ] Context Management does NOT mention `.claude/mem/memory.md` (old scope, removed v0.3.0)
+      Mentioning `.claude/memory.md` (at root, v0.4.3+ scope) is FINE — that's the current short-term memory file.
 - [ ] Project Map has `### Design Docs` and `### Codebase` subsections (no tables)
 - [ ] No extra sections
 
