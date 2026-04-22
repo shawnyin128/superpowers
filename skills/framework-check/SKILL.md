@@ -142,57 +142,58 @@ Checks:
 
 ### 8. Language consistency
 
-Severity: 🔴 for deployed agents (prompt pollution breaks model behavior);
-🟡 for plugin source / project docs.
+Scope is narrow: only files that inherit their content from the plugin
+(which is English-only). User-authored project files — CLAUDE.md, design
+docs, memory.md observations, todo descriptions — follow the user's
+choice of language and are NOT checked here.
 
-Files written into the agent pipeline must be English — regardless of
-the user's interaction language. User conversations in any language are
-fine, but anything that becomes part of an agent's system prompt, a
-skill definition, or project-level config must be English.
+Severity: 🔴 for deployed agent files (prompt pollution breaks model
+behavior); 🟡 for this repo's plugin source.
 
-Detection — run the correct grep for the current context:
+Detection depends on context:
 
-**User-project context** (run inside a project using sp-harness):
+**User-project context** (sp-harness is installed as a plugin):
 ```bash
-grep -rP '[\x{4e00}-\x{9fff}]' .claude/agents/ CLAUDE.md 2>/dev/null
+grep -rP '[\x{4e00}-\x{9fff}]' .claude/agents/ 2>/dev/null
 ```
 
-**Plugin-dev context** (run inside the sp-harness repo itself):
+**Plugin-dev context** (this repo is the sp-harness repo itself; has
+`skills/` and `agent-templates/` at the root):
 ```bash
-grep -rP '[\x{4e00}-\x{9fff}]' skills/ agent-templates/ docs/ README.md CHANGELOG.md 2>/dev/null
+grep -rP '[\x{4e00}-\x{9fff}]' skills/ agent-templates/ docs/ README.md CHANGELOG.md CLAUDE.md 2>/dev/null
 ```
 
-Any hit → violation. Report each file + line number.
+Checks:
 
-Checks (run the subset that applies to the current directory):
+Always check (both contexts):
+- [ ] No CJK characters in `.claude/agents/*.md` (deployed agents inherit
+      from English plugin templates; CJK here means stale or hand-edited)
 
-Always check:
-- [ ] No CJK characters in `.claude/agents/*.md` (deployed agents — critical)
-- [ ] No CJK characters in `CLAUDE.md`
+Plugin-dev only (apply when `skills/` and `agent-templates/` exist at
+repo root — indicates this IS the sp-harness repo):
+- [ ] No CJK in `skills/**/*.md`
+- [ ] No CJK in `agent-templates/*.md`
+- [ ] No CJK in `docs/**/*.md`
+- [ ] No CJK in `README.md`, `CHANGELOG.md`, `CLAUDE.md`
 
-Plugin-dev only (check if directory exists):
-- [ ] No CJK characters in `skills/**/*.md`
-- [ ] No CJK characters in `agent-templates/*.md`
-- [ ] No CJK characters in `docs/**/*.md`
-- [ ] No CJK characters in `README.md`, `CHANGELOG.md`
+**Never check** (user's choice):
+- Any user-project `CLAUDE.md`
+- `.claude/memory.md` observations
+- `.claude/todos.json` descriptions
+- `docs/design-docs/` in user projects (user's spec, user's language)
 
 Fixability:
 
-- **`.claude/agents/*.md`**: `needs-confirm` — if Chinese is present AND
-  the plugin's `${CLAUDE_PLUGIN_ROOT}/agent-templates/` is English (the
-  v0.7.4+ templates are), regenerate from template (same path as agent
-  drift detection). This auto-replaces the Chinese with the English
-  source of truth. Warn user about lost customization first.
+- **`.claude/agents/*.md`**: `needs-confirm` — if CJK present and plugin's
+  `${CLAUDE_PLUGIN_ROOT}/agent-templates/` is English (v0.7.4+), regenerate
+  from template (same path as agent drift detection).
+- **Plugin-dev files**: `manual`. User/Claude translates per commit.
 
-- **`CLAUDE.md` and other files**: `manual`. Auto-translation is lossy
-  and risks changing intent. User or Claude in a separate pass must
-  translate.
-
-Rationale: mixed-language agent prompts degrade model behavior. Users
-on older versions inherited Chinese templates from 0.7.0–0.7.3 — those
-deployed copies need either regeneration (automatic) or translation
-(manual). framework-check's category 4 (agent drift) handles the former;
-category 8 adds coverage for any stragglers drift missed.
+Rationale: the plugin's source tree is English-only by contributor
+convention (see repo CLAUDE.md). User projects are not bound by that
+convention — they pick their own language. The only cross-boundary
+concern is deployed agent files in `.claude/agents/`, which inherit from
+the plugin and therefore should stay English.
 
 ### Features validator (runs independently)
 

@@ -133,12 +133,6 @@ Do NOT assume resume. Always ask.
 - Undecided observations → `.claude/memory.md`
 - Design rationale → `docs/design-docs/`
 - Reusable patterns → raise via sp-feedback (agent-memory)
-- **Framework files are English-only** — regardless of the user's
-  interaction language, anything written into `.claude/` (memory.md,
-  todos.json content, agents/), `docs/design-docs/`, CLAUDE.md, or
-  spec files must be English. Future sessions may run in a different
-  language; mixed-language framework content breaks tooling and
-  degrades agent prompts.
 
 Each concern has ONE home. Never duplicate across sources.
 
@@ -278,8 +272,6 @@ Rules:
 - Remove the block when the topic is finalized (e.g. brainstorm done,
   feature handed off to feature-tracker).
 
-English only. All framework files are English regardless of interaction
-language.
 -->
 ````
 

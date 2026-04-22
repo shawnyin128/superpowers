@@ -407,9 +407,9 @@ Once the user approves and you move on (extract features, dispatch
 feature-tracker), **remove** this in-flight block. The brainstorm is no
 longer in-flight after handoff.
 
-**All content in memory.md MUST be English, regardless of interaction
-language.** memory.md is read by future sessions whose agent language is
-unknown.
+Write in-flight content in the same language as the surrounding spec
+and conversation — consistency matters more than any fixed language
+policy at the project level.
 
 ## Feature List
 

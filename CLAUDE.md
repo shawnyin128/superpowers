@@ -83,3 +83,16 @@ Before proposing changes to skill design, workflow philosophy, or architecture, 
 - One problem per PR
 - Test on at least one harness and report results in the environment table
 - Describe the problem you solved, not just what you changed
+
+## Language policy (this repo only)
+
+All plugin source and documentation in this repo must be English: skills,
+agent templates, docs, README, CHANGELOG, schema files, and CLAUDE.md
+itself. The plugin is distributed — users may run it in any locale.
+
+User-facing terminal output produced by skills at runtime MAY use the
+user's language. But anything written into this repo's source tree
+must be English.
+
+This rule does NOT carry into projects that use sp-harness as a plugin —
+end users control their own project's language policy.
