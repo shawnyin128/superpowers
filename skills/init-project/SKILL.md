@@ -102,9 +102,29 @@ State lives in structured files — each concern has one authoritative source.
 3. `.claude/sp-harness.json` — config (dev_mode, hygiene counter, external_codebase flag)
 4. `.claude/codebase-context.md` — only if sp-harness.json has `external_codebase: true`
 5. `.claude/todos.json` — idea backlog
-6. `.claude/memory.md` — short-term session memory (undecided observations)
+6. `.claude/memory.md` — short-term session memory (observations + in-flight)
 7. `git log --oneline -20` — recent activity
 8. `git status` — uncommitted work (where you physically left off)
+
+**In-flight auto-resume (after step 6):**
+If `.claude/memory.md` `## In-flight` section has one or more topic blocks,
+surface each to the user before doing anything else:
+
+```
+⏸ In-flight detected: <topic-id>
+   Phase:   <phase>
+   Context: <context>
+   Open:    <N> question(s) — <summary>
+   Next:    <next action>
+
+Resume this? (y = load pointers and continue from Next; n = skip for now)
+```
+
+Act on the user's answer:
+- `y`: read each file in `Pointers`, then execute the `Next` action
+- `n`: leave the in-flight block untouched, continue with other work
+
+Do NOT assume resume. Always ask.
 
 **Rules:**
 - commits use `[module]: description` format
@@ -113,6 +133,12 @@ State lives in structured files — each concern has one authoritative source.
 - Undecided observations → `.claude/memory.md`
 - Design rationale → `docs/design-docs/`
 - Reusable patterns → raise via sp-feedback (agent-memory)
+- **Framework files are English-only** — regardless of the user's
+  interaction language, anything written into `.claude/` (memory.md,
+  todos.json content, agents/), `docs/design-docs/`, CLAUDE.md, or
+  spec files must be English. Future sessions may run in a different
+  language; mixed-language framework content breaks tooling and
+  degrades agent prompts.
 
 Each concern has ONE home. Never duplicate across sources.
 
@@ -223,10 +249,37 @@ Keep under 30 lines. If bloated, triage before adding more.
 
 ## In-flight
 
-<!-- One block, replaced (not appended) as investigation progresses.
-- Investigating: ...
-- Checked: ...
-- Next: ...
+<!--
+Each entry must be self-sufficient for session resumption — reading
+this section alone tells the next session what was happening and what
+to do next. Do NOT write a pointer like "see spec X" — write the
+context itself.
+
+Schema (one block per in-flight topic, replaced not appended per topic):
+
+### <topic-id>  (paused: <ISO timestamp>)
+- **Phase**: <what stage, e.g. "brainstorm post-spec-draft, awaiting user review">
+- **Context**: <1-2 sentences summarizing what was decided and where we are>
+- **Open**: <structured list of open questions or decisions>
+  - Q1: <question> — alternatives: [...]
+  - Q2: ...
+- **Pointers**: <file paths and ids the resuming session should read>
+  - docs/design-docs/<spec>.md
+  - todo: <todo-id> (if any)
+  - feature: <feature-id> (if any)
+- **Next**: <one sentence describing the next action that resumes this>
+
+Rules:
+- One block per distinct topic. Multiple in-flight topics = multiple blocks.
+- Replace the entire block when state changes (do not append history).
+- Agent reading this section on session start MUST surface each in-flight
+  topic to the user with a resume prompt. See CLAUDE.md session-start
+  protocol.
+- Remove the block when the topic is finalized (e.g. brainstorm done,
+  feature handed off to feature-tracker).
+
+English only. All framework files are English regardless of interaction
+language.
 -->
 ````
 

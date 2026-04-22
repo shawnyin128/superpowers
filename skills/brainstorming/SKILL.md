@@ -383,6 +383,34 @@ After the spec review loop passes, ask the user to review the written spec befor
 
 Wait for the user's response. If they request changes, make them and re-run the spec review loop. Only proceed once the user approves.
 
+**Before the gate, write an in-flight block to `.claude/memory.md`.** This
+lets a later session auto-resume if the user pauses here. Use the schema
+defined in `.claude/memory.md`'s `## In-flight` section:
+
+```markdown
+### <topic-id>  (paused: <ISO 8601 UTC>)
+- **Phase**: brainstorm post-spec-draft, awaiting user review
+- **Context**: <1-2 sentences on what the spec covers and any significant
+  mid-process pivots>
+- **Open**: <any open questions or alternatives still to be decided>
+- **Pointers**:
+  - <spec path>
+  - todo: <linked-todo-id if any>
+- **Next**: Resolve open questions (if any), finalize spec, extract features
+  via manage-features, dispatch feature-tracker.
+```
+
+Write the block BEFORE asking the review question — so even if the user
+closes the session without replying, next session can resume.
+
+Once the user approves and you move on (extract features, dispatch
+feature-tracker), **remove** this in-flight block. The brainstorm is no
+longer in-flight after handoff.
+
+**All content in memory.md MUST be English, regardless of interaction
+language.** memory.md is read by future sessions whose agent language is
+unknown.
+
 ## Feature List
 
 After the user approves the spec, extract discrete features using
