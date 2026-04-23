@@ -5,3 +5,8 @@
 node_modules/
 inspo
 triage/
+
+# Internal-only tooling (not distributed with the plugin)
+tests/skill-routing/
+tests/skill-routing-mvp-runner/
+docs/design-docs/
