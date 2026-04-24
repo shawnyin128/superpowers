@@ -77,35 +77,53 @@ def find_next(features):
     return ranked[0][2], None
 
 
-def format_feature_table(f):
-    deps = ", ".join(f.get("depends_on") or []) or "none"
-    supersedes = ", ".join(f.get("supersedes") or []) or "none"
+def _primary_label(f):
+    """display_name if present, otherwise fall back to id."""
+    return f.get("display_name") or f.get("id", "")
+
+
+def _resolve_refs(ids, by_id):
+    """Render a list of feature ids as their display_names (id fallback)."""
+    if not ids:
+        return "none"
+    return ", ".join(_primary_label(by_id[i]) if i in by_id else i for i in ids)
+
+
+def format_feature_table(f, by_id=None):
+    by_id = by_id or {}
+    deps = _resolve_refs(f.get("depends_on") or [], by_id)
+    supersedes = _resolve_refs(f.get("supersedes") or [], by_id)
     from_todo = f.get("from_todo") or "(none)"
     steps_list = f.get("steps") or []
     steps_str = "\n".join(f"  {i+1}. {s}" for i, s in enumerate(steps_list))
     return (
-        f"Id: {f['id']}\n"
-        f"Description: {f.get('description', '')}\n"
-        f"Category: {f.get('category', '')}\n"
-        f"Priority: {f.get('priority', '')}\n"
-        f"Depends on: {deps}\n"
-        f"Supersedes: {supersedes}\n"
-        f"From todo: {from_todo}\n"
-        f"Passes: {f.get('passes', False)}\n"
-        f"Steps:\n{steps_str}"
+        f"{_primary_label(f)}\n"
+        f"  id: {f['id']}\n"
+        f"  Description: {f.get('description', '')}\n"
+        f"  Category: {f.get('category', '')}\n"
+        f"  Priority: {f.get('priority', '')}\n"
+        f"  Depends on: {deps}\n"
+        f"  Supersedes: {supersedes}\n"
+        f"  From todo: {from_todo}\n"
+        f"  Passes: {f.get('passes', False)}\n"
+        f"  Steps:\n{steps_str}"
     )
 
 
-def format_list_table(features):
+def format_list_table(features, by_id=None):
     if not features:
         return "(no matching features)"
+    by_id = by_id or {f["id"]: f for f in features}
     lines = []
     for f in features:
         mark = "✓" if f.get("passes") else "·"
-        deps = len(f.get("depends_on") or [])
-        dep_str = f" (deps:{deps})" if deps else ""
+        label = _primary_label(f)
+        dep_ids = f.get("depends_on") or []
+        dep_str = f"   deps: {_resolve_refs(dep_ids, by_id)}" if dep_ids else ""
         lines.append(
-            f"{mark} [{f.get('priority', '?')}] {f['id']}{dep_str}\n  {f.get('description', '')}"
+            f"{mark} [{f.get('priority', '?')}] {label}\n"
+            f"    id: {f['id']}{dep_str}\n"
+            f"    {f.get('description', '')}"
         )
     return "\n".join(lines)
 
@@ -197,19 +215,21 @@ def main():
             filtered = [f for f in features if not f.get("passes")]
         else:
             filtered = features
+        by_id = {f["id"]: f for f in features}
         if args.format == "json":
             print(json.dumps(filtered, indent=2))
         else:
-            print(format_list_table(filtered))
+            print(format_list_table(filtered, by_id))
             print(f"\n({len(filtered)} total)")
 
     elif args.op == "get":
+        by_id = {f["id"]: f for f in features}
         for f in features:
             if f.get("id") == args.id:
                 if args.format == "json":
                     print(json.dumps(f, indent=2))
                 else:
-                    print(format_feature_table(f))
+                    print(format_feature_table(f, by_id))
                 return
         sys.exit(f"error: feature '{args.id}' not found")
 
@@ -221,7 +241,8 @@ def main():
         if args.format == "json":
             print(json.dumps(chosen, indent=2))
         else:
-            print(format_feature_table(chosen))
+            by_id = {f["id"]: f for f in features}
+            print(format_feature_table(chosen, by_id))
 
     elif args.op == "deps":
         by_id = {f["id"]: f for f in features}
