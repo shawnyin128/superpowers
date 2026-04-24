@@ -48,6 +48,10 @@ def get_todo(todo_id):
     return None
 
 
+def _primary_label(t):
+    return t.get("display_name") or t.get("id", "")
+
+
 def format_table(todos):
     if not todos:
         return "(no matching todos)"
@@ -56,7 +60,9 @@ def format_table(todos):
         linked = len(t.get("linked_feature_ids", []))
         linked_str = f" [{linked} linked]" if linked else ""
         lines.append(
-            f"[{t['status']}] [{t['category']}] {t['id']}{linked_str}\n  {t['description']}"
+            f"[{t['status']}] [{t['category']}] {_primary_label(t)}{linked_str}\n"
+            f"    id: {t['id']}\n"
+            f"    {t.get('description', '')}"
         )
     return "\n".join(lines)
 
