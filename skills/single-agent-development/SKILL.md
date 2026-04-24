@@ -190,7 +190,13 @@ Return to Step 2 with `iteration: N+1`.
 2. Move `active/<feature-id>.plan.yaml` → `archive/<feature-id>/<feature-id>.plan.yaml`
 3. If `supersedes` non-empty: extract spec's Supersession Plan, save to
    `archive/<feature-id>/supersession.json`
-4. Commit: `[features]: mark <feature-id> as complete`
+4. Commit using the humanized template. Fetch display_name first:
+   ```bash
+   python3 "${CLAUDE_PLUGIN_ROOT}/skills/manage-features/scripts/query.py" \
+     get <feature-id> --format=json
+   ```
+   Parse `display_name` (fall back to `<feature-id>` if missing). Then:
+   `[features]: complete "<display_name>" (<feature-id>)`
 5. Return to feature-tracker
 
 ### (b) on PASS — optimize

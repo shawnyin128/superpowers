@@ -202,8 +202,14 @@ Orchestrator escalates to user explicitly:
 }
 ```
 
-4. Commit: `[features]: mark <feature-id> as complete` (include
-   features.json + archive/)
+4. Commit using the humanized template. Fetch display_name first:
+   ```bash
+   python3 "${CLAUDE_PLUGIN_ROOT}/skills/manage-features/scripts/query.py" \
+     get <feature-id> --format=json
+   ```
+   Parse `display_name` (fall back to `<feature-id>` if missing). Then:
+   `[features]: complete "<display_name>" (<feature-id>)`
+   (include features.json + archive/)
 5. Return to feature-tracker
 
 ### REPLAN (user picked (c) on ITERATE)
