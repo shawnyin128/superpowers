@@ -5,11 +5,16 @@ Mutate .claude/features.json via structured operations.
 Usage:
   mutate.py add --id=<id> --category=<c> --priority=<p> \\
             --description=<d> --steps=<s1>;;<s2>;;<s3> \\
+            [--display-name=<n>] \\
             [--depends-on=<a>,<b>] [--from-todo=<todo-id>] \\
             [--supersedes=<a>,<b>]
   mutate.py mark-passing <id>
   mutate.py update <id> [--description=<d>] [--priority=<p>] \\
+            [--display-name=<n>] \\
             [--steps=<s1>;;<s2>] [--depends-on=<a>,<b>] [--supersedes=<a>,<b>]
+
+--display-name is a short 3-6 word plain-language label. If omitted on
+add, a deterministic heuristic derives one from the description.
 
 Validates schema on every write. Rejects dangling depends_on refs and
 circular dependencies.
@@ -21,6 +26,8 @@ import argparse
 import json
 import sys
 from pathlib import Path
+
+from display_name import derive_display_name
 
 FEATURES_PATH = Path(".claude/features.json")
 TODOS_PATH = Path(".claude/todos.json")
@@ -137,6 +144,8 @@ def op_add(args):
         if todo_ids and from_todo not in todo_ids:
             sys.exit(f"error: from_todo references missing todo '{from_todo}'")
 
+    display_name = args.display_name or derive_display_name(args.description)
+
     new_feature = {
         "id": args.id,
         "category": args.category,
@@ -145,6 +154,7 @@ def op_add(args):
         "supersedes": supersedes,
         "from_todo": from_todo,
         "description": args.description,
+        "display_name": display_name,
         "steps": steps,
         "passes": False,
     }
@@ -182,6 +192,10 @@ def op_update(args):
     if args.description is not None:
         feature["description"] = args.description
         updates["description"] = True
+
+    if args.display_name is not None:
+        feature["display_name"] = args.display_name
+        updates["display_name"] = True
 
     if args.priority is not None:
         if args.priority not in VALID_PRIORITIES:
@@ -235,6 +249,7 @@ def main():
     p_add.add_argument("--category", required=True, choices=sorted(VALID_CATEGORIES))
     p_add.add_argument("--priority", required=True, choices=sorted(VALID_PRIORITIES))
     p_add.add_argument("--description", required=True)
+    p_add.add_argument("--display-name", help="Short 3-6 word label; auto-derived from description if omitted")
     p_add.add_argument("--steps", required=True, help="Steps separated by `;;`")
     p_add.add_argument("--depends-on", help="Comma-separated list")
     p_add.add_argument("--supersedes", help="Comma-separated list of feature ids this replaces")
@@ -248,6 +263,7 @@ def main():
     p_update = sub.add_parser("update")
     p_update.add_argument("id")
     p_update.add_argument("--description")
+    p_update.add_argument("--display-name", help="Overwrite display_name")
     p_update.add_argument("--priority", choices=sorted(VALID_PRIORITIES))
     p_update.add_argument("--steps")
     p_update.add_argument("--depends-on")
