@@ -15,6 +15,25 @@ LEADING_VERBS = frozenset({
 
 MAX_LEN = 50
 
+TRAILING_CONNECTORS = frozenset({
+    "and", "or", "with", "for", "to", "the", "a", "an", "of", "in",
+    "on", "by", "at", "as", "but", "so", "via",
+})
+
+_PUNCT_STRIP = " ,.;:-–—"
+
+
+def _strip_trailing_connectors(s: str) -> str:
+    while True:
+        s2 = s.rstrip(_PUNCT_STRIP)
+        if not s2:
+            return s2
+        parts = s2.rsplit(None, 1)
+        if len(parts) == 2 and parts[1].lower() in TRAILING_CONNECTORS:
+            s = parts[0]
+            continue
+        return s2
+
 
 def derive_display_name(description: str) -> str:
     if description is None:
@@ -37,5 +56,5 @@ def derive_display_name(description: str) -> str:
     last_space = cut.rfind(" ")
     if last_space > 0:
         cut = cut[:last_space]
-    cut = cut.rstrip(" ,.;:-–—")
+    cut = _strip_trailing_connectors(cut)
     return cut or s[:MAX_LEN]
