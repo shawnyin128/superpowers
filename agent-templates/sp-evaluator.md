@@ -230,11 +230,13 @@ After writing the YAML, print this to terminal:
 🔍 Eval: <feature-id> (Round <N>)
 
 [1] Closure check:
-  <condensed list of closure check results, ≤ 5 lines>
+  ✓ <decision 1 question text>   # honored
+  ✗ <decision 2 question text>   # not honored — see blocker below
+  (≤ 5 lines; use ✓/✗ against the decision's question text, not its id)
 
 [2] Unit tests:
-  S1 (<desc>): <pass>/<total> pass · coverage <%> <✅|❌>
-  S2 (<desc>): ...
+  <step 1 desc>: <pass>/<total> pass · coverage <%> <✅|❌>
+  <step 2 desc>: ...
   (failure details saved in tests/<feature-id>/)
 
 [3] Blockers:

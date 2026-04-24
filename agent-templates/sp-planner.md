@@ -144,23 +144,24 @@ Problem:
   <your problem field, in prose>
 
 Plan (<N> steps):
-  S1 · <desc>
-    Goal: <goal derived from approach>
-    Approach: <high-level approach>
-  
-  S2 · <desc>
-    ...
+  1. <desc>
+     Goal: <goal derived from approach>
+     Approach: <high-level approach>
+
+  2. <desc>
+     ...
 
 Key decisions:
-  ⚠️ D1 · <question>
+  ⚠️ <question>
     Situation: <when this matters>
     Resolves: <what it addresses>
     My pick: <planner_view> (<confidence>% confidence) — needs your call
-  
-  D2 · <question> → <planner_view> (<confidence>%)
-  (only ⚠️ for ask_user: true; others one-line FYI)
 
-→ Your call on D1 (and any other ask_user decisions):
+  ✓ <question>
+    → <planner_view> (<confidence>%)
+  (⚠️ for ask_user: true; ✓ for decisions the planner already made)
+
+→ Your call on the ⚠️ decisions above:
   (a) <planner_view> OK
   (b) <alternative 1>
   (c) <alternative 2>
