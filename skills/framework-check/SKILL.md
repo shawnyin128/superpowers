@@ -40,11 +40,33 @@ Checks:
       Mentioning `.claude/memory.md` (at root, v0.4.3+ scope) is FINE — that's the current short-term memory file.
 - [ ] Project Map has `### Design Docs` and `### Codebase` subsections (no tables)
 - [ ] No extra sections
+- [ ] **Principle 4 contains the humanization directive** (v0.8.5+): the body
+      mentions translating jargon. Marker: case-insensitive match for
+      `translate jargon` OR `don't paste doc vocabulary`. Old short form
+      ("Skip preamble, summaries, and obvious observations.") = FAIL.
+- [ ] **Context Management Rules contains the audience-modeling line** (v0.8.5+):
+      the `**Rules:**` block starts with a bullet about translating project
+      terms for the listener. Marker: case-insensitive match for
+      `translate project terms into plain language` OR `listener may not share`.
 
 Fixability:
 - File missing → `needs-confirm` (full rewrite via init-project template)
 - Old-format sections present → `needs-confirm` (full rewrite)
 - Content drift (minor) → `manual` (user must decide what to keep)
+- **Missing Principle 4 humanization directive (v0.8.5+) → `auto` (FORCE
+  UPDATE, no confirm)**: locate the `**4. Output only what changes decisions.**`
+  line; if the next non-blank line is exactly
+  `Skip preamble, summaries, and obvious observations.` → replace those two
+  lines with the v0.8.5 form (4 lines: title + 3-line body containing the
+  translation directive). If the body has been hand-edited to something
+  other than the old short form, downgrade to `manual` (user must reconcile).
+- **Missing Context Management audience-modeling rule (v0.8.5+) → `auto`
+  (FORCE UPDATE)**: locate the `**Rules:**` line; if the next bullet is not
+  the audience-modeling line, insert it as the new first bullet:
+  `- When reporting plan/status to the user, translate project terms into plain language. The listener may not share doc vocabulary.`
+
+These two are FORCE-UPDATE because outputs without them are observably
+hard to read (jargon dump from dense plan docs). Severity: 🟡.
 
 ### 2. Docs structure
 
@@ -366,6 +388,45 @@ After any path that applied fixes:
 the project name transfers. Design decisions go to docs/design-docs/;
 decided ideas go to manage-todos; decided fixes go to manage-features;
 recurring patterns go to agent memory via sp-feedback.
+
+### CLAUDE.md missing v0.8.5 humanization rules (FORCE UPDATE, auto)
+
+Two surgical patches. Apply directly without user confirm.
+
+**Patch 1: Principle 4 body.** Find the block:
+
+```
+**4. Output only what changes decisions.**
+Skip preamble, summaries, and obvious observations.
+```
+
+Replace the two lines with:
+
+```
+**4. Output only what changes decisions.**
+Skip preamble and obvious observations. When summarizing plans, specs, or
+status, translate jargon — don't paste doc vocabulary back. Cite file:line
+at the end if needed, not as the lead.
+```
+
+If Principle 4's body is NOT exactly the old short form (user has
+hand-edited it), DO NOT auto-replace — downgrade to `manual` and tell the
+user to reconcile their custom wording with the new directive.
+
+**Patch 2: Context Management Rules first bullet.** Find the line
+`**Rules:**` and check the immediately following bullet. If it is not
+the audience-modeling line, insert this as the new first bullet:
+
+```
+- When reporting plan/status to the user, translate project terms into plain language. The listener may not share doc vocabulary.
+```
+
+If the existing first bullet already covers audience-modeling in
+different wording (matches `listener` OR `translate.*plain language`),
+treat as ✅ — don't insert a duplicate.
+
+After both patches, re-check the 80-line cap. If now over, warn user:
+typical fix is to trim the FILL tree examples in Project Map.
 
 ### Agent template drift
 Read `${CLAUDE_PLUGIN_ROOT}/agent-templates/{name}.md`, fill
