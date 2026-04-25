@@ -88,7 +88,9 @@ If a better approach exists, say so and wait for a decision.
 Find out why before touching code. No defensive patches.
 
 **4. Output only what changes decisions.**
-Skip preamble, summaries, and obvious observations.
+Skip preamble and obvious observations. When summarizing plans, specs, or
+status, translate jargon — don't paste doc vocabulary back. Cite file:line
+at the end if needed, not as the lead.
 
 ---
 
@@ -128,6 +130,7 @@ Act on the user's answer:
 Do NOT assume resume. Always ask.
 
 **Rules:**
+- When reporting plan/status to the user, translate project terms into plain language. The listener may not share doc vocabulary.
 - commits use `[module]: description` format
 - Decided ideas → `.claude/todos.json` (manage-todos)
 - Decided requirements → `.claude/features.json` (manage-features)
