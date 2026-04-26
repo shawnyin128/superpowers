@@ -19,7 +19,7 @@ Invoke before every `git commit`.
 ```
 
 - **module**: top-level directory of primary change (e.g., `skills`, `hooks`, `docs`, `tests`). If commit spans multiple, use the primary one. Tie-breaker: use the one with most lines changed.
-- **description**: one line, under 72 chars. Must be meaningful in `git log --oneline`.
+- **description**: one line, under 72 chars. Must be meaningful in `git log --oneline`. **Always English**, regardless of the chat language configured in `.claude/sp-harness.json` — commits are part of the source tree, not inline chat.
 - **trivial commits** (typo, formatting): still use `[module]:` but reason can be omitted.
 
 ## Examples

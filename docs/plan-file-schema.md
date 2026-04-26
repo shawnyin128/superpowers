@@ -12,6 +12,12 @@ across the entire development cycle.
 producing a condensed human-readable terminal summary for user review.
 The YAML file is for machine-to-machine communication.
 
+**Language: always English**, regardless of the chat language configured
+in `.claude/sp-harness.json`. The plan YAML is part of the source tree
+(committed and grep-able), not inline chat. The `language` field only
+affects terminal summaries and user-facing prompts; this file's content
+stays English even when agents reply to the user in another language.
+
 ---
 
 ## Full Schema
