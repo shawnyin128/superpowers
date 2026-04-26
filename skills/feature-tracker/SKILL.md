@@ -7,7 +7,7 @@ description: |
   automatically: after each feature completes, picks the next one.
   Use when starting or resuming feature development.
 author: sp-harness
-version: 3.0.0
+version: 3.1.0
 ---
 
 # feature-tracker
@@ -208,6 +208,54 @@ d. **If delta >= 3:**
       - Do NOT update the counter
       - Warn: "Hygiene did not complete. Counter not updated. Will retry next loop."
 e. **If delta < 3:** continue
+
+**MUST: Print Feature Brief — this is the LAST output for this feature.**
+
+This step MUST come after hygiene cleanup and BEFORE the all-done branch
+or the loop-back-to-Step-2 jump. The brief is the final per-feature
+output the user sees; nothing else may print between it and the next
+loop iteration. If hygiene ran and printed output, the brief still
+prints after — it is always the closing line for the current feature.
+
+Read the archived plan YAML for source data:
+`.claude/agents/state/archive/<feature-id>/<feature-id>.plan.yaml`
+
+Pull from that file:
+- `problem` — for the **What** line
+- `execution.commits` and `execution.notes` per step — for **Changes**
+- `unplanned_changes` — fold into **Changes** if present
+- `eval.rounds[]` length — for **Rounds**
+- Test files under `tests/<feature-id>/` and `eval.rounds[-1].coverage`
+  (or equivalent) — for **Tests**
+- `eval.optimization` — for **Followups** (or "none")
+
+Also fetch:
+- `display_name` from features.json (already fetched for the commit message)
+- Short hash of the completion commit (`git rev-parse --short HEAD`)
+
+Print this format (≤ 12 lines). Field labels stay English for
+grepability; prose values (What/Changes/Impact/Followups) follow the
+user's conversation language per the standing language-consistency rule:
+
+```
+─── Feature complete: "<display_name>" (<feature-id>) ───
+What:      <one-line problem statement>
+Changes:   <key files/modules touched, derived from execution.commits>
+Impact:    <user-visible or system-level effect, inferred from problem + flags>
+Tests:     <N tests at tests/<feature-id>/, coverage X%>
+Rounds:    <N rounds to PASS>
+Followups: <eval.optimization summary, or "none">
+Commit:    <short hash>
+─────────────────────────────────────────────────────────
+```
+
+Rules:
+- Do NOT dispatch any subagent for this step. The orchestrator reads the
+  YAML and prints directly.
+- Do NOT compress this into the commit message body — it is terminal
+  output only.
+- If the YAML is missing fields, print "—" for that line rather than
+  omitting the line.
 
 3. **Check if ALL features pass:**
    - **NO (features remain)** → GO BACK TO STEP 2 NOW.
