@@ -359,12 +359,14 @@ This is a decision touch-point per `docs/decision-touchpoint-protocol.md`
 
 ```
 → Pick a development mode for this project:
-  (a) Three-agent — Planner / Generator / Evaluator run as separate
-      subagents in their own contexts; stronger evaluator independence,
-      higher token cost. Recommended for complex projects.
-  (b) Single-agent — one agent plays all three roles sequentially in
-      the same session; faster, lower token cost, but evaluator shares
-      context with implementer (weaker red-team).
+  (a) Single-agent (default) — one agent plays Planner / Generator /
+      Evaluator roles sequentially in the same session; faster, lower
+      token cost. Evaluator shares context with implementer, so the
+      red-team check is weaker; fits most projects.
+  (b) Three-agent — Planner / Generator / Evaluator run as separate
+      subagents in their own contexts; stronger evaluator independence
+      (true red-team) at higher token cost and dispatch overhead. Pick
+      this when correctness matters enough to pay for adversarial review.
 ```
 
 ### Step 6a: Generate sp-feedback (always, regardless of dev mode)
@@ -472,7 +474,7 @@ Save the user's answer as the `language` field in the next step.
 
 ```json
 {
-  "dev_mode": "three-agent" | "single-agent",
+  "dev_mode": "single-agent" | "three-agent",
   "last_hygiene_at_completed": 0,
   "external_codebase": true | false,
   "language": "match-input" | "en" | "zh" | <other>

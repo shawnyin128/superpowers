@@ -244,7 +244,10 @@ verdict, and print:
 | Evaluation rigor | Weaker (self-assessment bias) | Stronger (independent evaluator) |
 | Speed | Faster (no dispatch overhead) | Slower (subagent startup) |
 
-**Default recommendation:** three-agent for new projects; single-agent
-for quick fixes, prototypes, or constrained token budget.
+**Default recommendation:** single-agent for most projects (faster, lower
+token cost, simpler dispatch). Switch to three-agent when correctness
+matters enough to pay for adversarial review by an isolated evaluator —
+e.g. complex refactors, security-sensitive code, or projects where
+subtle regressions are costly.
 
 To switch: use `sp-harness:switch-dev-mode`.

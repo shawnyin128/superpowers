@@ -40,11 +40,11 @@ brainstorming first to create one. STOP.
 1. **If `.claude/sp-harness.json` does not exist:**
    - Create it with default values:
      ```json
-     {"dev_mode": "three-agent", "last_hygiene_at_completed": 0, "external_codebase": false, "language": "match-input"}
+     {"dev_mode": "single-agent", "last_hygiene_at_completed": 0, "external_codebase": false, "language": "match-input"}
      ```
-   - Report: "Created sp-harness.json with defaults (three-agent mode, hygiene counter 0, no external codebase, language match-input)"
+   - Report: "Created sp-harness.json with defaults (single-agent mode, hygiene counter 0, no external codebase, language match-input)"
 2. **If it exists:** read `dev_mode`, `last_hygiene_at_completed`, `external_codebase`, `language`
-3. **If `dev_mode` is missing:** set to `"three-agent"`, write to disk
+3. **If `dev_mode` is missing:** set to `"single-agent"`, write to disk
 4. **If `last_hygiene_at_completed` is missing:** set to `0`, write to disk
 5. **If `external_codebase` is missing:** set to `false`, write to disk
 6. **If `language` is missing:** set to `"match-input"`, write to disk

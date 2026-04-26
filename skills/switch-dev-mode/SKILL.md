@@ -17,7 +17,7 @@ already exist.
 
 ## Steps
 
-1. Read `.claude/sp-harness.json`. If missing, create with default `"three-agent"`.
+1. Read `.claude/sp-harness.json`. If missing, create with default `"single-agent"`.
 
 2. Print current mode:
    ```

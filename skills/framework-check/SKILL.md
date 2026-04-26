@@ -647,7 +647,7 @@ Print content, suggest migration targets, then delete after user consent.
 Report errors. Do NOT auto-create — brainstorming's job.
 
 ### sp-harness.json missing or incomplete
-Create with defaults: `{"dev_mode": "three-agent", "last_hygiene_at_completed": 0, "external_codebase": false}`.
+Create with defaults: `{"dev_mode": "single-agent", "last_hygiene_at_completed": 0, "external_codebase": false, "language": "match-input"}`.
 Missing fields only, don't overwrite existing values.
 
 ### Git conventions
