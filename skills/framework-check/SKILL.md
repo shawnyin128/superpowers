@@ -127,7 +127,7 @@ Fix: create missing state directories (`auto`). Supersession mismatch → warn `
 Severity: mixed. Fixability: `auto` unless noted.
 
 Checks:
-- [ ] `.claude/hooks/update-todo-reminder.sh` exists and executable (🟡, `auto`)
+- [ ] `.claude/hooks/update-context-reminder.sh` exists and executable (🟡, `auto`)
 - [ ] `.claude/settings.json` has Stop + UserPromptSubmit hooks (🟡, `auto`)
 - [ ] `.claude/sp-harness.json` exists with `dev_mode`, `last_hygiene_at_completed`, `external_codebase` (🔴 if missing, `auto`)
 - [ ] If `external_codebase: true`, `.claude/codebase-context.md` exists (🟡, `manual`: re-run init-project)
