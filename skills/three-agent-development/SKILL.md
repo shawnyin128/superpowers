@@ -32,7 +32,7 @@ Evaluator → reads plan.yaml, runs tests, appends eval.rounds[]
 ## File Structure
 
 Single shared YAML per feature: `.claude/agents/state/active/<feature-id>.plan.yaml`.
-Schema defined in `docs/plan-file-schema.md`.
+Schema defined in `${CLAUDE_PLUGIN_ROOT}/docs/plan-file-schema.md`.
 
 Active work lives in `active/`. Completed features archive to `archive/<feature-id>/`.
 
@@ -132,7 +132,7 @@ Evaluator will:
 Evaluator's terminal output ends with one of:
 
 Both blocks below are decision touch-points per
-`docs/decision-touchpoint-protocol.md` — option lines are full
+`${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md` — option lines are full
 plain-language consequences, never bare labels. Evaluator's blockers
 listed above must read as plain language with no bare spec IDs.
 

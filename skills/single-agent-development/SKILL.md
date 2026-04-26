@@ -32,7 +32,7 @@ subagents.
 ## File Structure
 
 Single shared YAML per feature: `.claude/agents/state/active/<feature-id>.plan.yaml`.
-Schema defined in `docs/plan-file-schema.md`.
+Schema defined in `${CLAUDE_PLUGIN_ROOT}/docs/plan-file-schema.md`.
 
 ```
 .claude/agents/state/
@@ -70,7 +70,7 @@ gaps — surface them as `decisions[]` rather than interrupting with
 questions.
 
 **Phase 2: Write plan YAML.**
-Write `<feature-id>.plan.yaml` per `docs/plan-file-schema.md`. Include
+Write `<feature-id>.plan.yaml` per `${CLAUDE_PLUGIN_ROOT}/docs/plan-file-schema.md`. Include
 `problem`, `steps[]` (with `test_plan` and `coverage_min` each), and
 `decisions[]` (with `confidence` and `ask_user`).
 
@@ -151,7 +151,7 @@ Append `eval.rounds[N]` (and optionally `eval.optimization`) to the YAML.
 
 **Print terminal summary** per sp-evaluator template. Both blocks
 below are decision touch-points per
-`docs/decision-touchpoint-protocol.md` — option lines are full
+`${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md` — option lines are full
 plain-language consequences, never bare labels. Blockers above must
 read in plain language with no bare spec IDs.
 

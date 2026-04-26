@@ -299,7 +299,7 @@ For each file in the canonical touch-point inventory below, the literal
 string `decision-touchpoint-protocol` must appear at least once
 (case-sensitive). Missing = 🔴 FAIL for that file.
 
-Inventory (matches `docs/decision-touchpoint-protocol.md` § Touch-point inventory):
+Inventory (matches `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md` § Touch-point inventory):
 
 ```
 agent-templates/sp-planner.md
@@ -335,10 +335,10 @@ Fix path: `manual`. When this fires, it usually means a new touch-point
 was added without a protocol reference, OR an existing touch-point was
 rewritten and the marker dropped. The fix is to:
 
-1. Read `docs/decision-touchpoint-protocol.md`
+1. Read `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`
 2. Identify the touch-point in the offending file
 3. Add a sentence near the format spec: `This is a decision touch-point
-   per docs/decision-touchpoint-protocol.md` plus the four-part rule
+   per ${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md` plus the four-part rule
    (or the structured-menu / closure-summary variant, whichever applies)
 4. Verify the format spec actually conforms — adding the marker without
    conforming output defeats the check
@@ -460,7 +460,7 @@ Fixability: 2 auto-fixable · 3 need-confirm · 3 manual
 
 ## Step 3: Ask user which fix path
 
-This is a decision touch-point per `docs/decision-touchpoint-protocol.md`
+This is a decision touch-point per `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`
 (structured menu — each option must be a plain-language consequence).
 After the report, print:
 
@@ -627,7 +627,7 @@ that lacks the literal string `decision-touchpoint-protocol`:
 - Append a new numbered rule continuing the existing numbering. Same
   wording for all three deployed agents:
 
-  `N. Every decision touch-point follows docs/decision-touchpoint-protocol.md. For open decisions: Background / What it controls / My pick / Options must each be present in plain language; bare spec IDs (D1, F1, Option B, step 3) without an in-sentence translation are forbidden; option lines must be one full sentence of consequence, never just labels.`
+  `N. Every decision touch-point follows ${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md. For open decisions: Background / What it controls / My pick / Options must each be present in plain language; bare spec IDs (D1, F1, Option B, step 3) without an in-sentence translation are forbidden; option lines must be one full sentence of consequence, never just labels.`
 
 If a file lacks a `## Rules` section entirely → fall back to full
 template regeneration via `needs-confirm` (same reasoning as the

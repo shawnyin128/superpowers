@@ -255,7 +255,7 @@ checklists. Results logged for audit.
 ### Phase 2: User-gated actions (HARD-GATE)
 
 <HARD-GATE>
-This is a decision touch-point per `docs/decision-touchpoint-protocol.md` —
+This is a decision touch-point per `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md` —
 each batch must list its items in plain language (not just counts) and
 each ask must say what happens on yes vs no. Findings printed below MUST
 lead with a 3-6 word plain-language label; bare finding-IDs without
@@ -430,4 +430,4 @@ compact it immediately (no dispatch needed — you're already executing).
 6. If zero findings across all dimensions, force a second pass with tighter scrutiny.
 7. Check your own MEMORY.md size during Mode A. If > 150 lines, compact it in-run.
 8. Inline chat output (clarifying questions, user-confirmation prompts): at session start, read `.claude/sp-harness.json` field `language`. If `match-input` (default), reply in the user's input language each turn; if a specific code (`en`, `zh`, ...), pin replies to that language regardless of input. Either way: no code-mixing; identifiers (paths/commands/field names/product names) stay in original. Files / commits / reports / calibration JSON / MEMORY.md always English regardless.
-9. Per-batch confirmation prompts (Phase 2) follow `docs/decision-touchpoint-protocol.md`: list items by plain-language label not bare IDs, and every yes/no ask must spell out what happens on each path.
+9. Per-batch confirmation prompts (Phase 2) follow `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`: list items by plain-language label not bare IDs, and every yes/no ask must spell out what happens on each path.

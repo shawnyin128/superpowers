@@ -71,7 +71,7 @@ The current plugin expects new-format agents. Running three-agent mode
 with stale files will fail.
 ```
 
-Then ask — decision touch-point per `docs/decision-touchpoint-protocol.md`
+Then ask — decision touch-point per `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`
 (structured menu, plain-language consequences):
 
 ```

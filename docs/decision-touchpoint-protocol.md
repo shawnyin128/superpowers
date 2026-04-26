@@ -116,7 +116,7 @@ final report, sp-feedback's findings list) follow these rules:
 
 Every file that defines a touch-point format MUST contain the literal
 string `decision-touchpoint-protocol` somewhere in its body — either
-as a reference link, a `Per docs/decision-touchpoint-protocol.md` lead,
+as a reference link, a `Per ${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md` lead,
 or in a Rules section. `framework-check` greps for this marker as a
 drift check (added v0.8.10).
 

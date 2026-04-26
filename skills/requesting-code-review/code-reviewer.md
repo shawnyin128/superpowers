@@ -88,7 +88,7 @@ git diff {BASE_SHA}..{HEAD_SHA}
 ### Assessment
 
 This block is a closure-summary touch-point per
-`docs/decision-touchpoint-protocol.md`. The verdict must spell out the
+`${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`. The verdict must spell out the
 consequence of each path, not just a label.
 
 **Verdict:** one of:

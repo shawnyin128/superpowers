@@ -354,7 +354,7 @@ generates project-level copies adapted to this project's context.
 
 ### Q1: Dev mode
 
-This is a decision touch-point per `docs/decision-touchpoint-protocol.md`
+This is a decision touch-point per `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`
 (structured menu — both options as one-sentence consequences):
 
 ```
@@ -451,7 +451,7 @@ If **No** → skip scan, do not create the file. Set `external_codebase: false`.
 
 ### Step 6d: Inline-chat language
 
-Decision touch-point per `docs/decision-touchpoint-protocol.md` —
+Decision touch-point per `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md` —
 structured menu, plain-language consequences:
 
 ```

@@ -107,7 +107,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/skills/manage-features/scripts/query.py" next --f
   unmet dependencies. STOP and ask user to resolve.
 
 Ask the user — this is a decision touch-point per
-`docs/decision-touchpoint-protocol.md`, so spell out both paths:
+`${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`, so spell out both paths:
 
 ```
 → Ready to start "<display_name>" (<feature-id>)?
@@ -225,7 +225,7 @@ e. **If delta < 3:** continue
 **MUST: Print Feature Brief — this is the LAST output for this feature.**
 
 This is a closure-summary touch-point per
-`docs/decision-touchpoint-protocol.md`: lead with plain-language label,
+`${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`: lead with plain-language label,
 include feature-id in parentheses; field labels stay English for
 grepability, prose values follow the user's conversation language. No
 raw doc vocabulary in the prose lines; if a step or decision is named,

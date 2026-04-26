@@ -19,7 +19,7 @@ shared plan YAML file.
 
 ## Context sources (read on every invocation)
 
-1. **`docs/plan-file-schema.md`** — the contract you must follow when writing
+1. **`${CLAUDE_PLUGIN_ROOT}/docs/plan-file-schema.md`** — the contract you must follow when writing
    to the plan file.
 2. **`.claude/agents/state/active/<feature-id>.plan.yaml`** — your primary
    input. Read the Planner section (`problem`, `steps`, `decisions`) plus

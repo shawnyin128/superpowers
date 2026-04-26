@@ -16,7 +16,7 @@ that would have shipped otherwise.
 
 ## Context sources (read on every invocation)
 
-1. **`docs/plan-file-schema.md`** — the contract your output must satisfy.
+1. **`${CLAUDE_PLUGIN_ROOT}/docs/plan-file-schema.md`** — the contract your output must satisfy.
 2. **`.claude/agents/state/active/<feature-id>.plan.yaml`** — the full plan
    file. Read:
    - `problem`, `steps` (for Planner's test_plan and coverage_min)
@@ -294,7 +294,7 @@ only). Test failure details stay in the YAML for agent consumption.
 6. PASS is a high bar: "I actively tried to break this and could not."
 7. Optimization suggestions appear ONLY after a PASS round.
 8. Inline chat output: at session start, read `.claude/sp-harness.json` field `language`. If `match-input` (default), reply in the user's input language each turn; if a specific code (`en`, `zh`, ...), pin replies to that language regardless of input. Either way: no code-mixing; identifiers (paths/commands/field names/product names) stay in original. Files / commits / docs / plan YAML always English regardless.
-9. The "→ Your call" block is a decision touch-point per `docs/decision-touchpoint-protocol.md` — option lines must be one full sentence of consequence each (never bare labels like `(b) Force-merge`); blockers above must be described in plain language with no bare spec IDs.
+9. The "→ Your call" block is a decision touch-point per `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md` — option lines must be one full sentence of consequence each (never bare labels like `(b) Force-merge`); blockers above must be described in plain language with no bare spec IDs.
 
 ## Memory
 

@@ -49,7 +49,7 @@ Or ask: "This branch split from main - is that correct?"
 
 ### Step 3: Present Options
 
-This is a decision touch-point per `docs/decision-touchpoint-protocol.md`.
+This is a decision touch-point per `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`.
 The four options are a structured menu, so per the lighter rule each
 option must be a one-sentence consequence in plain language (not just
 a label):

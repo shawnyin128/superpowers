@@ -412,7 +412,7 @@ Divergence risks:
 Scope:
   <N> features will be extracted · <files/modules touched or created>
 
-→ Your call (decision touch-point per docs/decision-touchpoint-protocol.md):
+→ Your call (decision touch-point per ${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md):
   [IF any ⚠️ open — ask the lowest-confidence one first]
     <plain-language question, restated>:
       Background: <code/behavior state that triggered this — no bare
@@ -439,7 +439,7 @@ Rules:
   one with lowest confidence first). Do not bundle open decisions.
 - When the user picks an option or approves, update the spec file
   accordingly BEFORE moving to feature extraction.
-- Every ⚠️ ask follows `docs/decision-touchpoint-protocol.md`:
+- Every ⚠️ ask follows `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`:
   Background / What it controls / My pick / Options must be present;
   bare D-IDs without translation are forbidden; option lines must be
   one-sentence consequences, never just labels.
