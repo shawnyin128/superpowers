@@ -182,6 +182,29 @@ Decision touch-point protocol marker (v0.8.11+, 🔴 FORCE UPDATE):
       marker the deployed agent has no protocol reference at the
       generation site, even if the source template does.
 
+Plugin-doc references must use `${CLAUDE_PLUGIN_ROOT}/` prefix (v0.8.14+, 🔴 FORCE UPDATE):
+- [ ] Each existing `.claude/agents/sp-*.md` must NOT contain bare
+      `docs/decision-touchpoint-protocol.md` or `docs/plan-file-schema.md`
+      references. These resolve to the user project's working directory at
+      runtime, not the plugin install dir, so any agent that tries to Read
+      the path gets file-not-found. Detect bare references — substring
+      match for `docs/decision-touchpoint-protocol.md` or
+      `docs/plan-file-schema.md` not immediately preceded by
+      `${CLAUDE_PLUGIN_ROOT}/`. Any hit = FAIL for that file.
+
+      Detection one-liner:
+      ```bash
+      for f in .claude/agents/sp-{planner,evaluator,feedback,generator}.md; do
+        [ -f "$f" ] || continue
+        python3 -c "
+import re, sys
+src = open('$f').read()
+for m in re.finditer(r'(?<!\\$\\{CLAUDE_PLUGIN_ROOT\\}/)docs/(decision-touchpoint-protocol|plan-file-schema)\\.md', src):
+    print(f'{sys.argv[1]}: bare {m.group()}')
+" "$f"
+      done
+      ```
+
 Fix:
 - **Old/new format markers FAIL → `needs-confirm` (full template regenerate)**:
   read `${CLAUDE_PLUGIN_ROOT}/agent-templates/{name}.md`, fill
@@ -195,6 +218,11 @@ Fix:
   append the canonical reference (per-file wording in the Critical Fix
   Paths section below). Purely additive — no hand customization is
   destroyed.
+- **Only bare plugin-doc references found → 🔴 `auto` (FORCE UPDATE)**:
+  literal-string replace — for each `docs/decision-touchpoint-protocol.md`
+  or `docs/plan-file-schema.md` not already preceded by
+  `${CLAUDE_PLUGIN_ROOT}/`, prepend `${CLAUDE_PLUGIN_ROOT}/`. Idempotent
+  (already-prefixed occurrences are skipped). Purely mechanical.
 
 ### 5. Agent state
 
@@ -342,6 +370,94 @@ rewritten and the marker dropped. The fix is to:
    (or the structured-menu / closure-summary variant, whichever applies)
 4. Verify the format spec actually conforms — adding the marker without
    conforming output defeats the check
+
+#### 9b. Plugin-doc references must use `${CLAUDE_PLUGIN_ROOT}/` prefix (v0.8.14+, plugin-dev only)
+
+Sub-check piggybacks on category 9's plugin-dev scope.
+
+Severity: 🔴 (citations don't resolve in user projects without the
+prefix — `${CLAUDE_PLUGIN_ROOT}/docs/X.md` resolves to the install dir,
+bare `docs/X.md` resolves to user CWD).
+
+Fixability: `auto` (FORCE UPDATE — purely mechanical literal-string
+substitution, idempotent).
+
+Checks:
+
+Scan all files under `skills/`, `agent-templates/`, and `docs/` for
+substring `docs/decision-touchpoint-protocol.md` or
+`docs/plan-file-schema.md` not immediately preceded by
+`${CLAUDE_PLUGIN_ROOT}/`. Any hit = FAIL for that file.
+
+One-shot detection:
+
+```bash
+python3 - <<'PY'
+import re, os
+PROTECTED = ['decision-touchpoint-protocol', 'plan-file-schema']
+ROOTS = ['skills', 'agent-templates', 'docs']
+# Self-exclude: this skill defines the check, so its body legitimately
+# contains the protected names as data (PROTECTED list, pattern strings).
+EXCLUDE = {'skills/framework-check/SKILL.md'}
+PATTERN = re.compile(
+    r'(?<!\$\{CLAUDE_PLUGIN_ROOT\}/)docs/(' + '|'.join(PROTECTED) + r')\.md'
+)
+fails = []
+for root in ROOTS:
+    for dp, _, fs in os.walk(root):
+        for fn in fs:
+            if not fn.endswith('.md'):
+                continue
+            p = os.path.join(dp, fn)
+            if p in EXCLUDE:
+                continue
+            with open(p) as f:
+                src = f.read()
+            for m in PATTERN.finditer(src):
+                fails.append((p, m.group()))
+for p, m in fails:
+    print(f"BARE: {p}: {m}")
+print(f"\n{len(fails)} bare reference(s) found.")
+PY
+```
+
+Fix:
+
+Same script with substitution — for each match, prepend
+`${CLAUDE_PLUGIN_ROOT}/`. Idempotent because the regex's negative
+lookbehind already excludes already-prefixed occurrences.
+
+```bash
+python3 - <<'PY'
+import re, os
+PROTECTED = ['decision-touchpoint-protocol', 'plan-file-schema']
+ROOTS = ['skills', 'agent-templates', 'docs']
+# Self-exclude: this skill defines the check, so its body legitimately
+# contains the protected names as data (PROTECTED list, pattern strings).
+EXCLUDE = {'skills/framework-check/SKILL.md'}
+PATTERN = re.compile(
+    r'(?<!\$\{CLAUDE_PLUGIN_ROOT\}/)docs/(' + '|'.join(PROTECTED) + r')\.md'
+)
+for root in ROOTS:
+    for dp, _, fs in os.walk(root):
+        for fn in fs:
+            if not fn.endswith('.md'):
+                continue
+            p = os.path.join(dp, fn)
+            if p in EXCLUDE:
+                continue
+            with open(p) as f:
+                src = f.read()
+            new = PATTERN.sub(r'${CLAUDE_PLUGIN_ROOT}/docs/\1.md', src)
+            if new != src:
+                with open(p, 'w') as f:
+                    f.write(new)
+                print(f"FIXED: {p}")
+PY
+```
+
+Add new protected paths to `PROTECTED` if more plugin docs get added
+that need to be referenced from skills.
 
 Do NOT auto-insert the marker without conforming format — that hides
 the real issue from future audits.
