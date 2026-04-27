@@ -36,6 +36,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Import the centralized id renderer from skills/_lib/.
+# This script lives at skills/feature-tracker/scripts/print-brief.py;
+# parents[2] is skills/, where _lib/ sits as a sibling package.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from _lib.format_id import get_display_name  # noqa: E402
+
 # Sequence-item mapping detector: "- <ident>: ..." where <ident> is a
 # bare identifier-like key (letters/digits/underscore/hyphen). This
 # excludes prose items like "- File rename: collision" because the key
@@ -317,18 +323,14 @@ def derive_plan_path(feature_id: str) -> Path:
 
 
 def lookup_display_name(feature_id: str) -> str:
-    """Best-effort fetch from .claude/features.json. Falls back to feature-id."""
-    features_json = Path(".claude") / "features.json"
-    if not features_json.exists():
-        return feature_id
-    try:
-        data = json.loads(features_json.read_text())
-    except Exception:
-        return feature_id
-    for f in data.get("features", []):
-        if f.get("id") == feature_id:
-            return f.get("display_name") or feature_id
-    return feature_id
+    """Resolve display_name via the centralized _lib.format_id helper.
+
+    Raises ValueError if the feature is missing or has empty display_name —
+    no fallback to bare id. The schema invariant (display_name required and
+    non-empty) is enforced by mutate.py and backfill scripts, so a real
+    failure here means an upstream bug worth seeing.
+    """
+    return get_display_name(feature_id, "feature")
 
 
 def lookup_commit_hash() -> str:
