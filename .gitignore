@@ -5,6 +5,8 @@
 node_modules/
 inspo
 triage/
+__pycache__/
+*.pyc
 
 # Internal-only tooling (not distributed with the plugin)
 tests/skill-routing/
