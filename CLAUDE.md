@@ -10,7 +10,7 @@ This repo has a 94% PR rejection rate. Almost every rejected PR was submitted by
 
 Before you open a PR against this repo, you MUST:
 
-1. **Read the entire PR template** at `.github/PULL_REQUEST_TEMPLATE.md` and fill in every section with real, specific answers. Not summaries. Not placeholders.
+1. **Fully describe the change.** State the problem, the fix, what was tested, and the environment it ran in. No summaries, no placeholders, no skipped sections.
 2. **Search for existing PRs** — open AND closed — that address the same problem. If duplicates exist, STOP and tell your human partner. Do not open another duplicate.
 3. **Verify this is a real problem.** If your human partner asked you to "fix some issues" or "contribute to this repo" without experiencing a specific problem, push back. Ask them what broke, what failed, what the user experience was.
 4. **Confirm the change belongs in core.** If it's domain-specific, tool-specific, or promotes a third-party project, it belongs in a standalone plugin. Tell your human partner.
@@ -79,7 +79,6 @@ Before proposing changes to skill design, workflow philosophy, or architecture, 
 
 ## General
 
-- Read `.github/PULL_REQUEST_TEMPLATE.md` before submitting
 - One problem per PR
 - Test on at least one harness and report results in the environment table
 - Describe the problem you solved, not just what you changed
