@@ -172,6 +172,11 @@ absent, this is Round 1. Otherwise Round N+1. Max rounds = 5.
 
 Append `eval.rounds[N]` (and optionally `eval.optimization`) to the YAML.
 
+**Self-check before print:** re-read each option line aloud as if to a
+colleague unfamiliar with the project. If you would stumble on any
+phrase or they would ask "what does that mean," rewrite it before
+emitting.
+
 **Print terminal summary** per sp-evaluator template. Both blocks
 below are decision touch-points per
 `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md` — option lines are full
@@ -179,10 +184,10 @@ plain-language consequences, never bare labels. Blockers above must
 read in plain language with no bare spec IDs.
 
 For ITERATE:
-```
+```output-template
 → Your call:
   (a) Switch back to Generator role and fix the <N> blocker(s) above —
-      address each, then a new Round runs.
+      address each, then another evaluation runs.
   (b) Force-merge anyway — ship as-is, listed blockers stay open;
       you own the risk and the followup.
   (c) Replan from scratch — current plan is archived, Planner role
@@ -190,12 +195,12 @@ For ITERATE:
 ```
 
 For PASS + optimization:
-```
+```output-template
 → Your call:
   (a) Accept and merge — feature ships now, optimization suggestions
       stay as ideas in the plan YAML for later.
   (b) Switch back to Generator role and apply optimizations first —
-      a final Round verifies, then ship.
+      a final evaluation verifies, then ship.
 ```
 
 ---
@@ -240,12 +245,12 @@ to Evaluator (Round N+1 for verification).
 If Round 6 would trigger, write blocker "Max rounds exceeded", ITERATE
 verdict, and print:
 
-```
+```output-template
 ⚠️ 5 rounds completed and blockers still present. The plan may be
    fundamentally wrong — five attempts have not converged.
 
 → Your call:
-  (a) Keep iterating into Round 6 — Generator role addresses current
+  (a) Try one more iteration — Generator role addresses current
       blockers; we may converge or hit the same wall again.
   (b) Replan from scratch — current plan is archived, Planner role
       re-runs with full knowledge of the round history (best when
