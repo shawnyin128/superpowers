@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -88,7 +87,11 @@ def _parse_sequence(lines, pos, indent):
             break
         item_content = content[2:]
         pos[0] += 1
-        if ":" in item_content and not _looks_like_quoted(item_content):
+        if item_content == "|":
+            # Literal block scalar as a sequence item: "- |" followed by
+            # indented block content.
+            result.append(_parse_block_scalar(lines, pos, indent))
+        elif ":" in item_content and not _looks_like_quoted(item_content):
             # Mapping item — first kv inline, rest at indent+2 (column where "- " ended).
             child_indent = indent + 2
             item = {}
@@ -103,7 +106,21 @@ def _parse_sequence(lines, pos, indent):
                 item[k.strip()] = _parse_value(lines, pos, child_indent, v.strip())
             result.append(item)
         else:
-            result.append(_parse_scalar(item_content))
+            # Plain scalar item. Consume continuation lines (indent > the
+            # item indent and not a new sibling). Authors writing wrapped
+            # YAML by hand or by LLM commonly produce this shape:
+            #   - first line of the item
+            #     continuation of the same item
+            scalar_parts = [item_content]
+            while pos[0] < len(lines):
+                ci, cc = lines[pos[0]]
+                if ci <= indent:
+                    break
+                if cc.startswith("- "):
+                    break
+                pos[0] += 1
+                scalar_parts.append(cc.strip())
+            result.append(_parse_scalar(" ".join(scalar_parts)))
     return result
 
 

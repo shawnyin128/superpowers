@@ -1,0 +1,9 @@
+─── Feature complete: "Sample Feature" (sample-feature) ───
+What:      Exercises sequence-item edge cases the loader must handle: plain scalar items wrapped across multiple lines, and "- |" literal block scalar items inside a sequence.
+Steps:     1 step · 1 commit
+Files:     —
+Tests:     1 test · avg 100% coverage
+Rounds:    1 (PASS in round 1)
+Followups: —
+Commit:    deadbeef
+─────────────────────────────────────────────────────────

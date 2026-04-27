@@ -1,0 +1,45 @@
+plan_id: sample-feature
+iteration: 1
+based_on: none
+
+problem: |
+  Exercises sequence-item edge cases the loader must handle: plain
+  scalar items wrapped across multiple lines, and "- |" literal block
+  scalar items inside a sequence.
+
+steps:
+  - id: S1
+    desc: First step
+    test_plan:
+      - First test_plan item that wraps across two physical lines and
+        whose continuation is at deeper indent than the bullet
+      - Second test_plan item, kept on one line for contrast
+    coverage_min: 100
+
+decisions: []
+
+execution:
+  S1:
+    status: done
+    confidence: 100
+    commits: ["1234abc"]
+
+unplanned_changes: []
+
+flags_for_eval:
+  - |
+    A flag declared as a "- |" block scalar. The parser must handle
+    this shape without confusing it with a plain wrapped scalar.
+  - |
+    Second flag, also a block scalar.
+
+eval:
+  rounds:
+    - round: 1
+      tests:
+        S1:
+          pass: 1
+          fail: 0
+          coverage: 100
+      blockers: []
+      verdict: PASS
