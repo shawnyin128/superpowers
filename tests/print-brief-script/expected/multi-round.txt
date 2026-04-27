@@ -1,0 +1,9 @@
+─── Feature complete: "Sample Feature" (sample-feature) ───
+What:      Multi-round case: Round 1 ITERATE with blockers, Round 2 PASS. Brief Rounds line must show 2.
+Steps:     2 steps · 3 commits
+Files:     README.md
+Tests:     5 tests · avg 92.5% coverage
+Rounds:    2 (PASS in round 2)
+Followups: 1 suggestion
+Commit:    deadbeef
+─────────────────────────────────────────────────────────

@@ -7,7 +7,7 @@ description: |
   automatically: after each feature completes, picks the next one.
   Use when starting or resuming feature development.
 author: sp-harness
-version: 3.2.0
+version: 3.3.0
 ---
 
 # feature-tracker
@@ -241,11 +241,20 @@ e. **If delta < 3:** continue
 **MUST: Print Feature Brief — this is the LAST output for this feature.**
 
 This is a closure-summary touch-point per
-`${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`: lead with plain-language label,
-include feature-id in parentheses; field labels stay English for
-grepability, prose values follow the user's conversation language. No
-raw doc vocabulary in the prose lines; if a step or decision is named,
-include a 3-6 word plain-language label.
+`${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`. The brief
+is no longer hand-assembled from prose. **MUST run this script — do
+not improvise the brief:**
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/feature-tracker/scripts/print-brief.py" <feature-id>
+```
+
+The script reads
+`.claude/agents/state/archive/<feature-id>/<feature-id>.plan.yaml`,
+fetches `display_name` from `.claude/features.json`, derives the short
+git hash via `git rev-parse --short HEAD`, and emits the canonical brief
+on stdout. Print the script's stdout verbatim — do not rewrap, restyle,
+translate, or summarize. The script's output IS the brief.
 
 This step MUST come after hygiene cleanup and BEFORE the all-done branch
 or the loop-back-to-Step-2 jump. The brief is the final per-feature
@@ -255,45 +264,37 @@ prints after hygiene — it is always the closing line for the current
 feature. Hygiene's report and sentinel line do NOT substitute for the
 brief; the brief is mandatory regardless of whether hygiene ran.
 
-Read the archived plan YAML for source data:
-`.claude/agents/state/archive/<feature-id>/<feature-id>.plan.yaml`
+**Language exception (intentional, do not "fix"):** the scripted brief
+is English-only regardless of the `language` field in
+`.claude/sp-harness.json`. Plan YAML is English-only by schema (see
+`${CLAUDE_PLUGIN_ROOT}/docs/plan-file-schema.md`); the script reads
+verbatim; runtime translation is incompatible with the determinism the
+script is here to provide. This carves out a single line of language
+inconsistency — accepted as the cost of guaranteed brief delivery.
 
-Pull from that file:
-- `problem` — for the **What** line
-- `execution.commits` and `execution.notes` per step — for **Changes**
-- `unplanned_changes` — fold into **Changes** if present
-- `eval.rounds[]` length — for **Rounds**
-- Test files under `tests/<feature-id>/` and `eval.rounds[-1].coverage`
-  (or equivalent) — for **Tests**
-- `eval.optimization` — for **Followups** (or "none")
-
-Also fetch:
-- `display_name` from features.json (already fetched for the commit message)
-- Short hash of the completion commit (`git rev-parse --short HEAD`)
-
-Print this format (≤ 12 lines). Field labels stay English for
-grepability; prose values (What/Changes/Impact/Followups) follow the
-user's conversation language per the standing language-consistency rule:
+Reference output format the script produces (do not re-implement
+in prose):
 
 ```
 ─── Feature complete: "<display_name>" (<feature-id>) ───
-What:      <one-line problem statement>
-Changes:   <key files/modules touched, derived from execution.commits>
-Impact:    <user-visible or system-level effect, inferred from problem + flags>
-Tests:     <N tests at tests/<feature-id>/, coverage X%>
-Rounds:    <N rounds to PASS>
-Followups: <eval.optimization summary, or "none">
+What:      <one-line problem statement, whitespace-collapsed>
+Steps:     <N steps · M commits>
+Files:     <unique paths from steps[].files + unplanned_changes[].loc, "—" if none>
+Tests:     <N tests · avg X% coverage from the last eval round>
+Rounds:    <N (PASS in round Y)>
+Followups: <K suggestions / "—">
 Commit:    <short hash>
 ─────────────────────────────────────────────────────────
 ```
 
 Rules:
-- Do NOT dispatch any subagent for this step. The orchestrator reads the
-  YAML and prints directly.
+- Do NOT dispatch any subagent for this step. Run the script directly.
 - Do NOT compress this into the commit message body — it is terminal
   output only.
-- If the YAML is missing fields, print "—" for that line rather than
-  omitting the line.
+- The script handles missing YAML fields by printing "—". Do not
+  pre-process the YAML or "fix" missing fields before running it.
+- If the script exits non-zero, the archive is missing or malformed.
+  Investigate; do not improvise a brief from memory.
 
 3. **Check if ALL features pass:**
    - **NO (features remain)** → GO BACK TO STEP 2 NOW.

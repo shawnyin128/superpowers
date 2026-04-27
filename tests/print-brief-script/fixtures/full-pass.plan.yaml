@@ -1,0 +1,57 @@
+plan_id: sample-feature
+iteration: 1
+based_on: docs/design-docs/sample-design.md
+
+problem: |
+  A representative one-sentence problem statement that exercises the
+  multi-line block scalar parsing and survives flow into the brief
+  unchanged.
+
+steps:
+  - id: S1
+    desc: First step
+    coverage_min: 100
+  - id: S2
+    desc: Second step
+    coverage_min: 100
+
+decisions:
+  - id: D1
+    question: A question
+    confidence: 90
+    ask_user: false
+    user_decision: null
+
+execution:
+  S1:
+    status: done
+    confidence: 95
+    commits: ["aaaa111", "bbbb222"]
+  S2:
+    status: done
+    confidence: 90
+    commits: ["cccc333"]
+
+unplanned_changes: []
+
+flags_for_eval: []
+
+eval:
+  rounds:
+    - round: 1
+      tests:
+        S1:
+          pass: 4
+          fail: 0
+          coverage: 100
+        S2:
+          pass: 2
+          fail: 0
+          coverage: 90
+      blockers: []
+      verdict: PASS
+  optimization:
+    suggestions:
+      - loc: skills/sample/SKILL.md
+        what: tighten the rules section
+    final_verdict: MERGE_READY

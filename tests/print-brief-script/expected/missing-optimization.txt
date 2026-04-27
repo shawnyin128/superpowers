@@ -1,0 +1,9 @@
+─── Feature complete: "Sample Feature" (sample-feature) ───
+What:      Brief case where the feature passed but the evaluator did not record any optimization suggestions. The Followups line should print "—".
+Steps:     1 step · 1 commit
+Files:     —
+Tests:     1 test · avg 100% coverage
+Rounds:    1 (PASS in round 1)
+Followups: —
+Commit:    deadbeef
+─────────────────────────────────────────────────────────

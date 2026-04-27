@@ -18,6 +18,15 @@ in `.claude/sp-harness.json`. The plan YAML is part of the source tree
 affects terminal summaries and user-facing prompts; this file's content
 stays English even when agents reply to the user in another language.
 
+**Downstream language exception:** because plan YAML is English-only,
+the scripted Feature Brief
+(`skills/feature-tracker/scripts/print-brief.py`) is also English-only
+regardless of `language`. Runtime translation is incompatible with the
+script's determinism guarantees. Other terminal outputs (planner
+summary, evaluator round verdict, decision asks) still follow
+`language` because they're authored fresh per turn, not derived from
+the YAML.
+
 ---
 
 ## Full Schema

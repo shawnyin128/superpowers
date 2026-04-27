@@ -1,0 +1,9 @@
+─── Feature complete: "Sample Feature" (sample-feature) ───
+What:      A representative one-sentence problem statement that exercises the multi-line block scalar parsing and survives flow into the brief unchanged.
+Steps:     2 steps · 3 commits
+Files:     —
+Tests:     6 tests · avg 95% coverage
+Rounds:    1 (PASS in round 1)
+Followups: 1 suggestion
+Commit:    deadbeef
+─────────────────────────────────────────────────────────

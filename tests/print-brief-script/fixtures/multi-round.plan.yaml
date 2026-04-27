@@ -1,0 +1,68 @@
+plan_id: sample-feature
+iteration: 1
+based_on: none
+
+problem: |
+  Multi-round case: Round 1 ITERATE with blockers, Round 2 PASS. Brief
+  Rounds line must show 2.
+
+steps:
+  - id: S1
+    desc: Step alpha
+    coverage_min: 100
+  - id: S2
+    desc: Step beta
+    coverage_min: 100
+
+decisions: []
+
+execution:
+  S1:
+    status: done
+    confidence: 80
+    commits: ["aaa1111", "aaa2222"]
+  S2:
+    status: done
+    confidence: 85
+    commits: ["bbb3333"]
+
+unplanned_changes:
+  - loc: README.md
+    what: tightened a sentence
+    reason: noticed during step S1 review
+    confidence: 100
+
+flags_for_eval: []
+
+eval:
+  rounds:
+    - round: 1
+      tests:
+        S1:
+          pass: 2
+          fail: 1
+          coverage: 80
+        S2:
+          pass: 1
+          fail: 0
+          coverage: 75
+      blockers:
+        - first blocker found
+      verdict: ITERATE
+    - round: 2
+      tests:
+        S1:
+          pass: 3
+          fail: 0
+          coverage: 95
+        S2:
+          pass: 2
+          fail: 0
+          coverage: 90
+      blockers: []
+      verdict: PASS
+  optimization:
+    suggestions:
+      - loc: skills/sample/SKILL.md
+        what: cosmetic dedupe
+    final_verdict: MERGE_READY
