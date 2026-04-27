@@ -92,12 +92,35 @@ def test_tracker_5dd_has_do_not_stop_reminder(tracker_text: str) -> None:
 
 
 def test_tracker_brief_block_reaffirms_order(tracker_text: str) -> None:
-    """The Print Feature Brief block must reaffirm it prints AFTER hygiene
-    (not substituted by hygiene's output)."""
+    """The Print Feature Brief block must explicitly reaffirm that hygiene
+    output never substitutes for the brief. The pre-existing line 'MUST
+    come after hygiene cleanup' is too weak — it does not say the brief
+    is mandatory regardless of hygiene running. Pin the new marker."""
     brief_idx = tracker_text.index("MUST: Print Feature Brief")
-    # Look in the brief block + a generous window for the reaffirmation.
     block = tracker_text[brief_idx : brief_idx + 4000]
-    # Accept either of the two natural phrasings.
-    assert ("after hygiene" in block.lower()) or (
-        "follows hygiene" in block.lower()
-    ), "Brief block must reaffirm it prints AFTER hygiene's output"
+    assert "mandatory regardless of whether hygiene ran" in block, (
+        "Brief block must contain the literal phrase 'mandatory regardless "
+        "of whether hygiene ran' to pin the new reaffirmation; otherwise "
+        "the legacy 'after hygiene cleanup' wording trips this test "
+        "vacuously."
+    )
+
+
+# --- S5 version frontmatter --------------------------------------------------
+
+def test_hygiene_skill_version_bumped(hygiene_text: str) -> None:
+    """code-hygiene SKILL.md frontmatter must be at 1.2.0 after this feature."""
+    assert "version: 1.2.0" in hygiene_text, (
+        "skills/code-hygiene/SKILL.md frontmatter version must be 1.2.0; "
+        "downgrade or removal indicates a regression of the version-bump "
+        "step from this feature."
+    )
+
+
+def test_tracker_skill_version_bumped(tracker_text: str) -> None:
+    """feature-tracker SKILL.md frontmatter must be at 3.2.0 after this feature."""
+    assert "version: 3.2.0" in tracker_text, (
+        "skills/feature-tracker/SKILL.md frontmatter version must be 3.2.0; "
+        "downgrade or removal indicates a regression of the version-bump "
+        "step from this feature."
+    )
