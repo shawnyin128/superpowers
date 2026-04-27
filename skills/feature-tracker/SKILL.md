@@ -93,17 +93,21 @@ python3 "${CLAUDE_PLUGIN_ROOT}/skills/manage-features/scripts/query.py" stats
 python3 "${CLAUDE_PLUGIN_ROOT}/skills/manage-features/scripts/query.py" list --passes=false
 ```
 
+Before printing, re-read each line aloud as if to a colleague unfamiliar
+with the project. If any phrase reads like jargon ("Hygiene counter
+delta", "F2 cluster"), rewrite it before emitting.
+
 Present a brief status to the user combining the outputs:
 
-```
+```output-template
 Feature Progress: <passed>/<total> completed
-Dev Mode: {dev_mode}
-Hygiene: last at {last_hygiene_at_completed}, next at {last_hygiene_at_completed + 3}
+Dev Mode: <dev-mode>
+Hygiene: last at <last-hygiene>, next at <next-threshold>
 
-Remaining (from script output — display_name primary, id on indented line):
-  · [priority] Display Name
-      id: feature-id   deps: Dep Display Name
-      Description text
+Remaining (script output — display name first, then id on indented line):
+  · [<priority>] <display name>
+      id: <feature-id|format>   deps: <dep display name>
+      <description>
   ...
 ```
 
@@ -127,11 +131,14 @@ python3 "${CLAUDE_PLUGIN_ROOT}/skills/manage-features/scripts/query.py" next --f
   unmet dependencies. STOP and ask user to resolve.
 
 Ask the user — this is a decision touch-point per
-`${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`, so spell out both paths:
+`${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`, so spell out both paths.
+Before printing, re-read each option line aloud as if to a colleague
+unfamiliar with the project. If you would stumble or they would ask
+"what does that mean," rewrite it before emitting.
 
-```
-→ Ready to start "<display_name>" (<feature-id>)?
-  · yes  → dispatch the development skill (<dev_mode>) on this feature now.
+```output-template
+→ Ready to start "<display_name>" — id <feature-id|format> ?
+  · yes  → dispatch the <dev-mode> development skill on this feature now.
   · pick → show the remaining list and let you choose a different one.
   · no   → stop here; nothing runs until you come back.
 ```
@@ -293,10 +300,16 @@ script is here to provide. This carves out a single line of language
 inconsistency — accepted as the cost of guaranteed brief delivery.
 
 Reference output format the script produces (do not re-implement
-in prose):
+in prose). The script renders this verbatim — the placeholders below
+shape what the script emits, not what the agent prints. The R3 disable
+comment on the title line is intentional: the script's title format
+puts the kebab-case id inside parens, which trips R3's snake_kebab
+heuristic (warn-only); the disable keeps the reference faithful to
+script output without silencing R3 elsewhere.
 
-```
-─── Feature complete: "<display_name>" (<feature-id>) ───
+```output-template
+<!-- lint:disable=R3 -->
+─── Feature complete: "<display_name>" (<feature-id|format>) ───
 What:      <one-line problem statement, whitespace-collapsed>
 Steps:     <N steps · M commits>
 Files:     <unique paths from steps[].files + unplanned_changes[].loc, "—" if none>
