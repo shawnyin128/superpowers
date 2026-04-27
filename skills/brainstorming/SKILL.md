@@ -382,41 +382,50 @@ After the spec review loop passes, DO NOT ask the user to open and read
 the spec file. The spec is for future-session agents (Planner); the user
 reviews a condensed terminal brief instead.
 
+The `→ Your call` block is a decision touch-point per
+`${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`. Each ⚠️
+line in `Key decisions made` marks an open question the spec could not
+resolve without user input — set ⚠️ only when confidence < 70 or the
+spec explicitly deferred the decision.
+
+**Self-check before print:** re-read each gloss in the brief aloud as
+if to a colleague unfamiliar with the project. If a phrase reads like
+jargon ("decision instrumentation framework", "schema invariant
+violation"), rewrite it in plain conversational form before emitting.
+
 Print a brief in this exact structure (≤ 30 lines):
 
-```
+```output-template
 📐 Design ready: <topic>
 
 Spec saved: <spec path>
 
 Problem:
-  <1-2 sentences, natural language, paraphrased — NOT copied from user's
-  original wording>
+  <1-2 sentences, natural language, paraphrased — NOT copied from
+  user's original wording>
 
 Approach:
   <1-2 sentences describing the chosen approach at a high level>
 
 Key decisions made:
-  · <plain-language summary of decision> (D1) → <choice> (<confidence>%)
-  · <plain-language summary of decision> (D2) → <choice> (<confidence>%)
-  ⚠️ <plain-language question> (D3) — needs your call (<confidence>%)
+  · D1(<short summary, conversational, ≤12 words, no jargon —
+        e.g. "Should usernames be case-sensitive?">) → <choice> (<confidence>%)
+  · D2(<short summary>) → <choice> (<confidence>%)
+  ⚠️ D3(<short question>) — needs your call (<confidence>%)
   ...
-  (⚠️ marks open questions the spec couldn't resolve without user input;
-  ⚠️ only for confidence < 70 OR decisions the spec explicitly deferred.
-  Lead each line with a plain-language label; D-IDs go in parens.)
 
 Divergence risks:
   <1-3 line summary of the biggest non-deterministic risks from the
-  Divergence Risk Analysis section, in plain prose>
+   Divergence Risk Analysis section, in plain prose>
 
 Scope:
   <N> features will be extracted · <files/modules touched or created>
 
-→ Your call (decision touch-point per ${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md):
-  [IF any ⚠️ open — ask the lowest-confidence one first]
+→ Your call:
+  [IF any ⚠️ open — restate the lowest-confidence question first]
     <plain-language question, restated>:
-      Background: <code/behavior state that triggered this — no bare
-                   spec section names>
+      Background: <code/behavior state that triggered this — describe
+                   the situation, not the spec section>
       What it controls: <observable behavior change>
       My pick: (<x>) <option> — <reason>, <confidence>%
       Options:
@@ -439,10 +448,12 @@ Rules:
   one with lowest confidence first). Do not bundle open decisions.
 - When the user picks an option or approves, update the spec file
   accordingly BEFORE moving to feature extraction.
-- Every ⚠️ ask follows `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`:
+- Every ⚠️ ask follows the decision-touchpoint protocol referenced above:
   Background / What it controls / My pick / Options must be present;
-  bare D-IDs without translation are forbidden; option lines must be
-  one-sentence consequences, never just labels.
+  every codename (`D1`, `D2`, ...) must lead its line followed by an
+  inline plain-language gloss in parens (canonical form
+  `D1(<gloss>) → <choice>`); option lines must be one-sentence
+  consequences, never just labels like `Option B`.
 
 **Before printing the brief, write an in-flight topic block to the
 `## Buffer` section of `.claude/memory.md`.** This lets a later session
