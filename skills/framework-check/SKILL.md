@@ -514,13 +514,17 @@ Execute every check above. Record each finding with:
 
 Always use this exact format. Same every run.
 
-```
+Before printing, re-read each issue line aloud as if to a colleague
+unfamiliar with the project. If a phrase reads like jargon, rewrite it
+in plain language.
+
+```output-template
 🔍 Framework Check (v<plugin version>)
 
 [1/9] CLAUDE.md
     <status line: ✅ pass | ⚠️ N warn | ❌ M fail>
     <for each issue:>
-    - <description>  (<severity><fixability>: <one-line fix>)
+    - <description>  (<severity><fixability>: <short fix>)
 
 [2/9] Docs structure
     ...
@@ -543,34 +547,39 @@ Always use this exact format. Same every run.
 [8/9] Language consistency
     ...
 
-[9/9] Decision touch-point protocol  (plugin-dev only; skipped in user projects)
+[9/9] Decision touch-point protocol  (plugin development only; skipped in user projects)
     ...
 
 ---
 Summary: 9 categories · <P> pass · <W> warn · <F> fail
 Severity: 🔴 <C> critical · 🟡 <D> degraded
-Fixability: <A> auto-fixable · <N> need-confirm · <M> manual
+Fixability: <A> auto · <N> needs confirm · <M> manual
 ```
 
 Example:
-```
+```output-template
 🔍 Framework Check (v<CURRENT>)
 
 [1/9] CLAUDE.md
     ✅ pass
 
 [2/9] Docs structure
-    ⚠️ 1 warn (auto-fixable)
+    ⚠️ 1 warn (1 auto fix)
     - docs/reports/ missing (🟡auto: mkdir)
 
 [3/9] State sources
     ✅ pass
 
+<!-- lint:disable=R3 -->
 [4/9] Agent templates
+<!-- lint:disable=R3 -->
     ❌ 3 fail (🔴 blocks runtime)
-    - sp-planner.md contains task-plan.json (🔴needs-confirm: regenerate from template)
-    - sp-generator.md contains implementation.md (🔴needs-confirm: regenerate)
-    - sp-evaluator.md missing plan.yaml marker (🔴needs-confirm: regenerate)
+<!-- lint:disable=R3 -->
+    - sp-planner.md contains task-plan.json (🔴needs confirm: regenerate from template)
+<!-- lint:disable=R3 -->
+    - sp-generator.md contains implementation.md (🔴needs confirm: regenerate)
+<!-- lint:disable=R3 -->
+    - sp-evaluator.md missing plan.yaml marker (🔴needs confirm: regenerate)
 
 [5/9] Agent state
     ✅ pass
@@ -591,7 +600,7 @@ Example:
 ---
 Summary: 9 categories · 5 pass · 2 warn · 2 fail
 Severity: 🔴 3 critical · 🟡 3 degraded
-Fixability: 2 auto-fixable · 3 need-confirm · 3 manual
+Fixability: 2 auto · 3 needs confirm · 3 manual
 ```
 
 ---
@@ -602,7 +611,7 @@ This is a decision touch-point per `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoi
 (structured menu — each option must be a plain-language consequence).
 After the report, print:
 
-```
+```output-template
 → Your call:
   (a) Auto-fix all — apply every 🟡auto immediately; for each
       🔴needs-confirm I'll ask "fix this? (yes/no/diff)"; manual items

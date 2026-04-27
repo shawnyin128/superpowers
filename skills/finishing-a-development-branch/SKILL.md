@@ -26,7 +26,7 @@ npm test / cargo test / pytest / go test ./...
 ```
 
 **If tests fail:**
-```
+```output-template
 Tests failing (<N> failures). Must fix before completing:
 
 [Show failures]
@@ -52,9 +52,12 @@ Or ask: "This branch split from main - is that correct?"
 This is a decision touch-point per `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`.
 The four options are a structured menu, so per the lighter rule each
 option must be a one-sentence consequence in plain language (not just
-a label):
+a label).
 
-```
+Before printing, re-read each option line aloud as if to a colleague
+unfamiliar with the project. If a phrase reads like jargon, rewrite it.
+
+```output-template
 Implementation complete on <feature-branch>. What next?
 
 1. Merge into <base-branch> locally — fast-forward / merge here, run
@@ -123,7 +126,7 @@ Report: "Keeping branch <name>. Worktree preserved at <path>."
 #### Option 4: Discard
 
 **Confirm first:**
-```
+```output-template
 This will permanently delete:
 - Branch <name>
 - All commits: <commit-list>

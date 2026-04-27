@@ -34,9 +34,13 @@ problems sp-feedback caught).
    - **Recall (estimate)** = `confirmed / (confirmed + missed)` (of real
      problems, how many sp-feedback caught). `None` if denominator is 0.
 
-5. Print summary:
+5. Before printing, re-read each gloss aloud as if to a colleague
+   unfamiliar with the project. If a phrase reads like jargon, rewrite
+   it in plain language before emitting.
 
-```
+   Print summary:
+
+```output-template
 sp-feedback calibration (last N total findings):
 
 Findings: N
@@ -46,13 +50,15 @@ Findings: N
   Pending: W (awaiting validation)
   Accepted (user) but pending runtime: V
 
-Missed detections: M (runtime issues not predicted by sp-feedback)
+<!-- lint:disable=R3 -->
+Missed detections: M (real issues sp-feedback did not flag)
 
 Precision: {X}/{X+Y+Z} = P%
 Recall (estimate): {X}/{X+M} = R%
 
 Recent trends (last 10 findings): <brief>
-Common missed categories (from missed_detections): <grouped>
+<!-- lint:disable=R3 -->
+Common missed categories (from the missed-detections list): <grouped>
 ```
 
 6. Do NOT modify calibration file. Do NOT propose fixes to sp-feedback

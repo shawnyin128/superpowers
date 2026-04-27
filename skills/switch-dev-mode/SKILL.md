@@ -61,10 +61,16 @@ For each existing agent file, check these markers to detect stale copies:
 
 If ANY agent has an old marker OR lacks its new marker → **stale**.
 
-Report which agents are stale:
-```
+Report which agents are stale. The two example bullets reference real
+file names (`task-plan.json`, `plan.yaml`, `eval-report.json`) — these
+are legitimate domain identifiers being flagged as stale markers, so the
+inline R3 disables below intentionally allow them inside glosses.
+
+```output-template
 ⚠️ Stale agent templates detected:
+<!-- lint:disable=R3 -->
   - sp-planner.md (contains task-plan.json, missing plan.yaml)
+<!-- lint:disable=R3 -->
   - sp-evaluator.md (contains eval-report.json)
 
 The current plugin expects new-format agents. Running three-agent mode
@@ -72,13 +78,15 @@ with stale files will fail.
 ```
 
 Then ask — decision touch-point per `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`
-(structured menu, plain-language consequences):
+(structured menu, plain-language consequences). Re-read each option
+line aloud first as if to a colleague unfamiliar with the project; if a
+phrase reads like jargon, rewrite it before printing.
 
-```
+```output-template
 → Regenerate the stale agents from current templates?
   · yes  — overwrite each stale `.claude/agents/*.md` with a fresh copy
            from the plugin template; any hand-customization in those
-           files is lost (you'll be re-confirmed before the actual write).
+           files is lost (you confirm again before the actual write).
   · no   — keep the stale files; three-agent runs will likely fail
            until you run framework-check or reconcile by hand.
   · diff — print the diff between deployed and template for each stale

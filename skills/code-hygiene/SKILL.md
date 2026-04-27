@@ -79,7 +79,7 @@ Format: `[file:line] issue → suggested fix`
 Commit: `[hygiene]: remove dead code, fix naming, extract constants`
 
 Report:
-```
+```output-template
 Hygiene complete (N files): auto-fixed X, escalated Y, skipped Z
 ```
 
@@ -112,7 +112,7 @@ To prevent the orchestrator from treating hygiene's commit + report as
 the terminal step of the whole feature cycle, print this exact line as
 the LAST output of this skill:
 
-```
+```output-template
 CONTROL RETURNS TO feature-tracker Step 5d.d — orchestrator must continue, this skill is not the terminal step
 ```
 
