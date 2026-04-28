@@ -234,9 +234,57 @@ involve the concern, or if the user has already addressed it.
 
 **Exploring approaches:**
 
+```procedural-instruction
 - Propose 2-3 different approaches with trade-offs
 - Present options conversationally with your recommendation and reasoning
 - Lead with your recommended option and explain why
+```
+
+```worked-example
+Suppose the user is building a small CLI tool and asked "where should
+API keys be stored". Three real options worth considering: a JSON file
+under ~/.config/, an encrypted SQLite store, the OS keychain. The
+"Exploring approaches" output should look like the following.
+
+I'd start with the OS keychain — `keyring` on Python wraps macOS
+Keychain, Windows Credential Manager, and libsecret on Linux behind
+one API. Recommendation because it's the only option that gets free
+encryption-at-rest, OS-level access prompts on suspicious reads, and
+no plaintext secret ever lives in your config dir.
+
+Trade-offs against the alternatives. JSON in `~/.config/<tool>.json`
+is dead simple and grep-friendly but also world-readable on
+misconfigured systems and silently survives a `cp -r ~ /tmp/backup`
+that ends up on Slack. Encrypted SQLite (sqlite-with-SQLCipher) gets
+encryption but pushes key management on you — you've just moved the
+"where do secrets live" problem one layer down. Keychain-aware tools
+also play nicer with corporate MDM and password managers users
+already trust.
+
+The trade-off worth surfacing: keychain is harder to inspect when
+debugging ("why does my deploy fail" → can't `cat` the secret).
+We'd want a `--show-keychain-key` flag for that one case.
+
+Want to go with keychain, or is grep-friendliness the higher
+priority for you?
+
+Five things this example does that abstract bullets do not enforce:
+
+1. Leads with the recommended option in the FIRST sentence — not a
+   neutral "here are three options" survey.
+2. Names the specific implementation hook for the recommendation
+   (`keyring` library + which OS API it wraps), not just the
+   abstract category ("use the OS keychain").
+3. Each alternative gets a concrete failure mode in one sentence
+   ("survives `cp -r` that ends up on Slack"), not just a generic
+   "less secure".
+4. Surfaces a trade-off WITHIN the recommendation ("harder to
+   inspect when debugging") rather than pretending the recommended
+   option is dominant on every axis.
+5. Ends with a focused yes/no question, not an open-ended
+   "what do you think". The decision is small enough to land here,
+   not loop indefinitely.
+```
 
 **Presenting the design:**
 
