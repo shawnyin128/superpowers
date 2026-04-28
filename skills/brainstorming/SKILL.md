@@ -491,25 +491,25 @@ Print a brief in this exact structure (≤ 30 lines):
 
 Spec saved: <spec path>
 
-Problem:
+**Problem**
   <1-2 sentences, natural language, paraphrased — NOT copied from
   user's original wording>
 
-Approach:
+**Approach**
   <1-2 sentences describing the chosen approach at a high level>
 
-Key decisions made:
+**Key decisions made**
   · D1(<short summary, conversational, ≤12 words, no jargon —
         e.g. "Should usernames be case-sensitive?">) → <choice> (<confidence>%)
   · D2(<short summary>) → <choice> (<confidence>%)
   ⚠️ D3(<short question>) — needs your call (<confidence>%)
   ...
 
-Divergence risks:
+**Divergence risks**
   <1-3 line summary of the biggest non-deterministic risks from the
    Divergence Risk Analysis section, in plain prose>
 
-Scope:
+**Scope**
   <N> features will be extracted · <files/modules touched or created>
 
 → Your call:
@@ -519,7 +519,7 @@ Scope:
                    the situation, not the spec section>
       What it controls: <observable behavior change>
       My pick: (<x>) <option> — <reason>, <confidence>%
-      Options:
+      **Options**
         (a) <one-sentence consequence in plain language>
         (b) <one-sentence consequence in plain language>
         (c) <one-sentence consequence in plain language>

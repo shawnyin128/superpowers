@@ -309,13 +309,13 @@ print-brief.py does not implement.
 
 ```output-template
 ─── Feature complete: "<display_name>" (<id>) ───
-What:      <one-line problem statement, whitespace-collapsed>
-Steps:     <N steps · M commits>
-Files:     <unique paths from steps[].files + unplanned_changes[].loc, "—" if none>
-Tests:     <N tests · avg X% coverage from the last eval round>
-Rounds:    <N (PASS in round Y)>
-Followups: <K suggestions / "—">
-Commit:    <short hash>
+**What:**      <one-line problem statement, whitespace-collapsed>
+**Steps:**     <N steps · M commits>
+**Files:**     <unique paths from steps[].files + unplanned_changes[].loc, "—" if none>
+**Tests:**     <N tests · avg X% coverage from the last eval round>
+**Rounds:**    <N (PASS in round Y)>
+**Followups:** <K suggestions / "—">
+**Commit:**    <short hash>
 ─────────────────────────────────────────────────────────
 ```
 

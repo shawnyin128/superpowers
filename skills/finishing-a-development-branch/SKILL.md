@@ -127,7 +127,7 @@ Report: "Keeping branch <name>. Worktree preserved at <path>."
 
 **Confirm first:**
 ```output-template
-This will permanently delete:
+**This will permanently delete**
 - Branch <name>
 - All commits: <commit-list>
 - Worktree at <path>

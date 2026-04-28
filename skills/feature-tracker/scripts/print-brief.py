@@ -294,13 +294,13 @@ def build_brief(plan: dict, display_name: str, feature_id: str, commit: str) -> 
 
     lines = [
         f'─── Feature complete: "{display_name}" ({feature_id}) ───',
-        f"What:      {problem}",
-        f"Steps:     {plural(n_steps, 'step')} · {plural(n_commits, 'commit')}",
-        f"Files:     {files_str}",
-        f"Tests:     {plural(n_tests, 'test')} · avg {coverage_avg_str}% coverage",
-        f"Rounds:    {n_rounds} (PASS in round {pass_round})",
-        f"Followups: {followups_str}",
-        f"Commit:    {commit}",
+        f"**What:**      {problem}",
+        f"**Steps:**     {plural(n_steps, 'step')} · {plural(n_commits, 'commit')}",
+        f"**Files:**     {files_str}",
+        f"**Tests:**     {plural(n_tests, 'test')} · avg {coverage_avg_str}% coverage",
+        f"**Rounds:**    {n_rounds} (PASS in round {pass_round})",
+        f"**Followups:** {followups_str}",
+        f"**Commit:**    {commit}",
         SEPARATOR,
     ]
     return "\n".join(lines) + "\n"
