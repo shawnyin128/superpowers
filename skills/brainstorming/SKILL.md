@@ -483,6 +483,9 @@ spec explicitly deferred the decision.
 if to a colleague unfamiliar with the project. If a phrase reads like
 jargon ("decision instrumentation framework", "schema invariant
 violation"), rewrite it in plain conversational form before emitting.
+Also apply the specific-pattern self-check from
+`using-sp-harness/SKILL.md` "Output prose self-check"
+(project-internal short codes each glossed inline).
 
 Print a brief in this exact structure (≤ 30 lines):
 

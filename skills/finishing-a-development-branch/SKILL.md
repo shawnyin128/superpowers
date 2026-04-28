@@ -56,6 +56,9 @@ a label).
 
 Before printing, re-read each option line aloud as if to a colleague
 unfamiliar with the project. If a phrase reads like jargon, rewrite it.
+Also apply the specific-pattern self-check from
+`using-sp-harness/SKILL.md` "Output prose self-check"
+(project-internal short codes each glossed inline).
 
 ```output-template
 Implementation complete on <feature-branch>. What next?

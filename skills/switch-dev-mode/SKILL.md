@@ -80,7 +80,9 @@ with stale files will fail.
 Then ask — decision touch-point per `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`
 (structured menu, plain-language consequences). Re-read each option
 line aloud first as if to a colleague unfamiliar with the project; if a
-phrase reads like jargon, rewrite it before printing.
+phrase reads like jargon, rewrite it before printing. Also apply the
+specific-pattern self-check from `using-sp-harness/SKILL.md` "Output
+prose self-check" (project-internal short codes each glossed inline).
 
 ```output-template
 → Regenerate the stale agents from current templates?

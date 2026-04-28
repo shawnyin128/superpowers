@@ -163,7 +163,10 @@ listed above must read as plain language with no bare spec IDs.
 
 **Self-check before print:** re-read each option line aloud as if to a
 colleague unfamiliar with the project. If you would stumble or they
-would ask "what does that mean," rewrite it before emitting.
+would ask "what does that mean," rewrite it before emitting. Also
+apply the specific-pattern self-check from
+`using-sp-harness/SKILL.md` "Output prose self-check"
+(project-internal short codes each glossed inline).
 
 **If verdict == ITERATE:**
 ```output-template

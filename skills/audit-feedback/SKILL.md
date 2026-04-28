@@ -36,7 +36,9 @@ problems sp-feedback caught).
 
 5. Before printing, re-read each gloss aloud as if to a colleague
    unfamiliar with the project. If a phrase reads like jargon, rewrite
-   it in plain language before emitting.
+   it in plain language before emitting. Also apply the specific-pattern
+   self-check from `using-sp-harness/SKILL.md` "Output prose self-check"
+   (project-internal short codes each glossed inline).
 
    Print summary:
 

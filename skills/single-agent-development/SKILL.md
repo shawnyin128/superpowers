@@ -175,7 +175,9 @@ Append `eval.rounds[N]` (and optionally `eval.optimization`) to the YAML.
 **Self-check before print:** re-read each option line aloud as if to a
 colleague unfamiliar with the project. If you would stumble on any
 phrase or they would ask "what does that mean," rewrite it before
-emitting.
+emitting. Also apply the specific-pattern self-check from
+`using-sp-harness/SKILL.md` "Output prose self-check"
+(project-internal short codes each glossed inline).
 
 **Print terminal summary** per sp-evaluator template. Both blocks
 below are decision touch-points per

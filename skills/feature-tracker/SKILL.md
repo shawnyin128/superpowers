@@ -95,7 +95,9 @@ python3 "${CLAUDE_PLUGIN_ROOT}/skills/manage-features/scripts/query.py" list --p
 
 Before printing, re-read each line aloud as if to a colleague unfamiliar
 with the project. If any phrase reads like jargon ("Hygiene counter
-delta", "F2 cluster"), rewrite it before emitting.
+delta", "F2 cluster"), rewrite it before emitting. Also apply the
+specific-pattern self-check from `using-sp-harness/SKILL.md` "Output
+prose self-check" (project-internal short codes each glossed inline).
 
 Present a brief status to the user combining the outputs:
 
@@ -134,7 +136,9 @@ Ask the user — this is a decision touch-point per
 `${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`, so spell out both paths.
 Before printing, re-read each option line aloud as if to a colleague
 unfamiliar with the project. If you would stumble or they would ask
-"what does that mean," rewrite it before emitting.
+"what does that mean," rewrite it before emitting. Also apply the
+specific-pattern self-check from `using-sp-harness/SKILL.md` "Output
+prose self-check" (project-internal short codes each glossed inline).
 
 ```output-template
 → Ready to start <feature-id|format> ?

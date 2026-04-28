@@ -539,7 +539,9 @@ Always use this exact format. Same every run.
 
 Before printing, re-read each issue line aloud as if to a colleague
 unfamiliar with the project. If a phrase reads like jargon, rewrite it
-in plain language.
+in plain language. Also apply the specific-pattern self-check from
+`using-sp-harness/SKILL.md` "Output prose self-check"
+(project-internal short codes each glossed inline).
 
 ```output-template
 🔍 Framework Check (v<plugin version>)
