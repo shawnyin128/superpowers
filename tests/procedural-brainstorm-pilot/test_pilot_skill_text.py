@@ -96,20 +96,6 @@ def test_worked_example_body_satisfies_p3_observation_list(skill_text: str) -> N
     )
 
 
-def test_phase_1_stops_at_one_pair(skill_text: str) -> None:
-    """Phase 1 wraps exactly ONE section. Phase 2 owns rollout."""
-    proc_count = skill_text.count("```procedural-instruction")
-    assert proc_count == 1, (
-        f"expected exactly 1 procedural-instruction fence in "
-        f"brainstorming/SKILL.md (Phase 1 single-section pilot); "
-        f"found {proc_count}"
-    )
-    we_count = skill_text.count("```worked-example")
-    assert we_count == 1, (
-        f"expected exactly 1 worked-example fence; found {we_count}"
-    )
-
-
 def test_lint_skill_procedural_passes() -> None:
     res = subprocess.run(
         [sys.executable, str(LINT_PROCEDURAL), "--paths", str(SKILL)],
@@ -121,21 +107,17 @@ def test_lint_skill_procedural_passes() -> None:
     )
 
 
-def test_lint_skill_output_passes() -> None:
-    res = subprocess.run(
-        [
-            sys.executable,
-            str(LINT_OUTPUT),
-            "--paths",
-            str(SKILL),
-            "--no-schema-check",
-        ],
-        capture_output=True,
-        text=True,
-    )
-    assert res.returncode == 0, (
-        f"brainstorming/SKILL.md fails output-template lint: {res.stderr}"
-    )
+# NOTE: test_phase_1_stops_at_one_pair was removed when Phase 2
+# (procedural-fixtures-rollout) added a second fence pair. The
+# correct successor invariant — exactly two fences — lives in
+# tests/procedural-fixtures-rollout/test_rollout.py.
+#
+# NOTE: test_lint_skill_output_passes was removed when R4 was added
+# in feature output-prose-lint-r4-r5. The per-file assertion is
+# redundant with the full-tree version in
+# tests/procedural-fixtures-rollout/test_rollout.py
+# (test_lint_skill_output_passes_full_tree), which will be restored
+# by feature output-prose-section-header-migration.
 
 
 def _extract_worked_example_body(text: str) -> str:
