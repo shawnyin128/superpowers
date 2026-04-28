@@ -49,6 +49,72 @@ a paragraph when one sentence is enough.
 This applies to all responses. Code quality is unaffected — only English prose
 gets tightened.
 
+## Output prose self-check (free-form chat)
+
+Project-internal short codes (`Track A`, `Tier 1`, `F3+F4+F5`,
+`v0.8.18` used as a cluster label) appear in design docs, todo
+notes, changelog entries, and plan YAML problem statements. Without
+discipline, agents echo these codes back to the user verbatim — and
+the user, who is not the maintainer, does not know what they mean.
+The static lint `scripts/lint-skill-output.py` rule R5 catches such
+leakage inside ` ```output-template ` fences, but cannot scan the
+free-form chat the agent emits in conversation. This section
+codifies the runtime self-check that covers free-form chat.
+
+The pre-design experiment for this rule ran 3 independent
+`claude --print` calls against a primed prompt with embedded short
+codes; 3/3 outputs glossed every first-occurrence short code
+inline. Specific-pattern self-check rules work; generic
+"re-read for jargon" guidance does not.
+
+```procedural-instruction
+- Before emitting any user-facing reply, scan your draft for matches of:
+    · Track [A-Z]                    e.g., "Track A"
+    · Tier \d+                       e.g., "Tier 1"
+    · F\d+(\+F\d+)+                  e.g., "F3+F4+F5"
+    · v\d+\.\d+\.\d+ used as a label e.g., "v0.8.18 cluster"
+- For each match, verify it is IMMEDIATELY followed by a parenthesized
+  plain-language gloss that explains the meaning, not the spelling.
+- If a match has no gloss, rewrite that sentence so the gloss is inline.
+- First occurrences always get glossed; re-mentions in the same
+  paragraph may omit re-gloss when the meaning is fresh.
+```
+
+```worked-example
+Suppose you just finished a feature batch and are summarizing
+progress to the user. The maintainer notes you read use short
+codes; your reply must translate them.
+
+Compliant reply:
+
+  The procedural-skill-fixtures release just shipped as v0.8.19
+  (the latest tagged release). It builds on Track A (the codename-
+  gloss infrastructure from v0.8.17 / v0.8.18 that added the
+  output-template fence and the lint-skill-output.py checker).
+  Specifically, F3+F4+F5 (the three Track A migration features
+  that wrapped every SKILL.md with templated user-facing output)
+  laid the groundwork. v0.8.19 then applied the same fence
+  approach to free-form generation. Phase 2 audit found only one
+  additional section qualified, so Tier 1 (the do-this-first
+  rollout cluster) collapsed to a single fixture. Tier 2 (the
+  later, lower-priority candidates) is deferred.
+
+Five things this reply does that a naive echo would not:
+
+1. Every first-occurrence short code (Track A, F3+F4+F5, Tier 1,
+   Tier 2, v0.8.18) gets a parenthesized gloss the SAME line.
+2. The gloss describes the meaning ("the codename-gloss
+   infrastructure"), not the spelling ("a track named A").
+3. Glosses are short — 6-12 words — and read conversationally,
+   not as paste-from-design-doc.
+4. Re-mentions inside the same paragraph (e.g., "the same fence
+   approach" referring to Track A's mechanism) omit re-gloss
+   because the meaning is still fresh from a few sentences back.
+5. Version strings used as a release marker (`shipped as v0.8.19`)
+   need the same gloss treatment as labels — the listener does
+   not know what 0.8.19 contains until told.
+```
+
 ## How to Access Skills
 
 Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you—follow it directly. Never use the Read tool on skill files.
