@@ -219,7 +219,7 @@ with no concrete worked example. Agents read them and self-interpret
 
 ## v0.8.18 (2026-04-27)
 
-Skill-output codename gloss migration release. F3+F4+F5 of the
+Skill-output codename gloss migration release. F3+F4+F5 (the three skill-output migration features) of the
 [skill-output-codename-gloss design](docs/design-docs/2026-04-27-skill-output-codename-gloss-design.md):
 every SKILL.md with prescribed user-facing terminal output now wraps
 that output in the lint-enforced ` ```output-template ` fence
@@ -276,7 +276,7 @@ the design's no-allowlist principle.
 
 ### Notes
 
-- The original feature plans for F3-F5 each listed a "Remove grace
+- The original feature plans for F3-F5 (the three migration features) each listed a "Remove grace
   allowlist" step that turned out to be vestigial: there has never
   been an allowlist mechanism in `lint-skill-output.py`. The fence-
   as-gate already handles the same concern more simply (un-fenced
@@ -291,9 +291,9 @@ the design's no-allowlist principle.
 
 ## v0.8.17 (2026-04-27)
 
-Skill-output codename gloss infrastructure release. F1+F2 of the
+Skill-output codename gloss infrastructure release. F1+F2 (the lint infrastructure and renderer foundation) of the
 [skill-output-codename-gloss design](docs/design-docs/2026-04-27-skill-output-codename-gloss-design.md):
-the static-lint and centralized-renderer foundation that F3-F5 will
+the static-lint and centralized-renderer foundation that F3-F5 (the three migration features) will
 build on to migrate every skill's user-facing output to a uniform
 `代号(白话)` format.
 
@@ -352,7 +352,7 @@ field was schema-optional with empty-fallback to bare id. v0.8.17
 closes that gap: required + non-empty schema, no-fallback
 centralized renderer, lint that prevents future regression.
 
-F3-F5 (dev-pipeline / brainstorm-plan / remaining-cluster
+F3-F5 (the three migration features for dev-pipeline / brainstorm-plan / remaining-cluster
 migration) will incrementally add ` ```output-template ` fences to
 skill files and flip the user-visible output format. That work is
 unchanged in v0.8.17 — no fences exist yet, so the lint passes
