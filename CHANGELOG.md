@@ -14,6 +14,108 @@
 > X`). v0.8.16 picks up the changelog narrative at the next
 > meaningful inflection point.
 
+## v0.8.20 (2026-04-27)
+
+Output prose discipline release. Six-feature design
+([output-prose-discipline](docs/design-docs/2026-04-27-output-prose-discipline-design.md))
+extending the v0.8.17 / v0.8.18 (Output Template Rules — codename
+gloss inside fences) and v0.8.19 (Procedural Section Rules — paired
+worked-example for free-form generation) infrastructure to two more
+disciplines: section header style and project-internal short-code
+glossing (across both fenced output and free-form chat).
+
+### What problem this solves
+
+Two distinct symptoms in user-facing terminal output:
+
+1. **Section headers were visually flat.** Brief blocks used bare
+   `Problem:` / `Steps:` / `Files:` form. Users had to eye-scan to
+   find section boundaries.
+
+2. **Project-internal short codes leaked verbatim into chat.** Agents
+   read design docs, todo notes, CHANGELOG entries that use short
+   codes (`Track A`, `Tier 1`, multi-segment cluster labels, version-
+   as-label) and echoed them back without translating. Users without
+   the maintainer's context did not know what they meant. The
+   pre-existing user-memory rule was generic and failed in practice.
+
+### Pre-design experiment
+
+Before committing to the runtime self-check approach (the only fix
+path for short codes in free-form chat), 3 calls of `claude --print`
+with a specific-pattern self-check rule went 3-for-3: every short-
+code introduction got an inline parenthesized gloss. Generic
+"re-read aloud" rules had previously failed; specific-pattern rules
+work. The conclusion shaped both the new central rule (pinned in
+`using-sp-harness/SKILL.md`) and the audit-and-upgrade decision for
+8 existing generic self-check sites.
+
+### What's new
+
+- **Two new lint rules in `lint-skill-output.py`:**
+    - **R4** — section header style. Lines matching `Title-case
+      Words:` at end of line inside `output-template` fences must
+      use `**Label**` form. Inline disable available.
+    - **R5** — short-code gloss. Inside `output-template` fences,
+      matches of `Track [A-Z]`, `Tier \d+`, multi-segment
+      `F\d+(\+F\d+)+`, and `v\d+\.\d+\.\d+` must be immediately
+      followed (within 8 chars on the same line) by a parenthesized
+      gloss. Same semantics as R1's codename gloss check.
+  Both rules failure-level. Live tree had 7 R4 violations on launch
+  (all repaired by the migration step) and 0 R5 violations on launch
+  (locked by regression test).
+
+- **Section header migration to `**Label**` style.** Seven bare
+  `Label:` patterns in `brainstorming/SKILL.md` (Decision Brief
+  multi-line block: Problem / Approach / Key decisions made /
+  Divergence risks / Scope / Options) and `finishing-a-development-
+  branch/SKILL.md` (discard confirmation prompt) wrapped as
+  `**Label**`. Compact one-line briefs (Feature Brief from
+  `print-brief.py`) use `**Label:**` with colon kept as same-line
+  delimiter; `feature-tracker/SKILL.md` reference template updated
+  to match. Five `print-brief.py` snapshot fixtures regenerated.
+
+- **Runtime self-check rule in `using-sp-harness/SKILL.md`.** New
+  section pairs a `procedural-instruction` fence (the rule) with a
+  `worked-example` fence (a ~150-word compliant project-status
+  reply demonstrating each pattern correctly glossed plus a 5-item
+  observation list). Loaded automatically at every sp-harness
+  session start, so free-form chat output gets the same discipline
+  R5 enforces inside fences.
+
+- **Eight existing generic self-check sites AUGMENTED with cross-
+  reference.** `audit-feedback`, `feature-tracker` (×2 sites),
+  `switch-dev-mode`, `finishing-a-development-branch`,
+  `three-agent-development`, `single-agent-development`,
+  `brainstorming`, `framework-check` — each retained the original
+  `re-read aloud as if to a colleague` generic rule (catches
+  arbitrary jargon) and added a one-line cross-reference to the
+  central specific-pattern rule (catches the named short codes).
+  Both layers run at every print site; neither is redundant.
+
+- **`writing-skills` chapter "Output Prose Discipline".** Sibling
+  to "Output Template Rules" and "Procedural Section Rules". Three
+  subsections (section header style, short-code glossing, why
+  generic self-checks fail) plus cross-links to the other two
+  discipline chapters.
+
+### Notes
+
+- The R5 regex requires multi-segment cluster labels
+  (`F\d+(\+F\d+)+`, e.g. `F3+F4+F5`); single-segment `F\d+` is left
+  to R1's codename rule territory. Documented in the design doc
+  after sp-feedback Mode A surfaced an apparent spec/implementation
+  drift that turned out to be intentional.
+- sp-feedback Mode A also surfaced two real gaps (agent-templates
+  outside the lint scope, CHANGELOG.md still has naked short codes
+  from older entries). Both tracked as fix-features for the next
+  batch (`output-prose-agent-templates-lint-scope`,
+  `output-prose-changelog-shortcode-gloss`).
+- A new `ux-improvement` todo records the broader "source-side
+  short-code gloss discipline" question for future brainstorming.
+
+---
+
 ## v0.8.19 (2026-04-27)
 
 Procedural skill instruction fixtures release. Five-feature design
