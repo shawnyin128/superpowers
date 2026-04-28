@@ -240,11 +240,54 @@ involve the concern, or if the user has already addressed it.
 
 **Presenting the design:**
 
+```procedural-instruction
 - Once you believe you understand what you're building, present the design
 - Scale each section to its complexity: a few sentences if straightforward, up to 200-300 words if nuanced
 - Ask after each section whether it looks right so far
 - Cover: architecture, components, data flow, error handling, testing
 - Be ready to go back and clarify if something doesn't make sense
+```
+
+```worked-example
+Suppose the user wants a URL shortener with admin dashboard. After
+clarifying questions you understand: PostgreSQL backend, JWT auth,
+rate limiting at one hundred requests per minute per user. The
+"Presenting the design" output should look like the following.
+
+Architecture. Single FastAPI service. Two tables: `urls` (slug,
+target, owner_id, created_at) and `users` (id, email_hash, pw_hash).
+Rate limiter is a Redis sliding window keyed by `owner_id`. Admin
+dashboard is a separate FastAPI sub-app mounted under `/admin`,
+sharing the same DB pool.
+
+Data flow. Client POST /shorten → handler validates JWT → writes
+row to `urls` → returns canonical short URL. Client GET /:slug →
+handler reads `urls` by slug → 302 redirect with cache header.
+
+Error handling. Structured exceptions surfaced as RFC 7807 problem
+details. Rate-limit breach returns 429 with retry-after; bad JWT
+returns 401; missing slug returns 404 (not 410 — slugs are not
+recyclable).
+
+Testing. Unit: rate-limit window math. Integration: full POST/GET
+round-trip under load. Adversarial: collision rate at high volume,
+JWT tampering.
+
+Five things this example does that abstract bullets do not enforce:
+
+1. Each section names concrete files and tables, not abstract roles
+   such as "the API layer" or "the storage tier".
+2. The rate-limiter section says HOW it is implemented (Redis
+   sliding window) and KEYED BY WHAT (`owner_id`). Not just "rate
+   limiting".
+3. The trade-off lives in the choice (Redis vs in-process), not in
+   whether to have rate limiting at all.
+4. Error handling commits to specific status codes and a specific
+   format (RFC 7807). Not just "structured exceptions".
+5. Testing names test categories (unit / integration / adversarial)
+   plus what each verifies. Not just "covers happy path and edge
+   cases".
+```
 
 **Design for isolation and clarity:**
 
