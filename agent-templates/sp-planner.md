@@ -146,10 +146,10 @@ option = one full sentence of consequence, never just a label like
 translation are forbidden. If an option cannot be described without
 referring to its name in the spec, it should not be presented.
 
-```
-📋 Plan: <display_name> (<feature-id>)
+```output-template
+📋 Plan: <display_name> (<feature-id|format>)
 
-Problem:
+**Problem**
   <problem field, in plain prose — not spec vocabulary>
 
 Plan (<N> steps):
@@ -160,13 +160,13 @@ Plan (<N> steps):
   2. <desc>
      ...
 
-Key decisions:
+**Key decisions**
   ⚠️ <one-sentence question in plain language>
     Background: <code/behavior state that triggered this — describe
                  the situation, not the spec section>
     What it controls: <observable behavior that changes by choice>
     My pick: (<x>) <option label> — <reason>, <confidence>%
-    Options:
+    **Options**
       (a) <one-sentence consequence in plain language>
       (b) <one-sentence consequence in plain language>
       (c) <one-sentence consequence in plain language>

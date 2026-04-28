@@ -335,7 +335,17 @@ def check_schema(repo_root: Path) -> list[str]:
 # ---------------------------------------------------------------------------
 
 def default_skill_files(repo_root: Path) -> list[Path]:
-    return sorted((repo_root / "skills").glob("*/SKILL.md"))
+    """Default scope: all skill files PLUS agent-template files.
+
+    The agent-templates/ directory holds project-level subagent
+    definitions (sp-planner, sp-evaluator, sp-feedback, sp-generator)
+    whose terminal-output blocks are user-facing briefs. They share
+    the same lint discipline as skills/*/SKILL.md.
+    """
+    return sorted(
+        list((repo_root / "skills").glob("*/SKILL.md"))
+        + list((repo_root / "agent-templates").glob("*.md"))
+    )
 
 
 def lint_files(

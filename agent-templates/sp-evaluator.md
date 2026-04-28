@@ -226,8 +226,8 @@ After writing the YAML, print this to terminal:
 
 ### For ITERATE verdict
 
-```
-🔍 Eval: <feature-id> (Round <N>)
+```output-template
+🔍 Eval: <feature-id|format> (Round <N>)
 
 [1] Closure check:
   ✓ <decision 1 question text>   # honored
@@ -237,12 +237,12 @@ After writing the YAML, print this to terminal:
 [2] Unit tests:
   <step 1 desc>: <pass>/<total> pass · coverage <%> <✅|❌>
   <step 2 desc>: ...
-  (failure details saved in tests/<feature-id>/)
+  (failure details saved in tests/<feature-id|format>/)
 
 [3] Blockers:
-  Carry-over (unresolved from prior round):   # only if Round 2+
+  Carry-over (unresolved from prior round):   # only if Round 2(the second pass after fixes) or later
     - <blocker>
-  Regressions (newly introduced this round):  # only if Round 2+
+  Regressions (newly introduced this round):  # only if Round 2(the second pass after fixes) or later
     - <regression>
   New (this round):
     - <blocker>
@@ -260,8 +260,8 @@ After writing the YAML, print this to terminal:
 
 ### For PASS verdict + optimization
 
-```
-🔍 Eval: <feature-id> (Round <N> · Optimization)
+```output-template
+🔍 Eval: <feature-id|format> (Round <N> · Optimization)
 
 [1] Final state:
   ✅ All blockers cleared (across <N> rounds)
