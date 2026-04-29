@@ -86,15 +86,71 @@ state from a prior interrupted session.
 
 ---
 
+## Subagent Dispatch Contract
+
+Every Step 2 / Step 3 / Step 4 dispatch in this orchestrator follows
+the same shape: launch a fresh `general-purpose` subagent and instruct
+it to invoke the role skill before any other tool call. The canonical
+prompt template:
+
+```
+You are dispatched as a fresh general-purpose subagent for the
+sp-harness three-agent development pipeline. Your role for this turn
+is <Planner|Generator|Evaluator>.
+
+Your first action MUST be:
+
+  Skill(sp-harness:sp-<role>-role)
+
+Read that skill end-to-end before any other tool call. Follow its
+rules exactly. The plan YAML for this feature is at:
+
+  .claude/agents/state/active/<feature-id>.plan.yaml
+
+Feature id: <feature-id>
+<role-specific extras: prior-round eval section, blockers list, etc.>
+
+Do not improvise. Do not skip any HARD-GATE in the role skill.
+```
+
+**Retry-with-stronger-prompt protocol.** After the subagent returns,
+inspect its tool-use sequence. If `Skill(sp-harness:sp-<role>-role)`
+was not the first invocation, the subagent skipped the role skill and
+ran free-form. The orchestrator MUST:
+
+1. Retry the dispatch ONCE with a stronger prompt that says: "Your
+   previous attempt did not invoke the required role skill before
+   acting. That run is rejected. Start over: invoke
+   Skill(sp-harness:sp-<role>-role) FIRST, then act."
+2. If the second attempt also skips the invocation, mark the phase
+   `BLOCKED: dispatch failure` in the plan YAML and surface the
+   blocker to the user. Do not run a third attempt automatically.
+
+This dual-pass guard is the only structural defense against the
+subagent ignoring the role-skill contract. Keep both halves of the
+contract — first action MUST be Skill(...) AND retry-on-skip — across
+all three Step dispatches.
+
+---
+
 ## Step 2: Dispatch Planner
 
-Dispatch `@agent sp-planner`. It runs as Opus with writing-plans pre-loaded
-and project memory enabled.
+Dispatch a fresh general-purpose subagent that invokes the Planner role
+skill. Use the canonical dispatch contract documented in
+"## Subagent Dispatch Contract" below.
 
-Planner will:
-1. Discover implicit requirements (gap analysis, root-cause check for bugfixes)
-2. Write `<feature-id>.plan.yaml` with `problem`, `steps`, `decisions`
-3. Print a condensed terminal summary — structure decides shape, self-check decides density; no global line cap
+```
+Agent(
+  subagent_type='general-purpose',
+  prompt=<canonical dispatch prompt with role='Planner' and
+          target skill 'sp-harness:sp-planner-role'>
+)
+```
+
+The role skill (sp-harness:sp-planner-role) owns Phase 1 (implicit
+requirements discovery), Phase 2 (plan YAML production), and Phase 3
+(terminal summary). The orchestrator does not duplicate any of that
+content.
 
 ### Touch Point 1: User reviews Plan
 
@@ -121,74 +177,56 @@ The orchestrator (YOU — not the Planner subagent) MUST:
 
 ## Step 3: Dispatch Generator
 
-Dispatch `@agent sp-generator`. It runs as Sonnet in an isolated worktree.
+Dispatch a fresh general-purpose subagent that invokes the Generator
+role skill. Use the canonical dispatch contract documented in
+"## Subagent Dispatch Contract" below.
 
-Generator will:
-1. Read `<feature-id>.plan.yaml` (Planner section + user_decision values)
-2. Execute `steps[]` via `sp-harness:subagent-driven-development`
-3. Append `execution`, `unplanned_changes`, `flags_for_eval` sections
-4. **No terminal output** — user does not see Generator
+```
+Agent(
+  subagent_type='general-purpose',
+  prompt=<canonical dispatch prompt with role='Generator' and
+          target skill 'sp-harness:sp-generator-role'>
+)
+```
 
-After Generator completes, proceed immediately to Evaluator. Do NOT pause
-for user confirmation between Generator and Evaluator — there is no
-user-facing Generator review.
+The role skill (sp-harness:sp-generator-role) owns the per-step TDD
+cycle, commit-after-each-step discipline, and the
+`execution` / `unplanned_changes` / `flags_for_eval` appends to the
+plan YAML. Generator produces no terminal output — there is no Touch
+Point between Generator and Evaluator.
+
+After Generator completes, proceed immediately to Evaluator.
 
 ---
 
 ## Step 4: Dispatch Evaluator
 
-Dispatch `@agent sp-evaluator`. It runs as Opus with project memory.
+Dispatch a fresh general-purpose subagent that invokes the Evaluator
+role skill. Use the canonical dispatch contract documented in
+"## Subagent Dispatch Contract" below.
 
-Evaluator determines Round N (Round 1 if no prior eval; Round N+1 if
-previous rounds exist in the file).
+```
+Agent(
+  subagent_type='general-purpose',
+  prompt=<canonical dispatch prompt with role='Evaluator' and
+          target skill 'sp-harness:sp-evaluator-role'>
+)
+```
 
-Evaluator will:
-1. Read plan YAML (all sections so far)
-2. Closure check: verify user_decisions honored, no missing plan items,
-   confidence mismatches, unplanned changes reviewed
-3. Test design + execution: per step, design unit tests from `test_plan`,
-   write to `tests/<feature-id>/`, run, record coverage
-4. Append new `eval.rounds[]` entry with verdict (PASS or ITERATE)
-5. If PASS: also append `eval.optimization` with non-blocking suggestions
-6. Print condensed terminal output — structure decides shape, self-check decides density; no global line cap
+The role skill (sp-harness:sp-evaluator-role) owns the mandatory
+adversarial protocol, Round determination, closure + test design +
+execution, the optional Optimization pass, and both per-verdict
+terminal summary fences (ITERATE / PASS+optimization). The
+orchestrator only routes the user's response.
 
 ### Touch Point 2: User reviews Eval
 
-Evaluator's terminal output ends with one of:
-
-Both blocks below are decision touch-points per
-`${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md` — option lines are full
-plain-language consequences, never bare labels. Evaluator's blockers
-listed above must read as plain language with no bare spec IDs.
-
-**Self-check before print:** re-read each option line aloud as if to a
-colleague unfamiliar with the project. If you would stumble or they
-would ask "what does that mean," rewrite it before emitting. Also
-apply the specific-pattern self-check from
-`using-sp-harness/SKILL.md` "Output prose self-check"
-(project-internal short codes each glossed inline).
-
-**If verdict == ITERATE:**
-```output-template
-→ Your call:
-  (a) Send back to Generator to fix the <N> blocker(s) above —
-      Generator addresses each, then another evaluation runs.
-  (b) Force-merge anyway — ship as-is, listed blockers stay open;
-      you own the risk and the followup.
-  (c) Replan from scratch — current plan is archived, Planner re-runs
-      and may produce different steps.
-```
-
-**If verdict == PASS (optimization):**
-```output-template
-→ Your call:
-  (a) Accept and merge — feature ships now, optimization suggestions
-      stay as ideas in the plan YAML for later.
-  (b) Apply optimizations first, then merge — Generator implements the
-      suggestions, a final evaluation verifies, then ship.
-```
-
-Orchestrator waits for user choice, then routes:
+The role skill's terminal verdict block is a decision touch-point per
+`${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md`. The role
+skill owns the canonical option lines (full-sentence consequences, no
+bare labels). After it ends with the user's choice, the orchestrator
+reads the latest `eval.rounds[N].verdict` field from the plan YAML and
+routes per the user's selection:
 
 - `(a)` on ITERATE → back to Step 3 (Generator fixes, Round N+1 follows)
 - `(b)` on ITERATE → force-merge path (see Step 5 PASS)
@@ -300,15 +338,17 @@ Typical feature has 2-3 touch points. Each touch costs <1 min of user time.
 
 ---
 
-## Subagent Definitions
+## Role Skills
 
-All agents are project-level, generated by init-project from templates at
-`${CLAUDE_PLUGIN_ROOT}/agent-templates/`:
+The three roles dispatched by this orchestrator are skills, not
+project-level agent files:
 
-- `.claude/agents/sp-planner.md` — Opus, writing-plans preloaded, project memory
-- `.claude/agents/sp-generator.md` — Sonnet, TDD + subagent-driven-dev + git-convention, worktree isolation
-- `.claude/agents/sp-evaluator.md` — Opus, read-only + Bash + write to plan YAML, project memory
+- `skills/sp-planner-role/SKILL.md` — Planner role
+- `skills/sp-generator-role/SKILL.md` — Generator role
+- `skills/sp-evaluator-role/SKILL.md` — Evaluator role
 
-Templates include `{PROJECT_CONTEXT}` slots filled during init-project.
+They are plugin-distributed automatically. There are no
+`.claude/agents/sp-*.md` files to manage.
 
-To regenerate or reconfigure after init: use `sp-harness:switch-dev-mode`.
+To switch dev_mode (single-agent vs three-agent), use
+`sp-harness:switch-dev-mode`.

@@ -32,7 +32,6 @@ AUDITED_FILES = [
     "skills/feature-tracker/SKILL.md",
     "skills/switch-dev-mode/SKILL.md",
     "skills/finishing-a-development-branch/SKILL.md",
-    "skills/three-agent-development/SKILL.md",
     "skills/sp-planner-role/SKILL.md",
     "skills/sp-evaluator-role/SKILL.md",
     "skills/brainstorming/SKILL.md",
