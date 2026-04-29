@@ -14,6 +14,23 @@
 > X`). v0.8.16 picks up the changelog narrative at the next
 > meaningful inflection point.
 
+## Unreleased
+
+- **framework-check Cat 4 (Agent templates) retired.** The category
+  detected drift in per-project `.claude/agents/sp-*.md` files, but
+  the orchestrator refactor eliminated those files (orchestrator
+  skills now dispatch role skills in-process; `switch-dev-mode` no
+  longer copies templates). Cat 4's check body, three Critical Fix
+  Paths entries (configurable-language rule, decision touch-point
+  protocol marker, agent template drift), and the `[4/9] Agent
+  templates` example block in the report template are deleted. The
+  report template's `[4/9]` slot is now a one-line stub
+  `[4/9] (slot retired — see CHANGELOG)` to keep the gap explicit
+  for readers of historical reports. Numbering of remaining
+  categories (1, 2, 3, 5, 6, 7, 8, 9) is unchanged. Frontmatter
+  description corrected from a stale `Runs 7 check categories` to
+  `Runs 8`, and `## Check Categories (9)` updated to `(8)`.
+
 ## v0.8.23 (2026-04-29)
 
 Single-patch release: lock the Plan summary format and ban macOS
