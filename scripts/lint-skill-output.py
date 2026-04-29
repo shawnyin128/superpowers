@@ -28,6 +28,9 @@ Rules:
       `F\\d+\\+F\\d+(...)+`, `v\\d+\\.\\d+\\.\\d+` used as a label.
       Same 8-char-look-ahead rule as R1. Inline disable:
       `<!-- lint:disable=R5 -->` on the line above.
+  R6  Fancy/curly quotes (U+201C, U+201D, U+2018, U+2019) inside fence
+      blocks. ASCII `"` and `'` only. macOS smart-quote autocorrect leak
+      guard. Inline disable: `<!-- lint:disable=R6 -->` on the line above.
 
 Schema check (always runs unless --no-schema-check):
   Every entry in .claude/features.json and .claude/todos.json must have
@@ -302,6 +305,34 @@ def check_r5(block: Block) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# Rule R6: fancy/curly quotes
+# ---------------------------------------------------------------------------
+
+# U+201C LEFT DOUBLE QUOTATION MARK
+# U+201D RIGHT DOUBLE QUOTATION MARK
+# U+2018 LEFT SINGLE QUOTATION MARK
+# U+2019 RIGHT SINGLE QUOTATION MARK
+_FANCY_QUOTE_RE = re.compile(r"[‘’“”]")
+
+
+def check_r6(block: Block) -> list[str]:
+    """Flag fancy/curly quotes inside fence blocks."""
+    fails: list[str] = []
+    for offset, line in enumerate(block.lines):
+        prev = block.lines[offset - 1] if offset > 0 else None
+        if _line_has_disable(prev, "R6"):
+            continue
+        for m in _FANCY_QUOTE_RE.finditer(line):
+            line_no = block.start_line + 1 + offset
+            ch = m.group(0)
+            fails.append(
+                f"{block.file}:{line_no}: [R6] fancy/curly quote "
+                f"{ch!r} (U+{ord(ch):04X}) — use ASCII \" or '"
+            )
+    return fails
+
+
+# ---------------------------------------------------------------------------
 # Schema validation
 # ---------------------------------------------------------------------------
 
@@ -365,6 +396,7 @@ def lint_files(
             file_warns.extend(check_r3(block))
             file_fails.extend(check_r4(block))
             file_fails.extend(check_r5(block))
+            file_fails.extend(check_r6(block))
         if not check and not quiet and not file_fails and not file_warns:
             print(f"PASS {file}")
         all_fails.extend(file_fails)

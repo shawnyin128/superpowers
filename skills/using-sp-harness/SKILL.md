@@ -78,6 +78,11 @@ inline. Specific-pattern self-check rules work; generic
 - If a match has no gloss, rewrite that sentence so the gloss is inline.
 - First occurrences always get glossed; re-mentions in the same
   paragraph may omit re-gloss when the meaning is fresh.
+- Also scan for fancy/curly quotes (U+201C, U+201D, U+2018, U+2019).
+  These leak in via macOS smart-quote autocorrect when the chat
+  language is Chinese or Japanese. Replace every occurrence with
+  ASCII `"` or `'` before emitting. There is no exception — fancy
+  quotes never belong in user-facing chat output.
 ```
 
 ```worked-example

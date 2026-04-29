@@ -111,6 +111,11 @@ final report, sp-feedback's findings list) follow these rules:
 - Asking the user to confirm without saying what would happen if they
   said no.
 - Confidence numbers without a reason.
+- Fancy/curly quotes (U+201C, U+201D, U+2018, U+2019) in any
+  touch-point output. Use ASCII `"` and `'`. macOS smart-quote
+  autocorrect is the typical leak source — agents must reverse it
+  before emitting. Static guard: `lint-skill-output.py` rule R6
+  scans output-template fences for these characters.
 
 ## Compliance marker
 
