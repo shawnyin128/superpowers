@@ -18,32 +18,35 @@ is wrong — a bug, a missing feature, an agent that behaves poorly, a
 performance issue. Instead of describing it informally, invoke this skill to
 get structured diagnosis and routed fixes.
 
-## Step 1: Verify sp-feedback exists
-
-Check `.claude/agents/sp-feedback.md` exists. If not, tell the user to run
-`init-project` first to generate the feedback agent.
-
-## Step 2: Capture user observation
+## Step 1: Capture user observation
 
 Ask the user (if not already stated in the invocation):
 
 > "What did you observe? Describe the problem briefly."
 
-## Step 3: Dispatch sp-feedback in Mode B
+## Step 2: Dispatch sp-feedback-role in Mode B
 
-Invoke `@agent sp-feedback` with:
-- The user's observation
-- Mode flag: `"mode": "B"`
-- The orchestrator is YOU (the main session)
+Dispatch a fresh general-purpose subagent that invokes the
+sp-feedback-role skill. Follow the canonical "Subagent Dispatch Contract" section in `${CLAUDE_PLUGIN_ROOT}/skills/three-agent-development/SKILL.md` — same shape, same retry-with-stronger-prompt protocol, same BLOCKED escalation.
 
-sp-feedback will:
+```
+Agent(
+  subagent_type='general-purpose',
+  prompt=<canonical dispatch prompt with role='Feedback (Mode B)' and
+          target skill 'sp-harness:sp-feedback-role'; pass mode='B' and
+          the user's observation as part of the role-specific extras>
+)
+```
+
+The role skill (sp-harness:sp-feedback-role) owns the per-mode
+behavior:
 1. Ask clarifying questions one at a time (what/when/expected/reproducible)
 2. Run scoped checklist review based on the user's complaint
 3. Auto-execute memory operations (no user gate)
 4. Write `.claude/agents/state/active/feedback-actions.json`
 5. Present findings grouped by action type
 
-## Step 4: Review auto-executed memory ops
+## Step 3: Review auto-executed memory ops
 
 sp-feedback has already executed `memory_update` and `memory_compact` actions
 before returning. Read the results from `.claude/agents/state/active/memory-ops-log.json`
@@ -58,7 +61,7 @@ Auto-executed memory operations:
 This is FYI only — no confirmation needed. Agents decide via structured
 checklists. Details auditable in memory-ops-log.json.
 
-## Step 5: Per-batch confirmation (HARD-GATE for remaining actions)
+## Step 4: Per-batch confirmation (HARD-GATE for remaining actions)
 
 For actions that require user input (`new_todo`, `fix_feature`, `manual`):
 
@@ -68,7 +71,7 @@ For actions that require user input (`new_todo`, `fix_feature`, `manual`):
 
 Wait for confirmation per batch before applying.
 
-## Step 6: Execute approved actions
+## Step 5: Execute approved actions
 
 For confirmed batches:
 
@@ -87,7 +90,7 @@ For confirmed batches:
   feature-tracker on next loop.
 - **manual**: print to user, no automated action.
 
-## Step 7: Update calibration log
+## Step 6: Update calibration log
 
 For each finding in feedback-actions.json, update the matching entry in
 `.claude/sp-feedback-calibration.json` `findings_history`:
