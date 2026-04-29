@@ -301,7 +301,10 @@ If ANY check fails, rewrite before emitting.
   5. No fancy/curly quotes (U+201C, U+201D, U+2018, U+2019). Use
      ASCII `"` and `'`. macOS smart-quote autocorrect is the typical
      leak source — reverse it before emitting.
-  6. Apply the runtime self-check from `using-sp-harness/SKILL.md`
+  6. Re-read each option line aloud as if to a colleague unfamiliar
+     with the project. If you would stumble or they would ask "what
+     does that mean," rewrite before emitting. Apply the
+     specific-pattern self-check from `using-sp-harness/SKILL.md`
      "Output prose self-check": every first-occurrence short code is
      glossed inline, no fancy quotes, language pin honored.
 
