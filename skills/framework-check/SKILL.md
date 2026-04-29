@@ -675,53 +675,6 @@ DO NOT downgrade to manual.
 
 After patch, re-check 80-line cap.
 
-### Agent files missing configurable-language rule (v0.8.10+, 🔴 FORCE UPDATE, auto)
-
-For each existing `.claude/agents/sp-*.md` that lacks the rule (markers
-all three required: `sp-harness.json`, `language`, `code-mixing`):
-
-- Locate the file's `## Rules` section.
-- If an old v0.8.7 rule is present (matches `match the user's language`
-  + `code-mixing` but NOT `sp-harness.json`), DELETE the old rule and
-  replace with the canonical form below.
-- Otherwise append a new numbered rule continuing the existing numbering.
-- Wording by file:
-
-  - sp-planner.md / sp-evaluator.md / sp-feedback.md:
-    `N. Inline chat output: at session start, read .claude/sp-harness.json field language. If match-input (default), reply in the user's input language each turn; if a specific code (en, zh, ...), pin replies to that language regardless of input. Either way: no code-mixing; identifiers (paths/commands/field names/product names) stay in original. Files / commits / docs / plan YAML always English regardless.`
-
-  - sp-generator.md (no terminal output):
-    `N. Files / commits / plan YAML always English regardless of any chat language. (Generator has no terminal output, so the inline-chat half of the language rule does not apply here.)`
-
-If a file lacks a `## Rules` section entirely (drift), prefer full
-template regeneration via `needs-confirm` (since drift this severe
-suggests other issues). This is the ONE case where it's not pure-auto —
-because regenerating the full file destroys hand customization, which
-needs user awareness. The other cases (Rules section exists but rule
-missing or stale) are pure-auto force-update.
-
-### Agent files missing decision touch-point protocol marker (v0.8.11+, 🔴 FORCE UPDATE, auto)
-
-For each existing `.claude/agents/sp-*.md` (except `sp-generator.md`)
-that lacks the literal string `decision-touchpoint-protocol`:
-
-- Locate the file's `## Rules` section.
-- Append a new numbered rule continuing the existing numbering. Same
-  wording for all three deployed agents:
-
-  `N. Every decision touch-point follows ${CLAUDE_PLUGIN_ROOT}/docs/decision-touchpoint-protocol.md. For open decisions: Background / What it controls / My pick / Options must each be present in plain language; bare spec IDs (D1, F1, Option B, step 3) without an in-sentence translation are forbidden; option lines must be one full sentence of consequence, never just labels.`
-
-If a file lacks a `## Rules` section entirely → fall back to full
-template regeneration via `needs-confirm` (same reasoning as the
-language rule). Otherwise this is purely additive — no hand
-customization is destroyed, so pure-auto.
-
-### Agent template drift
-Read `${CLAUDE_PLUGIN_ROOT}/agent-templates/{name}.md`, fill
-`{PROJECT_NAME}` and `{PROJECT_CONTEXT}` from CLAUDE.md, overwrite
-deployed file. Warn about lost customization. Alternative: user invokes
-`sp-harness:switch-dev-mode` directly.
-
 ### Legacy `.claude/mem/*.md` files
 Print content, suggest migration targets, then delete after user consent.
 
