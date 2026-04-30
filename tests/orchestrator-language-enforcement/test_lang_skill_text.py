@@ -1,9 +1,12 @@
 """Markdown-grep regression for the orchestrator-language-enforcement feature.
 
 Three orchestrator SKILLs must each contain the "Session language"
-directive that mirrors the subagent-template language rule. sp-feedback
-Mode A must contain a checklist line that flags language drift.
-Version-frontmatter assertions guard against silent downgrade.
+directive that mirrors the role-skill language rule. The sp-feedback
+role skill's Mode A must contain a checklist line that flags language
+drift. Version-frontmatter assertions guard against silent downgrade.
+
+Note: agent-templates/ was retired in retire-init-project-agent-files;
+the canonical sp-feedback body now lives at skills/sp-feedback-role/SKILL.md.
 """
 
 from pathlib import Path
@@ -16,7 +19,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 TRACKER = REPO_ROOT / "skills" / "feature-tracker" / "SKILL.md"
 SINGLE_AGENT = REPO_ROOT / "skills" / "single-agent-development" / "SKILL.md"
 THREE_AGENT = REPO_ROOT / "skills" / "three-agent-development" / "SKILL.md"
-SP_FEEDBACK = REPO_ROOT / "agent-templates" / "sp-feedback.md"
+SP_FEEDBACK_ROLE = REPO_ROOT / "skills" / "sp-feedback-role" / "SKILL.md"
 
 
 @pytest.fixture(scope="module")
@@ -36,7 +39,7 @@ def three_agent_text() -> str:
 
 @pytest.fixture(scope="module")
 def sp_feedback_text() -> str:
-    return SP_FEEDBACK.read_text(encoding="utf-8")
+    return SP_FEEDBACK_ROLE.read_text(encoding="utf-8")
 
 
 # --- "Session language" directive across the three orchestrator SKILLs -------
@@ -76,9 +79,9 @@ def test_sp_feedback_mode_a_has_language_check(sp_feedback_text: str) -> None:
     is automatically flagged for follow-up. Pin the exact section heading
     so removing the new dimension fails this test loudly — the previous
     version of this assertion passed vacuously off pre-existing
-    'language' / 'orchestrator' mentions elsewhere in the template."""
+    'language' / 'orchestrator' mentions elsewhere in the role skill."""
     assert "### 8. Language compliance" in sp_feedback_text, (
-        "agent-templates/sp-feedback.md must contain the literal heading "
+        "skills/sp-feedback-role/SKILL.md must contain the literal heading "
         "'### 8. Language compliance' for the Mode A checklist's "
         "orchestrator-output drift dimension."
     )
