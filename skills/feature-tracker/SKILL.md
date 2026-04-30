@@ -340,12 +340,30 @@ Rules:
      All features complete. .claude/features.json shows X/X passing.
      Dispatching sp-feedback (Mode A) for system-level review.
      ```
-     Dispatch `@agent sp-feedback` with `"mode": "A"`. This is the only exit
-     from the loop. sp-feedback runs the structured checklist, writes
-     `.claude/agents/state/active/feedback-actions.json`, and presents findings
-     grouped by action type. You (orchestrator) then handle per-batch
-     user confirmation and action execution (see sp-feedback's definition
-     for the protocol).
+     Dispatch a fresh general-purpose subagent that invokes the
+     sp-feedback-role skill in Mode A. Follow the canonical "Subagent
+     Dispatch Contract" section in
+     `${CLAUDE_PLUGIN_ROOT}/skills/three-agent-development/SKILL.md` —
+     same shape, same retry-with-stronger-prompt protocol, same
+     BLOCKED escalation.
+
+     ```
+     Agent(
+       subagent_type='general-purpose',
+       prompt=<canonical dispatch prompt with role='Feedback (Mode A)'
+               and target skill 'sp-harness:sp-feedback-role'; pass
+               mode='A' and the role-specific extras: the
+               all-features-pass count X and the literal trigger
+               string 'feature-tracker ALL-PASS exit (X/X)'>
+     )
+     ```
+
+     This is the only exit from the loop. sp-feedback-role runs the
+     structured checklist, writes
+     `.claude/agents/state/active/feedback-actions.json`, and presents
+     findings grouped by action type. You (orchestrator) then handle
+     per-batch user confirmation and action execution (see
+     sp-feedback-role for the protocol).
 
      **If sp-feedback results in new_todo or fix_feature actions** that
      the user approves → append to features.json and re-enter the loop
