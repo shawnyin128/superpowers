@@ -358,6 +358,12 @@ Rules:
      )
      ```
 
+     The dispatched subagent's first action MUST be
+     `Skill(sp-harness:sp-feedback-role)`. If it skips that, follow the
+     retry-with-stronger-prompt and BLOCKED-escalation rules in the
+     canonical Subagent Dispatch Contract — do not duplicate the
+     protocol body here.
+
      This is the only exit from the loop. sp-feedback-role runs the
      structured checklist, writes
      `.claude/agents/state/active/feedback-actions.json`, and presents
